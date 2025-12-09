@@ -8,7 +8,7 @@ let
   inherit (inputs.nixpkgs) lib;
   customLib = import (self.outPath + "/lib") { inherit lib; };
 
-  ARM = "aarch64-linux";
+  # ARM = "aarch64-linux";
   X86 = "x86_64-linux";
 
   ## Host Config ##
@@ -21,7 +21,8 @@ let
     hostName: isARM:
     let
       folder = if isARM then "arm" else "x86";
-      system = if isARM then ARM else X86;
+      # system = if isARM then ARM else X86;
+      system = X86;
 
       # Import and evaluate the data modules to extract configuration
       pkgs = import inputs.nixpkgs { inherit system; };
@@ -87,6 +88,5 @@ let
     lib.foldl (acc: set: acc // set) { } (lib.map (hostName: mkHost hostName isARM) hosts);
 in
 {
-  flake.nixosConfigurations =
-    (mkHostConfigs (readHosts "x86") false) // (mkHostConfigs (readHosts "arm") true);
+  flake.nixosConfigurations = (mkHostConfigs (readHosts "x86") false);
 }

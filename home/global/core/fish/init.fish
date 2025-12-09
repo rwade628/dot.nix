@@ -6,6 +6,8 @@ function fish_greeting
     end
 end
 
+mise activate fish | source
+
 ## Aliases and Overrides ##
 
 function ls
@@ -15,6 +17,16 @@ end
 function s
     ssh $argv
 end
+
+alias k="kubectl"
+
+# Git Aliases
+alias ga="git add"
+alias gd="git diff"
+alias gst="git status"
+alias gl="git pull"
+alias gp="git push"
+alias gc="git commit"
 
 # Copy competitions
 complete -c ls --wraps eza

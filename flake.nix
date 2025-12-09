@@ -37,6 +37,12 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # Global catppuccin theme
+    catppuccin = {
+      url = "github:catppuccin/nix";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     ## Gaming Packages ##
 
     nix-gaming = {
@@ -57,6 +63,19 @@
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake/beta";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    # Declarative flatpak manager
+    nix-flatpak = {
+      url = "github:gmodena/nix-flatpak?ref=v0.6.0";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    ## Plasma ##
+    plasma-manager = {
+      url = "github:nix-community/plasma-manager";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.home-manager.follows = "home-manager";
     };
 
     ## NIRI ##

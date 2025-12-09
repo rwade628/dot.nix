@@ -80,6 +80,7 @@ in
       root.home.stateVersion = "25.11";
       ${user.name} = {
         imports = [
+          inputs.catppuccin.homeModules.catppuccin
           (
             { config, ... }:
             import

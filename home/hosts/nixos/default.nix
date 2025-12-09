@@ -9,7 +9,6 @@
     (map lib.custom.relativeToRoot [
       "home/global/common/gaming"
       "home/global/common/xdg.nix"
-      "home/global/common/zen.nix"
     ])
 
     ## NixOS Specific ##
@@ -56,6 +55,7 @@
 
       # utils
       ripgrep # recursively searches directories for a regex pattern
+      fd
       jq # A lightweight and flexible command-line JSON processor
       yq-go # yaml processor https://github.com/mikefarah/yq
       eza # A modern replacement for ‘ls’

@@ -4,7 +4,7 @@
     enable = true;
     enableFishIntegration = true;
     settings = {
-      theme = "stylix";
+      # theme = "stylix";
       font-family = "monospace";
       font-size = "11";
       background-opacity = "0.85";

@@ -39,19 +39,6 @@ in
     # preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
   };
 
-  # xdg = {
-  #   enable = true;
-  #   userDirs = {
-  #     enable = true;
-  #     createDirectories = true;
-  #     extraConfig = {
-  #       # publicshare and templates defined as null here instead of as options because
-  #       XDG_PUBLICSHARE_DIR = "/var/empty";
-  #       XDG_TEMPLATES_DIR = "/var/empty";
-  #     };
-  #   };
-  # };
-
   # Core pkgs with no configs
   home.packages = builtins.attrValues {
     inherit (pkgs)
@@ -66,6 +53,7 @@ in
       unzip # zip extraction
       zip # zip compression
       fzf
+      vlc
       ;
   };
 
@@ -119,5 +107,11 @@ in
   #   };
 
   # Nicely reload system units when changing configs
-  # systemd.user.startServices = "sd-switch";
+  systemd.user.startServices = "sd-switch";
+
+  # Catpuccin flavor and accent
+  catppuccin = {
+    flavor = "macchiato";
+    accent = "lavender";
+  };
 }

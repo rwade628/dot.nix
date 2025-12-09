@@ -8,12 +8,30 @@
 }:
 {
   # Enable the X11 windowing system.
-  # You can disable this if you're only using the Wayland session.
-  services.xserver.enable = true;
+  services.xserver = {
+    enable = true;
+    # figure out which monitor is active and tell SDDM to use that monitor
+    # displayManager = {
+    #   setupCommands = ''
+    #     intern=HDMI-A-1
+    #     extern=DP-1
+    #
+    #     if ${pkgs.xorg.xrandr}/bin/xrandr | ${pkgs.gnugrep}/bin/grep "$extern disconnected"; then
+    #         ${pkgs.xorg.xrandr}/bin/xrandr --output "$extern" --off --output "$intern" --auto
+    #     else
+    #         ${pkgs.xorg.xrandr}/bin/xrandr --output "$intern" --off --output "$extern" --auto
+    #     fi
+    #   '';
+    # };
+  };
 
   # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
+  services.displayManager.sddm = {
+    enable = true;
+    enableHidpi = true;
+    settings.Theme.CursorTheme = "Yaru";
+    wayland.enable = true;
+  };
   services.desktopManager.plasma6.enable = true;
 
   environment.systemPackages = with pkgs; [
@@ -43,9 +61,15 @@
 
     # Applications
     eloquent # Spell checker
+    glib
+    gnumake
+    mesa
+    swayidle
   ];
 
   programs.firefox.enable = true;
+
+  programs.xwayland.enable = true;
 
   # Enable pipewire for audio
   services.pipewire = {
@@ -88,16 +112,16 @@
   # services.gnome.gnome-keyring.enable = true;
 
   # Environment variables for Wayland
-  # environment.sessionVariables = {
-  #   NIXOS_OZONE_WL = "1"; # For Electron apps
-  #   MOZ_ENABLE_WAYLAND = "1"; # Firefox Wayland
-  #   QT_QPA_PLATFORM = "wayland"; # QT apps
-  #   SDL_VIDEODRIVER = "wayland"; # SDL apps
-  #   _JAVA_AWT_WM_NONREPARENTING = "1"; # Java apps
-  # };
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1"; # For Electron apps
+    XCURSOR_SIZE = "24"; # Cursor size
+    MOZ_ENABLE_WAYLAND = "1"; # Firefox Wayland
+  };
 
   # Enable location services for night light
-  # services.geoclue2.enable = true;
+  services.geoclue2.enable = true;
+
+  services.flatpak.enable = true;
 
   # services.logind.settings.Login = {
   #   HandleLidSwitch = "suspend";

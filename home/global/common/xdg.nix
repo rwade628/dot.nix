@@ -138,13 +138,19 @@ in
   # # Enables app shortcuts
   # targets.genericLinux.enable = true;
   #
-  # xdg = {
-  #   mime.enable = true;
-  #   mimeApps.enable = true;
-  #   mimeApps.defaultApplications = associations;
-  #   mimeApps.associations.added = associations;
-  #   systemDirs.data = [ "${config.home.homeDirectory}/.nix-profile/share/applications" ];
-  # };
+  xdg = {
+    enable = true;
+
+    # mime.enable = true;
+    mimeApps.enable = true;
+    mimeApps.defaultApplications = associations;
+    mimeApps.associations.added = associations;
+    userDirs = {
+      enable = true;
+      createDirectories = true;
+    };
+    # systemDirs.data = [ "${config.home.homeDirectory}/.nix-profile/share/applications" ];
+  };
   #
   # home.packages = builtins.attrValues {
   #   inherit (pkgs)

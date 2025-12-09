@@ -18,6 +18,7 @@
       "modules/global"
       "modules/nixos"
     ])
+    inputs.catppuccin.nixosModules.catppuccin
 
     # Desktop environment (if enabled)
     (lib.optional (host.niri or false || host.plasma or false) (
@@ -42,6 +43,10 @@
     wget
     yazi
   ];
+
+  environment.localBinInPath = true;
+
+  services.devmon.enable = true;
 
   # Enable print to PDF.
   services.printing.enable = true;

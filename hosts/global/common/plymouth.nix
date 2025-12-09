@@ -1,16 +1,17 @@
 { lib, pkgs, ... }:
 {
-  environment.systemPackages = [ pkgs.adi1090x-plymouth-themes ];
+  # environment.systemPackages = [ pkgs.adi1090x-plymouth-themes ];
   boot = {
     kernelParams = [
       "quiet" # shut up kernel output prior to prompts
+      "splash"
     ];
     plymouth = {
       enable = true;
-      theme = lib.mkForce "motion";
-      themePackages = [
-        (pkgs.adi1090x-plymouth-themes.override { selected_themes = [ "motion" ]; })
-      ];
+      # theme = lib.mkForce "motion";
+      # themePackages = [
+      #   (pkgs.adi1090x-plymouth-themes.override { selected_themes = [ "motion" ]; })
+      # ];
     };
     consoleLogLevel = 0;
   };

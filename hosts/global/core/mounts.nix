@@ -2,23 +2,6 @@
 {
   ...
 }:
-# Helper function to generate mount configuration
-# mkNfsMount = name: cfg: {
-#   mount = {
-#     enable = true;
-#     what = "${cfg.server}:${cfg.path}";
-#     where = cfg.localPath;
-#     type = "nfs";
-#     options = "nfsvers=4.2,noatime,soft,intr";
-#     after = [ "network-online.target" ];
-#     wants = [ "network-online.target" ];
-#     unitConfig = {
-#       TimeoutSec = "10";
-#     };
-#     mountConfig = {
-#       TimeoutSec = "10";
-#     };
-#   };
 {
   # Ensure NFS client support
   boot.supportedFilesystems = [ "nfs" ];

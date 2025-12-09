@@ -25,20 +25,21 @@
       # nerdfonts
       nerd-fonts.fira-code
       nerd-fonts.symbols-only
+      nerd-fonts.meslo-lg
     ];
 
     # causes more issues than it solves
     enableDefaultPackages = false;
 
     # user defined fonts
-    fontconfig = {
-      enable = true;
-      defaultFonts = {
-        serif = [ "Laila" ];
-        sansSerif = [ "Lexend" ];
-        monospace = [ "Jetbrains" ];
-        emoji = [ "Noto Color Emoji" ];
-      };
-    };
+    # fontconfig = {
+    #   enable = true;
+    #   defaultFonts = {
+    #     serif = [ "Laila" ];
+    #     sansSerif = [ "Lexend" ];
+    #     monospace = [ "JetBrainsMono" ];
+    #     emoji = [ "Noto Color Emoji" ];
+    #   };
+    # };
   };
 }

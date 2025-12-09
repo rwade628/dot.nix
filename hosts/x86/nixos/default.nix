@@ -30,7 +30,7 @@
       "hosts/global/common/audio.nix" # pipewire and cli controls
       "hosts/global/common/ddcutil.nix" # ddcutil for monitor controls
       "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
-      # "hosts/global/common/plymouth.nix" # fancy boot screen
+      "hosts/global/common/plymouth.nix" # fancy boot screen
       "hosts/global/common/gaming" # steam, gamescope, gamemode, and related hardware
     ])
   ];
