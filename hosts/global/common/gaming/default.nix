@@ -13,6 +13,7 @@
 
   environment.systemPackages = with pkgs; [
     heroic
+    vulkan-hdr-layer-kwin6
   ];
 
 }
