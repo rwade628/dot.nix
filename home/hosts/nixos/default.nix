@@ -9,6 +9,7 @@
     (map lib.custom.relativeToRoot [
       "home/global/common/gaming"
       "home/global/common/xdg.nix"
+      "home/global/common/chromium.nix"
     ])
 
     ## NixOS Specific ##

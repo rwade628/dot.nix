@@ -124,6 +124,16 @@
         key = "Meta+Shift+T";
         command = "kde_switch_tv";
       };
+      xorg-switch-to-monitor = {
+        name = "Xorg Switch to Monitor";
+        key = "Meta+Ctrl+M";
+        command = "xorg_switch_monitor";
+      };
+      xorg-switch-to-tv = {
+        name = "Xorg Switch to TV";
+        key = "Meta+Ctrl+T";
+        command = "xorg_switch_tv";
+      };
       screenshot-region = {
         name = "Capture a rectangular region of the screen";
         key = "Meta+Shift+S";
@@ -219,6 +229,7 @@
         lengthMode = "fill";
         location = "bottom";
         hiding = "autohide";
+        screen = "all";
         widgets = [
           "org.kde.plasma.kickoff"
           "org.kde.plasma.pager"

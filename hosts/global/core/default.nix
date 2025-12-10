@@ -42,6 +42,7 @@
     superfile
     wget
     yazi
+    wineWowPackages.stableFull
   ];
 
   environment.localBinInPath = true;
