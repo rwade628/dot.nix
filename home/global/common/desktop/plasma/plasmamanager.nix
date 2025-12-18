@@ -4,6 +4,24 @@
   pkgs,
   ...
 }:
+let
+  kscreenDoctor = "${pkgs.kdePackages.libkscreen}/bin/kscreen-doctor";
+
+  # Script to make HDMI the primary/enabled monitor and disable DP
+  enableHDMI = pkgs.writeShellScript "enable-hdmi-primary" ''
+    # Enable HDMI-A-1, set it as primary, and disable DP-1
+    # Note: Setting primary might require enabling first.
+    ${kscreenDoctor} output.HDMI-A-1.enable output.DP-1.disable
+    ${kscreenDoctor} output.HDMI-A-1.primary
+  '';
+
+  # Script to make DP the primary/enabled monitor and disable HDMI
+  enableDP = pkgs.writeShellScript "enable-dp-primary" ''
+    # Enable DP-1, set it as primary, and disable HDMI-A-1
+    ${kscreenDoctor} output.DP-1.enable output.HDMI-A-1.disable
+    ${kscreenDoctor} output.DP-1.primary
+  '';
+in
 {
   imports = [
     inputs.plasma-manager.homeManagerModules.plasma-manager
@@ -117,22 +135,12 @@
       switch-to-monitor = {
         name = "Switch to Monitor";
         key = "Meta+Shift+M";
-        command = "kde_switch_monitor";
+        command = "${pkgs.kdePackages.libkscreen}/bin/kscreen-doctor output.DP-1.enable output.HDMI-A-1.disable";
       };
       switch-to-tv = {
         name = "Switch to TV";
         key = "Meta+Shift+T";
-        command = "kde_switch_tv";
-      };
-      xorg-switch-to-monitor = {
-        name = "Xorg Switch to Monitor";
-        key = "Meta+Ctrl+M";
-        command = "xorg_switch_monitor";
-      };
-      xorg-switch-to-tv = {
-        name = "Xorg Switch to TV";
-        key = "Meta+Ctrl+T";
-        command = "xorg_switch_tv";
+        command = "${pkgs.kdePackages.libkscreen}/bin/kscreen-doctor output.DP-1.disable output.HDMI-A-1.enable";
       };
       screenshot-region = {
         name = "Capture a rectangular region of the screen";
@@ -340,6 +348,20 @@
       };
 
       "services/org.kde.dolphin.desktop"."_launch" = "Meta+Shift+F";
+
+      # "kglobalaccel/org/kde/kwin/globalshortcuts" = {
+      #   "EnableHDMIPrimary" = [
+      #     "Command=${pkgs.kdePackages.libkscreen}/bin/kscreen-doctor output.DP-1.disable output.HDMI-A-1.enable"
+      #     "Shortcuts=Meta+Shift+T" # Must be a single string for simple keys
+      #     "Comment=Set HDMI-A-1 as the primary monitor."
+      #   ];
+      #   "EnableDPPrimary" = [
+      #     "Command=${pkgs.kdePackages.libkscreen}/bin/kscreen-doctor output.DP-1.enable output.HDMI-A-1.disable"
+      #     "Shortcuts=Meta+Shift+M" # Must be a single string
+      #     "Comment=Set DP-1 as the primary monitor."
+      #   ];
+      # };
+
     };
 
     # spectacle = {

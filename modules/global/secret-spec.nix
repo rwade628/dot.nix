@@ -27,6 +27,10 @@
               type = lib.types.str;
               description = "Full name of the user";
             };
+            hassToken = lib.mkOption {
+              type = lib.types.str;
+              description = "Home Assistant long-lived access token for the user";
+            };
 
             ## SSH configuration ##
             ssh = lib.mkOption {

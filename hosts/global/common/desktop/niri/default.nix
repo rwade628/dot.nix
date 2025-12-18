@@ -4,6 +4,7 @@
   host,
   lib,
   pkgs,
+  secrets,
   ...
 }:
 {
@@ -104,6 +105,11 @@
     QT_QPA_PLATFORM = "wayland"; # QT apps
     SDL_VIDEODRIVER = "wayland"; # SDL apps
     _JAVA_AWT_WM_NONREPARENTING = "1"; # Java apps
+  };
+
+  environment.variables = {
+    HASS_SERVER = "https://hass.casadewade.com";
+    HASS_TOKEN = secrets.users.${host.user.name}.hassToken;
   };
 
   # Enable location services for night light

@@ -42,7 +42,8 @@
     superfile
     wget
     yazi
-    wineWowPackages.stableFull
+    wineWowPackages.full
+    winetricks
   ];
 
   environment.localBinInPath = true;
