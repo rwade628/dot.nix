@@ -4,11 +4,6 @@
   inputs,
   ...
 }:
-
-let
-  proton-cachyos = inputs.chaotic.legacyPackages.${pkgs.system}.proton-cachyos;
-  proton-ge-custom = inputs.chaotic.legacyPackages.${pkgs.system}.proton-ge-custom;
-in
 {
 
   programs.steam = {
@@ -41,12 +36,14 @@ in
           libvorbis
           mangohud
         ];
+      extraEnv = {
+        TZ = "EST5EDT";
+        # TZ = "America/New_York";
+        TZDIR = "/usr/share/zoneinfo";
+      };
+      extraProfile = ''
+        unset TZ
+      '';
     };
-
-    # Use the combined list of default + user extras
-    extraCompatPackages = with pkgs; [
-      proton-cachyos
-      proton-ge-custom
-    ];
   };
 }

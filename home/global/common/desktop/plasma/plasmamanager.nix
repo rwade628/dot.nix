@@ -260,7 +260,6 @@ in
                   "org.kde.plasma.devicenotifier"
                   "org.kde.plasma.mediacontroller"
                   "plasmashell_microphone"
-                  "zoom"
                 ];
                 configs = {
                   "org.kde.plasma.notifications".config = {

@@ -13,7 +13,7 @@
     ])
 
     ## NixOS Specific ##
-    ./config
+    # ./config
   ];
 
   ## Packages with no needed configs ##

@@ -15,6 +15,7 @@
     heroic
     vulkan-hdr-layer-kwin6
     umu-launcher
+    quickemu
   ];
 
 }

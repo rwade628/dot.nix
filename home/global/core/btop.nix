@@ -3,7 +3,7 @@
   programs.btop = {
     enable = true;
     settings = {
-      color_theme = "stylix";
+      # color_theme = "stylix";
       theme_background = false;
     };
   };

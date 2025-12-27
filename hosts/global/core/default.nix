@@ -77,6 +77,7 @@
   i18n.defaultLocale = lib.mkDefault "en_US.UTF-8";
   time.timeZone = lib.mkDefault "America/New_York";
   networking.timeServers = [ "pool.ntp.org" ];
+  environment.sessionVariables.TZ = config.time.timeZone;
 
   ## Nix Helper ##
   programs.nh = {
