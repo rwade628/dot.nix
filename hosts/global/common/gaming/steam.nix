@@ -36,11 +36,6 @@
           libvorbis
           mangohud
         ];
-      extraEnv = {
-        TZ = "EST5EDT";
-        # TZ = "America/New_York";
-        TZDIR = "/usr/share/zoneinfo";
-      };
       extraProfile = ''
         unset TZ
       '';

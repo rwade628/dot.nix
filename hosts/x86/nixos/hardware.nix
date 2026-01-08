@@ -6,6 +6,12 @@
   modulesPath,
   ...
 }:
+let
+  # Define a simple helper to generate the option string for a specific module
+  # In a real scenario, these values might come from other config options
+  moduleOptionString =
+    moduleName: options: "options ${moduleName} ${lib.concatStringsSep " " options}";
+in
 {
   imports = lib.flatten [
     (modulesPath + "/installer/scan/not-detected.nix")
@@ -13,15 +19,16 @@
 
   ## Boot ##
   boot = {
-    extraModprobeConfig =
-      "options nvidia "
-      + lib.concatStringsSep " " [
+    extraModprobeConfig = ''
+      options hid_apple fnmode=2
+
+      ${moduleOptionString "nvidia" [
         # nvidia assume that by default your CPU does not support PAT,
         "NVreg_UsePageAttributeTable=1"
         # This is sometimes needed for ddc/ci support, see
         # https://www.ddcutil.com/nvidia/
         "NVreg_RegistryDwords=RMUseSwI2c=0x01;RMI2cSpeed=100"
-      ];
+      ]}'';
     loader = {
       systemd-boot = {
         enable = true;
