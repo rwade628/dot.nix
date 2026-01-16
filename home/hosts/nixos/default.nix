@@ -22,7 +22,7 @@
       ## Media ##
       ffmpeg_8-full
       spotify
-      gpu-screen-recorder-gtk
+      # gpu-screen-recorder-gtk
       mullvad-browser
 
       ## Social ##

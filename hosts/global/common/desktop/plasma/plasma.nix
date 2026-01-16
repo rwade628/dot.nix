@@ -78,21 +78,28 @@
   users.users.${host.user.name}.extraGroups = [ "video" ];
 
   # Enable XDG desktop portal for kde
-  # xdg.portal = {
-  #   enable = true;
-  #   extraPortals = with pkgs; [
-  #     xdg-desktop-portal-gtk # For GTK file picker, etc.
-  #     kdePackages.xdg-desktop-portal-kde # For KDE apps compatibility
-  #   ];
-  #   config = {
-  #     common = {
-  #       default = [
-  #         "kde"
-  #         "gtk"
-  #       ];
-  #     };
-  #   };
-  # };
+  xdg.portal = {
+    enable = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk # For GTK file picker, etc.
+      kdePackages.xdg-desktop-portal-kde
+    ];
+    config = {
+      kde = {
+        default = [
+          "kde"
+          "gtk"
+        ];
+      };
+      # Fallback configuration for applications not running under niri
+      common = {
+        default = [
+          "kde"
+          "gtk"
+        ];
+      };
+    };
+  };
 
   # Environment variables for Wayland
   environment.sessionVariables = {

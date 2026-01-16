@@ -79,12 +79,12 @@ in
   };
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/29604a3b-d796-4e53-ae02-42f1cf46ebbf";
+    device = "/dev/disk/by-uuid/9233d70d-b002-43d2-bd14-1f1c0534ece7";
     fsType = "ext4";
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/B060-8F8E";
+    device = "/dev/disk/by-uuid/F393-EA78";
     fsType = "vfat";
     options = [
       "fmask=0077"
@@ -102,7 +102,7 @@ in
   };
 
   swapDevices = [
-    { device = "/dev/disk/by-uuid/cacbfecc-0d3d-453e-a760-aef61be1d463"; }
+    { device = "/dev/disk/by-uuid/f1e29f0a-1b77-4714-b016-8e2386ce3ea6"; }
   ];
 
   time.hardwareClockInLocalTime = true; # Fixes windows dual-boot time issues
