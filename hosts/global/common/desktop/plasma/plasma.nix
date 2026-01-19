@@ -106,7 +106,9 @@
     xdgOpenUsePortal = true;
   };
 
+  # Disable the built in portals to avoid conflicts
   systemd.user.services.xdg-desktop-portal-launch.enable = false;
+  systemd.user.services.plasma-xdg-desktop-portal-kde.enable = false;
 
   # Environment variables for Wayland
   environment.sessionVariables = {
