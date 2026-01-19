@@ -86,29 +86,18 @@
     ];
     # Explicitly set KDE as the default portal implementation
     config = {
-      # Default backend for most interfaces
-      common.default = "kde";
-      # KDE-specific interfaces
-      kde = {
-        default = [ "kde" ];
-        "org.freedesktop.impl. portal. Screencast" = [ "kde" ];
-        "org.freedesktop.impl.portal.Screenshot" = [ "kde" ];
-        "org.freedesktop. impl.portal.AppChooser" = [ "kde" ];
-        "org.freedesktop.impl.portal.Access" = [ "kde" ];
-        "org.freedesktop. impl.portal.Notification" = [ "kde" ];
-        "org.freedesktop. impl.portal.Email" = [ "kde" ];
-        "org.freedesktop. impl.portal.Print" = [ "kde" ];
-        "org.freedesktop. impl.portal.FileChooser" = [ "kde" ];
+      common = {
+        default = [
+          "kde"
+          "gtk"
+        ];
       };
-      # Fallback for non-KDE interfaces
-      other.default = "gtk";
+      # Ensure that when in a Plasma session, KDE is the only choice
+      plasma = {
+        default = [ "kde" ];
+      };
     };
-    xdgOpenUsePortal = true;
   };
-
-  # Disable the built in portals to avoid conflicts
-  systemd.user.services.xdg-desktop-portal-launch.enable = false;
-  systemd.user.services.plasma-xdg-desktop-portal-kde.enable = false;
 
   # Environment variables for Wayland
   environment.sessionVariables = {
@@ -116,6 +105,10 @@
     XCURSOR_SIZE = "24"; # Cursor size
     MOZ_ENABLE_WAYLAND = "1"; # Firefox Wayland
     XDG_CURRENT_DESKTOP = "KDE"; # Ensure KDE is recognized
+    XDG_SESSION_DESKTOP = "KDE";
+    # Force Qt apps to use the wayland-kde portal
+    QT_QPA_PLATFORM = "wayland;xcb";
+    GTK_USE_PORTAL = "1";
   };
 
   # Enable location services for night light
