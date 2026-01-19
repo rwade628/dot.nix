@@ -16,9 +16,16 @@
   services.displayManager.sddm = {
     enable = true;
     enableHidpi = true;
-    settings.Theme.CursorTheme = "Yaru";
-    wayland.enable = true;
+    settings = {
+      Theme = {
+        CursorTheme = "Yaru";
+      };
+      General = {
+        DisplayServer = "wayland";
+      };
+    };
   };
+
   services.desktopManager.plasma6.enable = true;
 
   environment.systemPackages = with pkgs; [
@@ -77,47 +84,17 @@
   # Ensure user is in video group for DDC access
   users.users.${host.user.name}.extraGroups = [ "video" ];
 
-  # Enable XDG desktop portal for kde
-  xdg.portal = {
-    enable = true;
-    xdgOpenUsePortal = true;
-    extraPortals = with pkgs; [
-      kdePackages.xdg-desktop-portal-kde
-      xdg-desktop-portal-gtk # Fallback for GTK apps
-    ];
-    # Explicitly set KDE as the default portal implementation
-    config = {
-      common = {
-        default = [
-          "kde"
-          "gtk"
-        ];
-        # Force these specific interfaces to use KDE to stop the GTK fallback
-        "org.freedesktop.impl.portal.ScreenCast" = [ "kde" ];
-        "org.freedesktop.impl.portal.Screenshot" = [ "kde" ];
-        "org.freedesktop.impl.portal.Secret" = [ "kwallet" ];
-      };
-      # Ensure that when in a Plasma session, KDE is the only choice
-      plasma = {
-        default = [ "kde" ];
-      };
-    };
-  };
-
   # Environment variables for Wayland
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1"; # For Electron apps
     XCURSOR_SIZE = "24"; # Cursor size
     MOZ_ENABLE_WAYLAND = "1"; # Firefox Wayland
-    XDG_CURRENT_DESKTOP = "KDE"; # Ensure KDE is recognized
-    XDG_SESSION_DESKTOP = "KDE";
-    # Force Qt apps to use the wayland-kde portal
-    QT_QPA_PLATFORM = "wayland;xcb";
-    GTK_USE_PORTAL = "1";
+    # XDG_CURRENT_DESKTOP = "KDE"; # Ensure KDE is recognized
+    # XDG_SESSION_DESKTOP = "KDE";
+    # # Force Qt apps to use the wayland-kde portal
+    # QT_QPA_PLATFORM = "wayland;xcb";
+    # GTK_USE_PORTAL = "1";
   };
-
-  # Enable location services for night light
-  services.geoclue2.enable = true;
 
   services.flatpak.enable = true;
 
