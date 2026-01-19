@@ -81,31 +81,39 @@
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
-      xdg-desktop-portal-gtk # For GTK file picker, etc.
       kdePackages.xdg-desktop-portal-kde
+      xdg-desktop-portal-gtk # Fallback for GTK apps
     ];
+    # Explicitly set KDE as the default portal implementation
     config = {
+      # Default backend for most interfaces
+      common.default = "kde";
+      # KDE-specific interfaces
       kde = {
-        default = [
-          "kde"
-          "gtk"
-        ];
+        default = [ "kde" ];
+        "org.freedesktop.impl. portal. Screencast" = [ "kde" ];
+        "org.freedesktop.impl.portal.Screenshot" = [ "kde" ];
+        "org.freedesktop. impl.portal.AppChooser" = [ "kde" ];
+        "org.freedesktop.impl.portal.Access" = [ "kde" ];
+        "org.freedesktop. impl.portal.Notification" = [ "kde" ];
+        "org.freedesktop. impl.portal.Email" = [ "kde" ];
+        "org.freedesktop. impl.portal.Print" = [ "kde" ];
+        "org.freedesktop. impl.portal.FileChooser" = [ "kde" ];
       };
-      # Fallback configuration for applications not running under niri
-      common = {
-        default = [
-          "kde"
-          "gtk"
-        ];
-      };
+      # Fallback for non-KDE interfaces
+      other.default = "gtk";
     };
+    xdgOpenUsePortal = true;
   };
+
+  systemd.user.services.xdg-desktop-portal-launch.enable = false;
 
   # Environment variables for Wayland
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1"; # For Electron apps
     XCURSOR_SIZE = "24"; # Cursor size
     MOZ_ENABLE_WAYLAND = "1"; # Firefox Wayland
+    XDG_CURRENT_DESKTOP = "KDE"; # Ensure KDE is recognized
   };
 
   # Enable location services for night light
