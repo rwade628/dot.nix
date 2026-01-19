@@ -80,6 +80,7 @@
   # Enable XDG desktop portal for kde
   xdg.portal = {
     enable = true;
+    xdgOpenUsePortal = true;
     extraPortals = with pkgs; [
       kdePackages.xdg-desktop-portal-kde
       xdg-desktop-portal-gtk # Fallback for GTK apps
@@ -91,6 +92,10 @@
           "kde"
           "gtk"
         ];
+        # Force these specific interfaces to use KDE to stop the GTK fallback
+        "org.freedesktop.impl.portal.ScreenCast" = [ "kde" ];
+        "org.freedesktop.impl.portal.Screenshot" = [ "kde" ];
+        "org.freedesktop.impl.portal.Secret" = [ "kwallet" ];
       };
       # Ensure that when in a Plasma session, KDE is the only choice
       plasma = {
