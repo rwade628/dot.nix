@@ -32,7 +32,7 @@ in
       flavour = [ "macchiato" ];
       accents = [ "lavender" ];
     })
-    kde-rounded-corners
+    # kde-rounded-corners
     kdePackages.kcalc
     # kdePackages.krohnkite
     kdotool
