@@ -206,6 +206,8 @@ in
         fallApart.enable = false;
         fps.enable = false;
         minimization.animation = "off";
+        hideCursor.enable = true;
+        hideCursor.hideOnInactivity = 1;
         shakeCursor.enable = false;
         slideBack.enable = false;
         snapHelper.enable = false;
@@ -228,7 +230,7 @@ in
       };
     };
 
-    overrideConfig = true;
+    overrideConfig = false;
 
     panels = [
       {
