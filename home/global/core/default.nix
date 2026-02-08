@@ -54,6 +54,9 @@ in
       zip # zip compression
       fzf
       vlc
+      opencode
+      uv
+      vllm
       ;
   };
 
