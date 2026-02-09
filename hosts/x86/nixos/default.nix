@@ -1,10 +1,3 @@
-###############################################################
-#
-#  Haze - Cesar's Desktop
-#  NixOS running on Ryzen 5 7600x, Radeon RX 7600, 32GB RAM
-#
-###############################################################
-
 {
   inputs,
   lib,
@@ -15,6 +8,7 @@
     ## NixOS Only ##
     inputs.chaotic.nixosModules.default
     ./config
+    # ./package-overrides.nix
 
     ## Hardware ##
     ./hardware.nix

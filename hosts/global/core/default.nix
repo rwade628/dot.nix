@@ -44,6 +44,8 @@
     yazi
     wineWowPackages.full
     winetricks
+    ollama
+    llama-cpp
   ];
 
   environment.localBinInPath = true;
@@ -151,6 +153,7 @@
         "https://chaotic-nyx.cachix.org"
         "https://nix-community.cachix.org"
         "https://cache.nixos-cuda.org"
+        "http://nix-cache.local:5000"
       ];
 
       trusted-public-keys = [

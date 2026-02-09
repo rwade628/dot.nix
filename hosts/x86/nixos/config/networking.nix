@@ -8,7 +8,37 @@
     firewall = {
       allowedUDPPorts = [ 9 ];
     };
+    # nameservers = [
+    #   "10.0.10.1"
+    #   "100.100.100.100"
+    # ];
   };
+
+  # services.resolved = {
+  #   enable = true;
+  #   domains = [
+  #     "~local"
+  #   ]; # Route local zones to our DNS
+  #   fallbackDns = [
+  #     "1.1.1.1"
+  #     "8.8.8.8"
+  #   ]; # Public fallback when local resolvers fail
+  #   extraConfig = ''
+  #     DNS=10.0.10.1
+  #   '';
+  # };
+
+  # Avahi for AirPrint / network discovery
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+    publish = {
+      enable = true;
+      userServices = true;
+    };
+  };
+
   systemd.network.networks."10-enp42s0" = {
     matchConfig.Name = "enp42s0";
     networkConfig = {
@@ -23,6 +53,7 @@
       { Gateway = "10.0.10.1"; }
     ];
     dns = [ "10.0.10.1" ];
+    domains = [ "~local" ];
     # make the routes on this interface a dependency for network-online.target
     linkConfig.RequiredForOnline = "routable";
   };

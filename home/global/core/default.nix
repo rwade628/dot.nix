@@ -56,7 +56,6 @@ in
       vlc
       opencode
       uv
-      vllm
       ;
   };
 
