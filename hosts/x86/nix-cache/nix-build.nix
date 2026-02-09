@@ -21,6 +21,11 @@
       "nixos-test"
     ];
 
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+
     # Keep build dependencies for faster rebuilds
     keep-outputs = true;
     keep-derivations = true;
