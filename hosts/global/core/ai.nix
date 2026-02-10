@@ -87,29 +87,29 @@
           - "embeddinggemma:300m"
   '';
 
-  # systemd.services.llama-swap = {
-  #   description = "llama-swap - OpenAI compatible proxy with automatic model swapping";
-  #   after = [ "network.target" ];
-  #   wantedBy = [ "multi-user.target" ];
-  #   serviceConfig = {
-  #     Type = "simple";
-  #     User = "basnijholt";
-  #     Group = "users";
-  #     ExecStart = "${pkgs.llama-swap}/bin/llama-swap --config /etc/llama-swap/config.yaml --listen 0.0.0.0:9292 --watch-config";
-  #     Restart = "always";
-  #     RestartSec = 10;
-  #     # Environment for CUDA support
-  #     Environment = [
-  #       "PATH=/run/current-system/sw/bin"
-  #       "LD_LIBRARY_PATH=/run/opengl-driver/lib:/run/opengl-driver-32/lib"
-  #       # llama-swap can use both GPUs (0,1), but Ollama is restricted to GPU 0
-  #     ];
-  #     # Environment needs access to cache directories for model downloads
-  #     # Simplified security settings to avoid namespace issues
-  #     PrivateTmp = true;
-  #     NoNewPrivileges = true;
-  #   };
-  # };
+  systemd.services.llama-swap = {
+    description = "llama-swap - OpenAI compatible proxy with automatic model swapping";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      User = "basnijholt";
+      Group = "users";
+      ExecStart = "${pkgs.llama-swap}/bin/llama-swap --config /etc/llama-swap/config.yaml --listen 0.0.0.0:9292 --watch-config";
+      Restart = "always";
+      RestartSec = 10;
+      # Environment for CUDA support
+      Environment = [
+        "PATH=/run/current-system/sw/bin"
+        "LD_LIBRARY_PATH=/run/opengl-driver/lib:/run/opengl-driver-32/lib"
+        # llama-swap can use both GPUs (0,1), but Ollama is restricted to GPU 0
+      ];
+      # Environment needs access to cache directories for model downloads
+      # Simplified security settings to avoid namespace issues
+      PrivateTmp = true;
+      NoNewPrivileges = true;
+    };
+  };
 
   # --- Qdrant Vector Database ---
   services.qdrant = {

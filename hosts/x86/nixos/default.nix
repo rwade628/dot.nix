@@ -8,7 +8,7 @@
     ## NixOS Only ##
     inputs.chaotic.nixosModules.default
     ./config
-    # ./package-overrides.nix
+    ./package-overrides.nix
 
     ## Hardware ##
     ./hardware.nix
