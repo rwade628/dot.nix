@@ -6,5 +6,6 @@
     attic-client
     iotop
     nix-output-monitor
+    git-crypt
   ];
 }
