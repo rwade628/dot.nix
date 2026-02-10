@@ -44,7 +44,6 @@
     yazi
     wineWowPackages.full
     winetricks
-    ollama
     llama-cpp
   ];
 
@@ -135,7 +134,11 @@
       min-free = 128000000; # 128MB
       max-free = 1000000000; # 1GB
 
-      trusted-users = [ "@wheel" ];
+      trusted-users = [
+        "@wheel"
+        "root"
+        "ryan"
+      ];
       # Deduplicate and optimize nix store
       auto-optimise-store = true;
       warn-dirty = false;

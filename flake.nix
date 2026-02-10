@@ -8,7 +8,6 @@
     # nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
-    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable"; # Bleeding edge packages from Chaotic-AUR
 
     ## NixOS ##
 
@@ -35,7 +34,7 @@
 
     # Global catppuccin theme
     catppuccin = {
-      url = "github:catppuccin/nix";
+      url = "github:catppuccin/nix/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
@@ -44,14 +43,6 @@
     nix-gaming = {
       url = "github:fufexan/nix-gaming";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    play = {
-      url = "github:tophc7/play.nix";
-      inputs = {
-        nixpkgs.follows = "nixpkgs-unstable";
-        chaotic.follows = "chaotic";
-      };
     };
 
     ## Misc Packages ##

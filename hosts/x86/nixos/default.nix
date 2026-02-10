@@ -6,7 +6,7 @@
 {
   imports = lib.flatten [
     ## NixOS Only ##
-    inputs.chaotic.nixosModules.default
+    # inputs.chaotic.nixosModules.default
     ./config
     ./package-overrides.nix
 
