@@ -28,7 +28,7 @@
         git reset --hard origin/main
       fi
 
-      # cd "$DOTFILES/configs/nixos"
+      cd "$DOTFILES"
 
       # Update flake inputs
       nix flake update
