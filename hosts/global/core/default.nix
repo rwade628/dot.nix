@@ -156,7 +156,7 @@
         "https://chaotic-nyx.cachix.org"
         "https://nix-community.cachix.org"
         "https://cache.nixos-cuda.org"
-        "http://nix-cache.local:5000"
+        "http://10.0.10.14:5000"
       ];
 
       trusted-public-keys = [

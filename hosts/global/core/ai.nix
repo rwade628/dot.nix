@@ -93,7 +93,7 @@
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "simple";
-      User = "basnijholt";
+      User = "ryan";
       Group = "users";
       ExecStart = "${pkgs.llama-swap}/bin/llama-swap --config /etc/llama-swap/config.yaml --listen 0.0.0.0:9292 --watch-config";
       Restart = "always";
