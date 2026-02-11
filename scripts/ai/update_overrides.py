@@ -31,18 +31,6 @@ class Package:
 
 PACKAGES = [
     Package(
-        name="ollama",
-        owner="ollama",
-        repo="ollama",
-        tag_prefix="v",
-        version_pattern=re.compile(
-            r'(ollama\s*=\s*\(pkgs\.ollama\.override\s*\{[^}]*\}\)\.overrideAttrs\s*\(oldAttrs:\s*rec\s*\{\s*version\s*=\s*")(\d+\.\d+\.\d+)(";)',
-            re.DOTALL,
-        ),
-        semver=True,
-        hash_count=2,
-    ),
-    Package(
         name="llama-cpp",
         owner="ggml-org",
         repo="llama.cpp",
@@ -169,7 +157,7 @@ def get_new_hash(pkg_attribute: str) -> str | None:
     result = subprocess.run(
         [
             "nix", "build",
-            f".#nixosConfigurations.pc.pkgs.{pkg_attribute}",
+            f".#nixosConfigurations.nixos.pkgs.{pkg_attribute}",
             "--no-link", "--cores", "1",
         ],
         capture_output=True,
@@ -203,7 +191,7 @@ def resolve_hashes(file_path: Path, content: str, pkg: Package) -> str:
 
 
 def main():
-    file_path = Path("hosts/pc/package-overrides.nix")
+    file_path = Path("hosts/x86/nixos/package-overrides.nix")
     if not file_path.exists():
         print(f"Error: {file_path} not found.")
         sys.exit(1)

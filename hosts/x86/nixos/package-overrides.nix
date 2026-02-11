@@ -12,14 +12,14 @@
           cudaArches = [ "sm_120" ];
         }).overrideAttrs
           (oldAttrs: rec {
-            version = "0.15.5";
+            version = "0.15.6";
             src = pkgs.fetchFromGitHub {
               owner = "ollama";
               repo = "ollama";
               rev = "v${version}";
-              hash = "sha256-VJrAUHX+BVQXsH34BDI4YqVXEqD14ERnKhSpMByAdrQ=";
+              hash = "sha256-WAfmJ4YiVH/UYq++l2Ut6oLqkd270HgG7eV+6FG/0Oc=";
             };
-            vendorHash = "sha256-r7bSHOYAB5f3fRz7lKLejx6thPx0dR4UXoXu0XD7kVM=";
+            vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
             postFixup =
               pkgs.lib.replaceStrings
                 [
@@ -45,12 +45,12 @@
           blasSupport = true;
         }).overrideAttrs
           (oldAttrs: rec {
-            version = "7966";
+            version = "7998";
             src = pkgs.fetchFromGitHub {
               owner = "ggml-org";
               repo = "llama.cpp";
               tag = "b${version}";
-              hash = "sha256-ivGqCSBVDmDTal4MecJCWoghqEua3WgT4XmUzm7QGIc=";
+              hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
               leaveDotGit = true;
               postFetch = ''
                 git -C "$out" rev-parse --short HEAD > $out/COMMIT
@@ -80,8 +80,8 @@
         mkdir -p $out/bin
         tar -xzf ${
           pkgs.fetchurl {
-            url = "https://github.com/mostlygeek/llama-swap/releases/download/v189/llama-swap_189_linux_amd64.tar.gz";
-            hash = "sha256-W1614G73DlGJlvgkQAtcI09zprRqDVfe0wjl9T8vGO4=";
+            url = "https://github.com/mostlygeek/llama-swap/releases/download/v190/llama-swap_190_linux_amd64.tar.gz";
+            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
           }
         } -C $out/bin
         chmod +x $out/bin/llama-swap

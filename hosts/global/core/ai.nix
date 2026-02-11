@@ -59,6 +59,7 @@
           --temp 0.7
           --top-p 1.0
           --min-p 0.01
+          --repeat-penalty 1.0
           --cache-type-k q4_0
           --cache-type-k q4_0
           --threads 8
