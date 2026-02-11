@@ -36,7 +36,7 @@
           ${pkgs.llama-cpp}/bin/llama-server
           -hf noctrex/GLM-4.7-Flash-MXFP4_MOE-GGUF:MXFP4_MOE \
           --port ''${PORT}
-          --ctx-size 8192 \
+          --ctx-size 4096 \
           --n-cpu-moe 2 \
           --cache-type-k q4_0 \
           --cache-type-v q4_0 \
