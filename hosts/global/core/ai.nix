@@ -34,15 +34,18 @@
       "glm-4.7-flash:q4":
         cmd: |
           ${pkgs.llama-cpp}/bin/llama-server
-          -hf unsloth/GLM-4.7-Flash-GGUF:UD-Q4_K_XL
+          -hf noctrex/GLM-4.7-Flash-MXFP4_MOE-GGUF:MXFP4_MOE \
           --port ''${PORT}
-          --ctx-size 200000
+          --ctx-size 8192 \
+          --n-gpu-layers 99 \
+          --cache-type-k q4_0 \
+          --cache-type-v q4_0 \
+          --flash-attn \
+          --no-cap-moe \
+          --lookup-ngram-min 2 \
           --batch-size 2048
           --ubatch-size 512
-          --temp 1.0
-          --top-p 0.95
-          --min-p 0.01
-          --threads 1
+          --threads 8 \
           --jinja
 
       # Uploaded 2025-12-10, size 13.5 GB, max ctx: 393216, layers: 40
