@@ -40,7 +40,7 @@
           --n-gpu-layers 99 \
           --cache-type-k q4_0 \
           --cache-type-v q4_0 \
-          --flash-attn \
+          --flash-attn on \
           --no-cap-moe \
           --lookup-ngram-min 2 \
           --batch-size 2048
