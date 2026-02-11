@@ -55,41 +55,13 @@
           ${pkgs.llama-cpp}/bin/llama-server
           -hf unsloth/GLM-4.7-Flash-GGUF:UD-Q4_K_XL
           --port ''${PORT}
-          --ctx-size 65536
-          --batch-size 2048
-          --ubatch-size 512
+          --ctx-size 32768
           --temp 0.7
           --top-p 1.0
           --min-p 0.01
           --cache-type-k q4_0
           --cache-type-k q4_0
           --threads 8
-          --jinja
-
-      # Uploaded 2025-12-10, size 13.5 GB, max ctx: 393216, layers: 40
-      "devstral-2:24b-q4":
-        cmd: |
-          ${pkgs.llama-cpp}/bin/llama-server
-          -hf unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF:UD-Q4_K_XL
-          --port ''${PORT}
-          --ctx-size 65536
-          --jinja
-
-      # settings: https://www.reddit.com/r/LocalLLaMA/comments/1oo7kqy/comment/nn2dn8l/
-      # settings: https://www.reddit.com/r/LocalLLaMA/comments/1n61mm7/comment/nc99fji/
-      # question: https://www.reddit.com/r/LocalLLaMA/comments/1ow1v5i/help_whats_the_absolute_cheapest_build_to_run_oss/
-
-      # Uploaded 2025-08-02, size 11.3 GB, max ctx: 131072, layers: 24
-      "gpt-oss-high:20b":
-        cmd: |
-          ${pkgs.llama-cpp}/bin/llama-server
-          -hf ggml-org/gpt-oss-20b-GGUF
-          --port ''${PORT}
-          --ctx-size 0
-          --batch-size 4096
-          --ubatch-size 2048
-          --threads 1
-          --chat-template-kwargs '{"reasoning_effort": "high"}'
           --jinja
 
     healthCheckTimeout: 28800  # 8 hours for large model download + loading
