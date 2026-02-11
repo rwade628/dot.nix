@@ -29,6 +29,22 @@
 
     models:  # Ordered from newest to oldest
 
+      # unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF 
+      "qwen3-30b-a3b-thinking-2507:q4":
+        cmd: |
+          ${pkgs.llama-cpp}/bin/llama-server
+          -hf unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF:Q4_K_M
+          --port ''${PORT}
+          --ctx-size 131072
+          --batch-size 2048
+          --ubatch-size 512
+          --temp 0.6
+          --top-p 0.95
+          --top-k 20
+          --min-p 0
+          --threads 4
+          --jinja
+
       # GLM-4.7-Flash - Fixed with scoring_func sigmoid metadata
       # General use: --temp 1.0 --top-p 0.95, Tool-calling: --temp 0.7 --top-p 1.0
       "glm-4.7-flash:q4":
@@ -36,14 +52,13 @@
           ${pkgs.llama-cpp}/bin/llama-server
           -hf unsloth/GLM-4.7-Flash-GGUF:UD-Q4_K_XL
           --port ''${PORT}
-          --ctx-size 8192 \
-          --n-cpu-moe 2 \
-          --cache-type-k q4_0 \
-          --cache-type-v q4_0 \
-          --temp 0.7
+          --ctx-size 65536
+          --batch-size 2048
+          --ubatch-size 512
+          --temp 1.0
           --top-p 0.95
           --min-p 0.01
-          --threads 8 \
+          --threads 4
           --jinja
 
       # Uploaded 2025-12-10, size 13.5 GB, max ctx: 393216, layers: 40
