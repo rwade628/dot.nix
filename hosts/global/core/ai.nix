@@ -34,12 +34,15 @@
       "glm-4.7-flash:q4":
         cmd: |
           ${pkgs.llama-cpp}/bin/llama-server
-          -hf noctrex/GLM-4.7-Flash-MXFP4_MOE-GGUF:MXFP4_MOE \
+          -hf unsloth/GLM-4.7-Flash-GGUF:UD-Q4_K_XL
           --port ''${PORT}
-          --ctx-size 4096 \
+          --ctx-size 8192 \
           --n-cpu-moe 2 \
           --cache-type-k q4_0 \
           --cache-type-v q4_0 \
+          --temp 0.7
+          --top-p 0.95
+          --min-p 0.01
           --threads 8 \
           --jinja
 
