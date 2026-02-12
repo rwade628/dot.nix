@@ -29,25 +29,6 @@
 
     models:  # Ordered from newest to oldest
 
-      # unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF 
-      "qwen3-30b-a3b-thinking-2507:q4":
-        cmd: |
-          ${pkgs.llama-cpp}/bin/llama-server
-          -hf unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF:Q4_K_M
-          --port ''${PORT}
-          --ctx-size 32768
-          --batch-size 2048
-          --ubatch-size 512
-          --temp 0.6
-          --top-p 0.95
-          --top-k 20
-          --min-p 0
-          --presence-penalty 1
-          --cache-type-k q4_0
-          --cache-type-k q4_0
-          --threads 8
-          --jinja
-
       # GLM-4.7-Flash - Fixed with scoring_func sigmoid metadata
       # General use: --temp 1.0 --top-p 0.95, Tool-calling: --temp 0.7 --top-p 1.0
       "glm-4.7-flash:q4":

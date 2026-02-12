@@ -19,7 +19,7 @@
               rev = "v${version}";
               hash = "sha256-WAfmJ4YiVH/UYq++l2Ut6oLqkd270HgG7eV+6FG/0Oc=";
             };
-            vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+            vendorHash = "sha256-VHNxmM0/AACXz8PGBNpWr+gSSE4Pn08B53LCdtfx98g=";
             postFixup =
               pkgs.lib.replaceStrings
                 [
@@ -45,7 +45,7 @@
           blasSupport = true;
         }).overrideAttrs
           (oldAttrs: rec {
-            version = "7998";
+            version = "8007";
             src = pkgs.fetchFromGitHub {
               owner = "ggml-org";
               repo = "llama.cpp";
