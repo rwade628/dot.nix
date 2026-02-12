@@ -6,34 +6,6 @@
   nixpkgs.config = {
     cudaSupport = true;
     packageOverrides = pkgs: {
-      ollama =
-        (pkgs.ollama.override {
-          # Only build for RTX 5070 TI (sm_120) instead of all 7 default architectures
-          cudaArches = [ "sm_120" ];
-        }).overrideAttrs
-          (oldAttrs: rec {
-            version = "0.15.6";
-            src = pkgs.fetchFromGitHub {
-              owner = "ollama";
-              repo = "ollama";
-              rev = "v${version}";
-              hash = "sha256-WAfmJ4YiVH/UYq++l2Ut6oLqkd270HgG7eV+6FG/0Oc=";
-            };
-            vendorHash = "sha256-VHNxmM0/AACXz8PGBNpWr+gSSE4Pn08B53LCdtfx98g=";
-            postFixup =
-              pkgs.lib.replaceStrings
-                [
-                  ''mv "$out/bin/app" "$out/bin/.ollama-app"''
-                ]
-                [
-                  ''
-                    if [ -e "$out/bin/app" ]; then
-                                 mv "$out/bin/app" "$out/bin/.ollama-app"
-                               fi''
-                ]
-                oldAttrs.postFixup;
-          });
-
       # Override llama-cpp to latest version b6150 with CUDA support
       llama-cpp =
         (pkgs.llama-cpp.override {
@@ -50,7 +22,7 @@
               owner = "ggml-org";
               repo = "llama.cpp";
               tag = "b${version}";
-              hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+              hash = "sha256-VHNxmM0/AACXz8PGBNpWr+gSSE4Pn08B53LCdtfx98g=";
               leaveDotGit = true;
               postFetch = ''
                 git -C "$out" rev-parse --short HEAD > $out/COMMIT
@@ -81,7 +53,7 @@
         tar -xzf ${
           pkgs.fetchurl {
             url = "https://github.com/mostlygeek/llama-swap/releases/download/v190/llama-swap_190_linux_amd64.tar.gz";
-            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+            hash = "sha256-WAfmJ4YiVH/UYq++l2Ut6oLqkd270HgG7eV+6FG/0Oc=";
           }
         } -C $out/bin
         chmod +x $out/bin/llama-swap
