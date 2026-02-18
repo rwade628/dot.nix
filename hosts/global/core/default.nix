@@ -45,6 +45,7 @@
     wineWowPackages.full
     winetricks
     llama-cpp
+    bun
   ];
 
   environment.localBinInPath = true;
