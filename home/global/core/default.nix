@@ -56,6 +56,7 @@ in
       vlc
       opencode
       uv
+      git-secret
       ;
   };
 
