@@ -1,6 +1,11 @@
-{ ... }:
+{ host, ... }:
 {
   networking = {
+    dhcpcd.enable = false;
+    hostName = host.network.hostName;
+    useDHCP = false; # Disable the old DHCP system
+    networkmanager.enable = false;
+    useNetworkd = true;
     interfaces = {
       enp42s0 = {
         wakeOnLan.enable = true;
