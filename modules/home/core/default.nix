@@ -10,15 +10,15 @@ let
 in
 {
   imports = lib.flatten [
-    (map lib.custom.relativeToRoot [
-      "modules/global"
-      "modules/home"
-    ])
+    # (map lib.custom.relativeToRoot [
+    #   "modules/global"
+    #   "modules/home"
+    # ])
     (lib.custom.scanPaths ./.)
 
     # Desktop environment (if enabled)
     (lib.optional (host.niri or false || host.plasma or false) (
-      lib.custom.relativeToRoot "home/global/common/desktop"
+      lib.custom.relativeToRoot "modules/home/shared/desktop"
     ))
   ];
 

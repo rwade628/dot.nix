@@ -86,9 +86,9 @@ in
             import
               (
                 if isMinimal then
-                  lib.custom.relativeToRoot "home/global/core"
+                  lib.custom.relativeToRoot "modules/home/core"
                 else
-                  lib.custom.relativeToRoot "home/users/${user.name}"
+                  lib.custom.relativeToRoot "modules/home/users/${user.name}"
               )
               {
                 inherit

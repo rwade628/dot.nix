@@ -1,3 +1,4 @@
+{ ... }:
 {
   networking = {
     interfaces = {

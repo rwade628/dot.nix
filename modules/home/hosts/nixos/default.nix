@@ -7,9 +7,9 @@
   imports = lib.flatten [
     ## Common Imports ##
     (map lib.custom.relativeToRoot [
-      "home/global/common/gaming"
-      "home/global/common/xdg.nix"
-      "home/global/common/chromium.nix"
+      "modules/home/shared/gaming"
+      "modules/home/shared/xdg.nix"
+      "modules/home/shared/chromium.nix"
     ])
 
     ## NixOS Specific ##

@@ -1,4 +1,4 @@
-# modules/services/hass-display-switcher-hybrid.nix
+# Custom service to auto switch monitors based on Home Assistant TV state
 {
   pkgs,
   secrets,

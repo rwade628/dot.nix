@@ -5,28 +5,23 @@
 }:
 {
   imports = lib.flatten [
-    ## NixOS Only ##
-    # inputs.chaotic.nixosModules.default
-    ./config
-    ./package-overrides.nix
-
     ## Hardware ##
-    ./hardware.nix
     inputs.hardware.nixosModules.common-cpu-amd
     # inputs.hardware.nixosModules.common-gpu-nvidia
     inputs.hardware.nixosModules.common-pc-ssd
 
-    (map lib.custom.relativeToRoot [
-      ## Required Configs ##
-      "hosts/global/core"
+    ## Required Configs ##
+    (lib.custom.scanPaths ./.)
 
-      ## Optional Configs ##
-      "hosts/global/common/audio.nix" # pipewire and cli controls
-      "hosts/global/common/ddcutil.nix" # ddcutil for monitor controls
-      "hosts/global/common/nvtop.nix" # GPU monitor (not available in home-manager)
-      "hosts/global/common/plymouth.nix" # fancy boot screen
-      "hosts/global/common/gaming" # steam, gamescope, gamemode, and related hardware
-    ])
+    (lib.custom.relativeToRoot "modules/nixos/core") # sets up llama-cpp and related tools
+
+    ## Optional Configs ##
+    (lib.custom.relativeToRoot "modules/nixos/shared/ai.nix") # sets up llama-cpp and related tools
+    (lib.custom.relativeToRoot "modules/nixos/shared/audio.nix") # pipewire and cli controls
+    (lib.custom.relativeToRoot "modules/nixos/shared/ddcutil.nix") # ddcutil for monitor controls
+    (lib.custom.relativeToRoot "modules/nixos/shared/plymouth.nix") # fancy boot screen
+    (lib.custom.relativeToRoot "modules/nixos/shared/gaming") # steam, gamescope, gamemode, and related hardware
+
   ];
 
   networking = {
