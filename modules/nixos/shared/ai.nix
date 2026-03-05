@@ -29,6 +29,23 @@
 
     models:  # Ordered from newest to oldest
 
+      # unsloth/Qwen3.5-35B-A3B-GGUF - Fixed with scoring_func sigmoid metadata
+      # General use: --temp 1.0 --top-p 0.95, Tool-calling: --temp 0.7 --top-p 1.0
+      "glm-4.7-flash:q4":
+        cmd: |
+          ${pkgs.llama-cpp}/bin/llama-server
+          -hf unsloth/Qwen3.5-35B-A3B-GGUF:UD-Q4_K_XL
+          --port ''${PORT}
+          --ctx-size 100000
+          --n-predicate 32768
+          --temp 0.6
+          --top-p 0.95
+          --top-k 20
+          --min-p 0.00
+          --presence-penalty 0.0
+          --repeat-penalty 1.0
+          --jinja
+
       # GLM-4.7-Flash - Fixed with scoring_func sigmoid metadata
       # General use: --temp 1.0 --top-p 0.95, Tool-calling: --temp 0.7 --top-p 1.0
       "glm-4.7-flash:q4":
