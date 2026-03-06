@@ -37,7 +37,7 @@
           -hf unsloth/Qwen3.5-35B-A3B-GGUF:UD-Q4_K_XL
           --port ''${PORT}
           --ctx-size 100000
-          --n-predicate 32768
+          --n-predict 32768
           --temp 0.6
           --top-p 0.95
           --top-k 20
