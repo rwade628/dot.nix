@@ -31,7 +31,7 @@
 
       # unsloth/Qwen3.5-35B-A3B-GGUF - Fixed with scoring_func sigmoid metadata
       # General use: --temp 1.0 --top-p 0.95, Tool-calling: --temp 0.7 --top-p 1.0
-      "glm-4.7-flash:q4":
+      "Qwen3.5-35B-A3B-GGUF":
         cmd: |
           ${pkgs.llama-cpp}/bin/llama-server
           -hf unsloth/Qwen3.5-35B-A3B-GGUF:UD-Q4_K_XL
