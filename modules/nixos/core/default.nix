@@ -85,7 +85,7 @@
     enable = true;
     clean.enable = true;
     clean.extraArgs = "--keep-since 10d --keep 10";
-    flake = "/repo/Nix/dot.nix/";
+    flake = "~/git/dot.nix/";
   };
 
   ## SUDO and Terminal ##
