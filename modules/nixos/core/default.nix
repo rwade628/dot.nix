@@ -20,31 +20,8 @@
     inputs.catppuccin.nixosModules.catppuccin
 
     # Desktop environment (if enabled)
-    (lib.optional (host.niri or false || host.plasma or false) (
-      lib.custom.relativeToRoot "modules/nixos/shared/desktop"
-    ))
-  ];
-
-  # System-wide packages, root accessible
-  environment.systemPackages = with pkgs; [
-    cachix
-    curl
-    ethtool
-    git
-    git-crypt
-    gpg-tui
-    jq
-    micro
-    openssh
-    pciutils
-    sshfs
-    superfile
-    wget
-    yazi
-    wineWowPackages.full
-    winetricks
-    llama-cpp
-    bun
+    (lib.optional (host.niri or false) (lib.custom.relativeToRoot "modules/nixos/desktop/niri"))
+    (lib.optional (host.plasma or false) (lib.custom.relativeToRoot "modules/nixos/desktop/plasma"))
   ];
 
   environment.localBinInPath = true;
@@ -85,7 +62,7 @@
     enable = true;
     clean.enable = true;
     clean.extraArgs = "--keep-since 10d --keep 10";
-    flake = "~/git/dot.nix/";
+    flake = "/home/ryan/git/dot.nix/";
   };
 
   ## SUDO and Terminal ##

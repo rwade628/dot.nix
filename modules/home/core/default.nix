@@ -10,16 +10,11 @@ let
 in
 {
   imports = lib.flatten [
-    # (map lib.custom.relativeToRoot [
-    #   "modules/global"
-    #   "modules/home"
-    # ])
     (lib.custom.scanPaths ./.)
 
     # Desktop environment (if enabled)
-    (lib.optional (host.niri or false || host.plasma or false) (
-      lib.custom.relativeToRoot "modules/home/shared/desktop"
-    ))
+    (lib.optional (host.niri or false) (lib.custom.relativeToRoot "modules/home/desktop/niri"))
+    (lib.optional (host.plasma or false) (lib.custom.relativeToRoot "modules/home/desktop/plasma"))
   ];
 
   # services.ssh-agent.enable = true;
@@ -39,36 +34,9 @@ in
     # preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
   };
 
-  # Core pkgs with no configs
-  home.packages = builtins.attrValues {
-    inherit (pkgs)
-      coreutils # basic gnu utils
-      direnv # environment per directory
-      dust # disk usage
-      eza # ls replacement
-      lazyjournal # journalctl viewer
-      nmap # network scanner
-      trashy # trash cli
-      unrar # rar extraction
-      unzip # zip extraction
-      zip # zip compression
-      fzf
-      vlc
-      opencode
-      uv
-      git-secret
-      ;
-  };
-
   programs.nix-index = {
     enable = true;
   };
-
-  # manual = {
-  #   html.enable = false;
-  #   json.enable = false;
-  #   manpages.enable = false;
-  # };
 
   nix = {
     package = lib.mkDefault pkgs.nix;

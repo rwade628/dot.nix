@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-kscreen-doctor output.HDMI-A-1.disable output.DP-1.enable

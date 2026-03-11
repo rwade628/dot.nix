@@ -16,11 +16,11 @@
     (lib.custom.relativeToRoot "modules/nixos/core") # sets up core nixos configuration
 
     ## Optional Configs ##
-    (lib.custom.relativeToRoot "modules/nixos/shared/ai.nix") # sets up llama-cpp and related tools
-    (lib.custom.relativeToRoot "modules/nixos/shared/audio.nix") # pipewire and cli controls
-    (lib.custom.relativeToRoot "modules/nixos/shared/ddcutil.nix") # ddcutil for monitor controls
-    (lib.custom.relativeToRoot "modules/nixos/shared/plymouth.nix") # fancy boot screen
-    (lib.custom.relativeToRoot "modules/nixos/shared/gaming") # steam, gamescope, gamemode, and related hardware
+    (lib.custom.relativeToRoot "modules/nixos/services/ai.nix") # sets up llama-cpp and related tools
+    (lib.custom.relativeToRoot "modules/nixos/hardware/audio.nix") # pipewire and cli controls
+    (lib.custom.relativeToRoot "modules/nixos/services/ddcutil.nix") # ddcutil for monitor controls
+    (lib.custom.relativeToRoot "modules/nixos/services/plymouth.nix") # fancy boot screen
+    (lib.custom.relativeToRoot "modules/nixos/services/gaming") # steam, gamescope, gamemode, and related hardware
 
   ];
 
