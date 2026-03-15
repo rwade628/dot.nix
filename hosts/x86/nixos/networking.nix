@@ -83,5 +83,17 @@
       LinkLocalAddressing = "no";
     };
     dhcpV4Config.RouteMetric = 200;
+    # Route Mullvad SOCKS5 proxy through VLAN interface
+    # Required for Mullvad Browser extension to reach 10.64.0.1:1080
+    routes = [
+      {
+        Destination = "10.64.0.0/10";
+        Gateway = "10.0.40.1";
+      }
+      # {
+      #   Destination = "10.64.0.0/10";
+      #   Gateway = "10.0.40.1";
+      # }
+    ];
   };
 }
