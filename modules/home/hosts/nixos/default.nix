@@ -9,6 +9,7 @@
     (map lib.custom.relativeToRoot [
       "modules/home/gaming"
       "modules/home/utilities/xdg.nix"
+      "modules/home/utilities/mullvad.nix"
       # "modules/home/shared/chromium.nix"
     ])
 

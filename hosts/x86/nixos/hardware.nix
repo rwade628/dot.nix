@@ -134,7 +134,7 @@ in
   };
 
   # Fixes issue with glitchy screen after resume from suspend
-  systemd.services.systemd-suspend.environment.SYSTEMD_SLEEP_FREEZE_USER_SESSIONS = "false";
+  # systemd.services.systemd-suspend.environment.SYSTEMD_SLEEP_FREEZE_USER_SESSIONS = "false";
 }
 
 # STUFF ABOUT CHAOTIC NIX CACHE
