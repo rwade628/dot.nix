@@ -7,6 +7,7 @@
   imports = lib.flatten [
     # ./ananicy.nix
     ./gamemode.nix
+    ./gamescope.nix
     ./lutris.nix
     ./steam.nix
     ./sunshine.nix
