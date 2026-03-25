@@ -44,8 +44,9 @@ in
       timeout = 3;
     };
 
-    # Use the cachyos kernel for better performance
-    kernelPackages = pkgs.linuxPackages_6_18;
+    # Holdover in case needing to roll back Nvidia drivers
+    # kernelPackages = pkgs.linuxPackages_6_18;
+    kernelPackages = pkgs.linuxPackages_latest;
 
     # Kernel sysctl parameters
     kernel.sysctl = {
@@ -75,30 +76,32 @@ in
       # enabling it is required to make Wayland compositors function properly.
       # "nvidia-drm.fbdev=1"
       "amd_pstate=guided"
+      # Force load correct edid
+      "drm.edid_firmware=HDMI-A-1:edid/s90c-edid.bin"
     ];
   };
 
-  fileSystems."/" = {
-    device = "/dev/disk/by-uuid/9233d70d-b002-43d2-bd14-1f1c0534ece7";
-    fsType = "ext4";
-  };
-
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/F393-EA78";
-    fsType = "vfat";
-    options = [
-      "fmask=0077"
-      "dmask=0077"
-    ];
-  };
-
-  fileSystems."/mnt/data" = {
-    device = "/dev/disk/by-uuid/9ed738fb-4f8e-4e86-b5a4-3970ec2147d8";
-    fsType = "ext4";
-    options = [
-      "defaults"
-      "nofail"
-    ];
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/9233d70d-b002-43d2-bd14-1f1c0534ece7";
+      fsType = "ext4";
+    };
+    "/boot" = {
+      device = "/dev/disk/by-uuid/F393-EA78";
+      fsType = "vfat";
+      options = [
+        "fmask=0077"
+        "dmask=0077"
+      ];
+    };
+    "/mnt/data" = {
+      device = "/dev/disk/by-uuid/9ed738fb-4f8e-4e86-b5a4-3970ec2147d8";
+      fsType = "ext4";
+      options = [
+        "defaults"
+        "nofail"
+      ];
+    };
   };
 
   swapDevices = [
@@ -108,28 +111,40 @@ in
   time.hardwareClockInLocalTime = true; # Fixes windows dual-boot time issues
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-  hardware.graphics = {
-    enable = true;
-    # needed by nvidia-docker
-    enable32Bit = true;
-  };
   services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.nvidia = {
-    modesetting.enable = true;
-    powerManagement.enable = true;
-    powerManagement.finegrained = false;
-    open = true;
-    nvidiaSettings = true;
-    # package = inputs.nixpkgs-unstable.linuxPackages.nvidiaPackages.latest;
-    package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
-      version = "595.58.03";
-      sha256_64bit = "sha256-jA1Plnt5MsSrVxQnKu6BAzkrCnAskq+lVRdtNiBYKfk=";
-      sha256_aarch64 = "sha256-hzzIKY1Te8QkCBWR+H5k1FB/HK1UgGhai6cl3wEaPT8=";
-      openSha256 = "sha256-6LvJyT0cMXGS290Dh8hd9rc+nYZqBzDIlItOFk8S4n8=";
-      settingsSha256 = "sha256-2vLF5Evl2D6tRQJo0uUyY3tpWqjvJQ0/Rpxan3NOD3c=";
-      persistencedSha256 = "sha256-AtjM/ml/ngZil8DMYNH+P111ohuk9mWw5t4z7CHjPWw=";
+
+  hardware = {
+    cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+    firmware = [
+      (pkgs.runCommand "s90c-edid" { } ''
+        mkdir -p $out/lib/firmware/edid
+        # Notice the ./ relative path syntax here:
+        cp ${./edid/s90c-edid.bin} $out/lib/firmware/edid/s90c-edid.bin
+      '')
+    ];
+
+    graphics = {
+      enable = true;
+      # needed by nvidia-docker
+      enable32Bit = true;
+    };
+    nvidia = {
+      modesetting.enable = true;
+      powerManagement.enable = true;
+      powerManagement.finegrained = false;
+      open = true;
+      nvidiaSettings = true;
+      # package = inputs.nixpkgs-unstable.linuxPackages.nvidiaPackages.latest;
+      package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
+        version = "595.58.03";
+        sha256_64bit = "sha256-jA1Plnt5MsSrVxQnKu6BAzkrCnAskq+lVRdtNiBYKfk=";
+        sha256_aarch64 = "sha256-hzzIKY1Te8QkCBWR+H5k1FB/HK1UgGhai6cl3wEaPT8=";
+        openSha256 = "sha256-6LvJyT0cMXGS290Dh8hd9rc+nYZqBzDIlItOFk8S4n8=";
+        settingsSha256 = "sha256-2vLF5Evl2D6tRQJo0uUyY3tpWqjvJQ0/Rpxan3NOD3c=";
+        persistencedSha256 = "sha256-AtjM/ml/ngZil8DMYNH+P111ohuk9mWw5t4z7CHjPWw=";
+      };
     };
   };
 
