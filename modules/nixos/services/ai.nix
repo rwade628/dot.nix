@@ -29,6 +29,13 @@
 
     models:  # Ordered from newest to oldest
 
+      "Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled-GGUF":
+        cmd: |
+          ${pkgs.llama-cpp}/bin/llama-server
+          -hf Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled-GGUF:Q4_K_M
+          --port ''${PORT}
+          --jinja
+
       # unsloth/Qwen3.5-35B-A3B-GGUF - Fixed with scoring_func sigmoid metadata
       # General use: --temp 1.0 --top-p 0.95, Tool-calling: --temp 0.7 --top-p 1.0
       "Qwen3.5-35B-A3B-GGUF":
