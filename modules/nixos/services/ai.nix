@@ -33,7 +33,7 @@
         cmd: |
           ${pkgs.llama-cpp}/bin/llama-server
           -hf Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled-GGUF:Q4_K_M
-          --ctx-size 200000
+          --ctx-size 100000
           --port ''${PORT}
           --jinja
 
