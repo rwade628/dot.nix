@@ -22,7 +22,7 @@
           gnupg
           gpg-tui
           # Shells
-          fish
+          zsh
           bash
           # Config tools
           dconf2nix

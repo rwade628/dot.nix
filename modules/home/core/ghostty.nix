@@ -2,9 +2,11 @@
   # Replaces the default terminal emulator;
   programs.ghostty = {
     enable = true;
-    enableFishIntegration = true;
+    enableZshIntegration = true;
+    # enableFishIntegration = true;
     settings = {
       # theme = "stylix";
+      command = "tmux attach | tmux";
       font-family = "monospace";
       font-size = "11";
       background-opacity = "0.85";

@@ -47,16 +47,16 @@
           "break"
           {
             key = " ";
-            shell = "fish";
-            text = "fish ${title}";
+            shell = "zsh";
+            text = "zsh ${title}";
             type = "command";
           }
           "break"
           {
             key = "weather » {#keys}";
             keyColor = "1;97";
-            shell = "${lib.getExe pkgs.fish}";
-            text = "fish ${weather} 'Richmond'";
+            shell = "${lib.getExe pkgs.zsh}";
+            text = "zsh ${weather} 'Richmond'";
             type = "command";
           }
           {
@@ -81,13 +81,13 @@
           {
             text =
               let
-                name = lib.getName pkgs.fish;
+                name = lib.getName pkgs.zsh;
               in
               "printf '%s%s' (string upper (string sub -l 1 ${name})) (string lower (string sub -s 2 ${name}))";
             key = "shell   » {#keys}";
             keyColor = "1;33";
             type = "command";
-            shell = "${lib.getExe pkgs.fish}";
+            shell = "${lib.getExe pkgs.zsh}";
           }
           {
             key = "uptime  » {#keys}";
@@ -123,8 +123,8 @@
             key = "media   » {#keys}";
             keyColor = "5;92";
             type = "command";
-            shell = "${lib.getExe pkgs.fish}";
-            text = "${lib.getExe pkgs.playerctl} metadata --format '{{ artist }} - {{ title }} ('(set_color green)'{{ playerName }}'(set_color normal)')' 2>/dev/null; or echo 'No media playing'";
+            shell = "${lib.getExe pkgs.zsh}";
+            text = "${lib.getExe pkgs.playerctl} metadata --format '{{ artist }} - {{ title }} ('$(tput setaf 2)'{{ playerName }}'$(tput sgr0)')' 2>/dev/null; or echo 'No media playing'";
           }
           "break"
           {

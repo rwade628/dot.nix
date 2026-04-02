@@ -80,12 +80,10 @@
   };
 
   ## Primary shell enablement ##
-  # programs.zsh.enable = true;
-  programs.fish.enable = true;
+  programs.zsh.enable = true;
   environment.shells = with pkgs; [
-    # zsh
+    zsh
     bash
-    fish
   ];
 
   environment.pathsToLink = [

@@ -65,7 +65,7 @@
                 shell = lib.mkOption {
                   type = lib.types.package;
                   description = "Default shell for the user";
-                  default = pkgs.fish;
+                  default = pkgs.zsh;
                   example = pkgs.bash;
                 };
               };

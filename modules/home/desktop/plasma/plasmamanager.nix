@@ -24,7 +24,7 @@ let
 in
 {
   imports = [
-    inputs.plasma-manager.homeManagerModules.plasma-manager
+    inputs.plasma-manager.homeModules.plasma-manager
   ];
 
   home.packages = with pkgs; [

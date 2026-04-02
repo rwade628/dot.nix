@@ -24,7 +24,7 @@ in
     homeMode = "750";
     hashedPassword = userSecrets.hashedPassword;
     uid = 1000;
-    shell = user.shell or pkgs.fish;
+    shell = user.shell or pkgs.zsh;
     extraGroups = lib.flatten [
       "wheel"
       (ifTheyExist [
