@@ -29,11 +29,14 @@
 
     models:  # Ordered from newest to oldest
 
-      "Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled-GGUF":
+      "gemma-4-26B-A4B-it-GGUF":
         cmd: |
           ${pkgs.llama-cpp}/bin/llama-server
-          -hf Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled-GGUF:Q4_K_M
-          --ctx-size 100000
+          -hf unsloth/gemma-4-26B-A4B-it-GGUF::Q4_K_M
+          --ctx-size 128000
+          --temp 1.0
+          --top-p 0.95
+          --top-k 64
           --port ''${PORT}
           --jinja
 
