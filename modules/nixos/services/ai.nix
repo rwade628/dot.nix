@@ -32,11 +32,13 @@
       "gemma-4-26B-A4B-it-GGUF":
         cmd: |
           ${pkgs.llama-cpp}/bin/llama-server
-          -hf unsloth/gemma-4-26B-A4B-it-GGUF::Q4_K_M
-          --ctx-size 128000
+          -hf unsloth/gemma-4-26B-A4B-it-GGUF:Q4_IQ4_NL
+          --ctx-size 32768
           --temp 1.0
           --top-p 0.95
           --top-k 64
+          --cache-type-k q8_0
+          --cache-type-v q8_0
           --port ''${PORT}
           --jinja
 
