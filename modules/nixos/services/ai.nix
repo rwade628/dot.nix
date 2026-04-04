@@ -32,7 +32,7 @@
       "gemma-4-26B-A4B-it-GGUF":
         cmd: |
           ${pkgs.llama-cpp}/bin/llama-server
-          -hf unsloth/gemma-4-26B-A4B-it-GGUF:Q4_IQ4_NL
+          -hf unsloth/gemma-4-26B-A4B-it-GGUF:UD-IQ4_NL
           --ctx-size 32768
           --temp 1.0
           --top-p 0.95
