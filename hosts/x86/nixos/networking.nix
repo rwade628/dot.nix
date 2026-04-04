@@ -22,16 +22,16 @@
 
   services.resolved = {
     enable = true;
-    domains = [
-      "~local"
-    ]; # Route local zones to our DNS
-    fallbackDns = [
-      "1.1.1.1"
-      "8.8.8.8"
-    ]; # Public fallback when local resolvers fail
-    extraConfig = ''
-      DNS=10.0.10.1
-    '';
+    settings.Resolve = {
+      Domains = [
+        "~local"
+      ]; # Route local zones to our DNS
+      DNS = [
+        "10.0.10.1"
+        "1.1.1.1"
+        "8.8.8.8"
+      ];
+    };
   };
 
   # Avahi for AirPrint / network discovery

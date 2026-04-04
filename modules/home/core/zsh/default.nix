@@ -11,6 +11,8 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
+    dotDir = "${config.xdg.configHome}/zsh";
+
     initContent = ''
       function ksn {
         kubectl config set-context --current --namespace $1 ;

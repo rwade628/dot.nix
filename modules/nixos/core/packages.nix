@@ -115,7 +115,7 @@ let
   # --- Gaming ---
   # Gaming-related system packages
   gaming = with pkgs; [
-    wineWowPackages.full # Wine implementation
+    wineWow64Packages.full # Wine implementation
     winetricks # Wine helper script
   ];
 

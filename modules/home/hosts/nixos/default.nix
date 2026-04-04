@@ -17,6 +17,9 @@
     # ./config
   ];
 
+  # Silence warning from old state version
+  xdg.userDirs.setSessionVariables = true;
+
   ## Packages with no needed configs ##
   home.packages = builtins.attrValues {
     inherit (pkgs)
@@ -36,15 +39,13 @@
       solaar
       nil
       nixpkgs-fmt
-      nixfmt-rfc-style
+      nixfmt
       statix
       nodejs
       gcc
       python3
       go
       kubectl
-
-      neofetch
 
       ### Previous packages
       nnn # terminal file manager
