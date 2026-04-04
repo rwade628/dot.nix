@@ -29,6 +29,16 @@
                 find "$out" -name .git -print0 | xargs -0 rm -rf
               '';
             };
+
+            # FIX: Upstream llama.cpp removed the precompiled index.html.gz file in newer versions.
+            # However, the inherited nixpkgs derivation still runs an `rm` command in its postPatch
+            # phase to delete it. Creating a dummy file here ensures that inherited `rm` command succeeds.
+            prePatch = ''
+              ${oldAttrs.prePatch or ""}
+              mkdir -p tools/server/public
+              touch tools/server/public/index.html.gz
+            '';
+
             # Enable native CPU optimizations for massively better CPU performance
             # This enables AVX, AVX2, AVX-512, FMA, etc. for your specific CPU
             # NOTE: This is intentionally opposite of nixpkgs (which uses -DGGML_NATIVE=off
