@@ -25,11 +25,10 @@
     settings.Resolve = {
       Domains = [
         "~local"
+        "~casadewade.com"
       ]; # Route local zones to our DNS
       DNS = [
         "10.0.10.1"
-        "1.1.1.1"
-        "8.8.8.8"
       ];
     };
   };

@@ -34,6 +34,7 @@
           ${pkgs.llama-cpp}/bin/llama-server
           -hf unsloth/gemma-4-26B-A4B-it-GGUF:UD-IQ4_NL
           --ctx-size 32768
+          --no-mmproj-offload
           --temp 1.0
           --top-p 0.95
           --top-k 64
