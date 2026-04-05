@@ -77,7 +77,7 @@ in
       # "nvidia-drm.fbdev=1"
       "amd_pstate=guided"
       # Force load correct edid
-      "drm.edid_firmware=HDMI-A-1:edid/s90c-edid.bin"
+      # "drm.edid_firmware=HDMI-A-1:edid/s90c-edid.bin"
     ];
   };
 
@@ -117,13 +117,13 @@ in
   hardware = {
     cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-    firmware = [
-      (pkgs.runCommand "s90c-edid" { } ''
-        mkdir -p $out/lib/firmware/edid
-        # Notice the ./ relative path syntax here:
-        cp ${./edid/s90c-edid.bin} $out/lib/firmware/edid/s90c-edid.bin
-      '')
-    ];
+    # firmware = [
+    #   (pkgs.runCommand "s90c-edid" { } ''
+    #     mkdir -p $out/lib/firmware/edid
+    #     # Notice the ./ relative path syntax here:
+    #     cp ${./edid/s90c-edid.bin} $out/lib/firmware/edid/s90c-edid.bin
+    #   '')
+    # ];
 
     graphics = {
       enable = true;
