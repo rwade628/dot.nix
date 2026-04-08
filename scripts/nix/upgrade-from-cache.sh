@@ -36,10 +36,14 @@ echo "   Command: nixos-rebuild switch --flake .#${HOSTNAME} --override-input ni
 
 # Run the rebuild
 # We use "$@" to pass any extra arguments (like --show-trace or --fast)
-nixos-rebuild switch \
-  --flake ".#${HOSTNAME}" \
-  --override-input nixpkgs "github:NixOS/nixpkgs/${TARGET_REV}" \
-  --use-remote-sudo \
+nh os switch . \
+  --hostname "${HOSTNAME}" \
+  -- --override-input nixpkgs "github:NixOS/nixpkgs/${TARGET_REV}" \
   "$@"
+# nixos-rebuild switch \
+#   --flake ".#${HOSTNAME}" \
+#   --override-input nixpkgs "github:NixOS/nixpkgs/${TARGET_REV}" \
+#   --use-remote-sudo \
+#   "$@"
 
 echo "✅ Update complete!"
