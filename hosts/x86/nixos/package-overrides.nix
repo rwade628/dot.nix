@@ -39,7 +39,7 @@
               touch tools/server/public/index.html.gz
             '';
 
-            npmDepsHash = "sha256-eeftjKt0FuS0Dybez+Iz9VTVMA4/oQVh+3VoIqvhVMw=";
+            npmDepsHash = "sha256-RAFtsbBGBjteCt5yXhrmHL39rIDJMCFBETgzId2eRRk=";
 
             # Enable native CPU optimizations for massively better CPU performance
             # This enables AVX, AVX2, AVX-512, FMA, etc. for your specific CPU
