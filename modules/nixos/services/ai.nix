@@ -35,13 +35,12 @@
           -hf unsloth/gemma-4-26B-A4B-it-GGUF:UD-IQ4_NL
           --ctx-size 32768
           --no-mmproj-offload
-          --temp 1.0
+          --temp 0.2
           --top-p 0.95
           --top-k 64
           --cache-type-k q8_0
           --cache-type-v q8_0
           --port ''${PORT}
-          --jinja
 
       # unsloth/Qwen3.5-35B-A3B-GGUF - Fixed with scoring_func sigmoid metadata
       # General use: --temp 1.0 --top-p 0.95, Tool-calling: --temp 0.7 --top-p 1.0

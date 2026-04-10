@@ -12,6 +12,8 @@
     vimAlias = true;
     vimdiffAlias = true;
     withNodeJs = true;
+    withPython3 = true;
+    withRuby = true;
 
     extraPackages = with pkgs; [
       gcc # needed for nvim-treesitter
@@ -51,6 +53,5 @@
     ];
   };
 
-  # home.file.".config/nvim".source =
-  #   config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/lazyvim";
+  home.file.".config/nvim".source = config.lib.file.mkOutOfStoreSymlink /home/ryan/git/dot.nix/nvim;
 }
