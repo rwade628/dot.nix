@@ -21,14 +21,29 @@
     clock24 = true;
     historyLimit = 50000;
 
-    plugins = with pkgs; [
-      tmuxPlugins.better-mouse-mode
-      tmuxPlugins.catppuccin
-      tmuxPlugins.continuum
-      tmuxPlugins.cpu
-      tmuxPlugins.resurrect
-      tmuxPlugins.sensible
-      tmuxPlugins.vim-tmux-navigator
+    plugins = with pkgs.tmuxPlugins; [
+      better-mouse-mode
+      catppuccin
+      cpu
+      sensible
+      vim-tmux-navigator
+      {
+        plugin = resurrect;
+        extraConfig = ''
+          set -g @resurrect-strategy-nvim 'session'
+          resurrect_dir=~/.tmux/resurrect/
+          set -g @resurrect-dir $resurrect_dir
+          set -g @resurrect-hook-post-save-all "sed -i 's| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/nix/store/.*/bin/||g' $(readlink -f $resurrect_dir/last)"
+        '';
+      }
+      {
+        plugin = continuum;
+        extraConfig = ''
+          # Restore environment automatically
+          set -g @continuum-restore 'on'
+          set -g @continuum-save-interval '1'
+        '';
+      }
     ];
 
     extraConfig = ''
