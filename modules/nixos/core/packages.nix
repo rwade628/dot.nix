@@ -101,6 +101,7 @@ let
     tokei # Code statistics
     trashy # trash CLI
     tre-command # Tree alternative
+    trickle # Rate limiter
     tree # Directory tree viewer
     typst # Modern typesetting
     unrar # RAR extraction

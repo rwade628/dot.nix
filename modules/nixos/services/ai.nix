@@ -29,6 +29,31 @@
 
     models:  # Ordered from newest to oldest
 
+      "Qwen3.6-35B-A3B-GGUF":
+        cmd: |
+            ${pkgs.llama-cpp}/bin/llama-server
+            -hf unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_M
+            --fit on
+            --fit-ctx 128000
+            --fit-target 256
+            -np 1
+            -fa on
+            --no-mmap
+            --mlock
+            -b 2048
+            -ub 2048
+            -ctk q8_0
+            -ctv q8_0
+            --temp 0.6
+            --top-p 0.95
+            --top-k 20
+            --min-p 0.0
+            --presence-penalty 0.0
+            --repeat-penalty 1.0
+            --reasoning-budget -1
+            --chat-template-kwargs "{\"preserve_thinking\": true}"
+            --port ''${PORT}
+
       "gemma-4-26B-A4B-it-GGUF":
         cmd: |
           ${pkgs.llama-cpp}/bin/llama-server

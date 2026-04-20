@@ -1,0 +1,25 @@
+return {
+	-- {
+	--   "neovim/nvim-lspconfig",
+	--   opts = {
+	--     servers = {
+	--       gopls = {
+	--         settings = {
+	--           gopls = {
+	--             hints = {
+	--               assignVariableTypes = false,
+	--               compositeLiteralFields = false,
+	--               compositeLiteralTypes = false,
+	--               parameterNames = false,
+	--               rangeVariableTypes = false,
+	--               -- remaining defaults
+	--               constantValues = true,
+	--               functionTypeParameters = true,
+	--             },
+	--           },
+	--         },
+	--       },
+	--     },
+	--   },
+	-- },
+}

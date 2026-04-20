@@ -1,57 +1,123 @@
 {
+  inputs,
   pkgs,
-  config,
-  lib,
   ...
 }:
 {
-  # Neovim with LazyVIM
-  programs.neovim = {
+  imports = [
+    inputs.lazyvim.homeManagerModules.default
+  ];
+
+  programs.lazyvim = {
     enable = true;
-    viAlias = true;
-    vimAlias = true;
-    vimdiffAlias = true;
-    withNodeJs = true;
-    withPython3 = true;
-    withRuby = true;
+    # Core LazyVim dependencies (git, ripgrep, fd, etc.)
+    installCoreDependencies = true; # default: true
 
-    extraPackages = with pkgs; [
-      gcc # needed for nvim-treesitter
-      tree-sitter
-      cargo
+    configFiles = ./lazyvim;
 
-      # HTML, CSS, JSON
-      vscode-langservers-extracted
-
-      # LazyVim defaults
-      stylua
-      shfmt
-
-      # Markdown extra
-      markdownlint-cli2
-      marksman
-
-      # JSON and YAML extras
-      yaml-language-server
-
-      # Custom
-      editorconfig-checker
-      shellcheck
-      nixd
-      nil
-      statix
-      nixpkgs-fmt
-      nixfmt
-
-      # Additional LazyVim dependencies
-      ripgrep
-      fd
-      fzf
-      lazygit
-      unzip
-      wget
-    ];
+    extras = {
+      coding.yanky = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      editor.fzf = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      editor.snacks_explorer = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      lang.docker = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      lang.git = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      lang.go = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      lang.json = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      lang.markdown = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      lang.nix = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      lang.terraform = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      lang.toml = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      lang.typescript = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      lang.yaml = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+      util.dot = {
+        enable = true;
+        # installDependencies = true;
+        # installRuntimeDependencies = true;
+      };
+    };
   };
 
-  home.file.".config/nvim".source = config.lib.file.mkOutOfStoreSymlink /home/ryan/git/dot.nix/nvim;
+  programs.neovim.extraPackages = with pkgs; [
+    # Nix development tools
+    nixd
+    nil
+    statix
+    nixpkgs-fmt
+    nixfmt
+    editorconfig-checker
+    shellcheck
+
+    # Language servers and tools
+    vscode-langservers-extracted
+    yaml-language-server
+    marksman
+    markdownlint-cli2
+    stylua
+    shfmt
+
+    # Build tools
+    gcc
+    tree-sitter
+    cargo
+
+    # General utilities
+    ripgrep
+    fd
+    fzf
+    lazygit
+    unzip
+    wget
+  ];
 }

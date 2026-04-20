@@ -29,9 +29,16 @@
       custom = "$HOME/.oh-my-zsh/custom/";
       plugins = [
         "git"
-        "zsh-fzf-history-search"
       ];
     };
+
+    plugins = [
+      {
+        name = "zsh-fzf-history-search";
+        src = pkgs.zsh-fzf-history-search;
+        file = "share/zsh-fzf-history-search/zsh-fzf-history-search.zsh";
+      }
+    ];
   };
 
   home.packages = with pkgs; [

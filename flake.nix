@@ -52,6 +52,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    lazyvim = {
+      url = "github:pfassina/lazyvim-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     ## Plasma ##
     plasma-manager = {
       url = "github:nix-community/plasma-manager";
