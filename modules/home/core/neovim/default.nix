@@ -50,6 +50,9 @@
       gcc
       tree-sitter
       cargo
+
+      # luarocks for lazy.nvim rocks health check
+      luarocks
     ];
   };
 }
