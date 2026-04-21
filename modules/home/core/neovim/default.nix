@@ -38,7 +38,6 @@
       fish
       css
       latex
-      norg
       scss
       svelte
       typst
@@ -56,7 +55,7 @@
       # Language servers
       bash-language-server
       docker-compose-language-service
-      docker-langserver
+      dockerfile-language-server
       gopls
       lua-language-server
       taplo
@@ -70,7 +69,7 @@
 
       # Formatters
       gofumpt
-      goimports
+      gotools
       markdownlint-cli2
       prettier
       stylua
@@ -87,7 +86,7 @@
 
       # Other tools
       ast-grep
-      sqlite3
+      sqlite
 
       # Build tools
       gcc
