@@ -31,6 +31,10 @@
       util.dot.enable = true;
     };
 
+    # Fish parser needed because util.dot extra auto-detects ~/.config/fish
+    # and adds fish to treesitter ensure_installed
+    treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [ fish ];
+
     extraPackages = with pkgs; [
       # Nix development tools
       nixd

@@ -9,6 +9,7 @@ return {
           },
         },
       },
+      scroll = { enabled = false },
     },
     keys = {
       { "\\", "<leader>fe", desc = "Explorer Snacks (root dir)", remap = true },
