@@ -33,7 +33,17 @@
 
     # Fish parser needed because util.dot extra auto-detects ~/.config/fish
     # and adds fish to treesitter ensure_installed
-    treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [ fish ];
+    # Additional parsers for snacks.image TS language support
+    treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
+      fish
+      css
+      latex
+      norg
+      scss
+      svelte
+      typst
+      vue
+    ];
 
     extraPackages = with pkgs; [
       # Nix development tools
@@ -43,12 +53,41 @@
       alejandra
       editorconfig-checker
 
-      # Language servers and tools
+      # Language servers
+      bash-language-server
+      docker-compose-language-service
+      docker-langserver
+      gopls
+      lua-language-server
+      taplo
+      terraform-ls
+      vtsls
+
+      # Language servers (already present)
       vscode-langservers-extracted
       yaml-language-server
       marksman
+
+      # Formatters
+      gofumpt
+      goimports
+      markdownlint-cli2
+      prettier
       stylua
       shfmt
+
+      # Markdown TOC
+      markdown-toc
+
+      # Image rendering tools (snacks.image)
+      imagemagick
+      ghostscript
+      tectonic
+      mermaid-cli
+
+      # Other tools
+      ast-grep
+      sqlite3
 
       # Build tools
       gcc
