@@ -38,6 +38,7 @@
             --fit-target 256
             -np 1
             -fa on
+            --no-mmproj-offload
             --no-mmap
             --mlock
             -b 2048
