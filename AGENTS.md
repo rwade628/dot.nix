@@ -86,4 +86,9 @@ scripts/nix/upgrade-from-cache.sh
 
 ## MCP
 
-Configured `mcp-nixos` via `opencode.json`. Use `nix search` and NixOS option lookups through this tool.
+Configured `mcp-nixos` via `opencode.json`. **Always use it for NixOS/Home Manager lookups** — never hallucinate option names or package attributes.
+
+- **NixOS options**: `mcp-nixos` → `nix` tool with `action=search`, `type=options`, `source=nixos`
+- **NixOS packages**: `mcp-nixos` → `nix` tool with `action=search`, `type=packages`, `source=nixos`
+- **Home Manager options**: `mcp-nixos` → `nix` tool with `action=search`, `source=home-manager`
+- **Package info**: `mcp-nixos` → `nix` tool with `action=info`, `type=option`/`package`
