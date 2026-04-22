@@ -28,13 +28,6 @@
   # --- Mosh ---
   programs.mosh.enable = true;
 
-  # --- Security & Authentication ---
-  programs.gnupg.agent = {
-    enable = true;
-    enableSSHSupport = true;
-    # pinentryPackage is set in optional/desktop.nix (requires GUI)
-  };
-
   # --- Known Hosts ---
   # programs.ssh.knownHosts = {
   #   "truenas.local" = {
