@@ -6,7 +6,7 @@
     # enableFishIntegration = true;
     settings = {
       theme = "Catppuccin Mocha";
-      command = "tmux attach | tmux";
+      command = "tmux attach || tmux new-session -d -s 0";
       font-family = "monospace";
       font-size = "11";
       background-opacity = "0.85";
