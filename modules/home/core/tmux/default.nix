@@ -32,8 +32,8 @@
         plugin = resurrect;
         extraConfig = ''
           set -g @resurrect-strategy-nvim 'session'
-          set -g @resurrect-dir "#{home}/.tmux/resurrect/"
-          set -g @resurrect-hook-post-save-all "sed -i 's| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/nix/store/.*/bin/||g' $(ls #{home}/.tmux/resurrect/last)"
+          set -g @resurrect-dir "$HOME/.tmux/resurrect/"
+          set -g @resurrect-hook-post-save-all "sed -i 's| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/nix/store/.*/bin/||g' $(ls $HOME/.tmux/resurrect/last)"
         '';
       }
       {
