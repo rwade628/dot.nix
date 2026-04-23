@@ -45,8 +45,8 @@ in
     };
 
     # Holdover in case needing to roll back Nvidia drivers
-    # kernelPackages = pkgs.linuxPackages_6_18;
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_6_19;
+    # kernelPackages = pkgs.linuxPackages_latest;
 
     # Kernel sysctl parameters
     kernel.sysctl = {
