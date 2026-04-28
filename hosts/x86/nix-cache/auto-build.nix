@@ -18,6 +18,7 @@
       export NIX_REMOTE=daemon
 
       DOTFILES="/var/lib/nix-auto-build/dotfiles"
+      BUILD_LOG="/var/lib/nix-auto-build/build.log"
 
       # Clone or update dotfiles
       if [ ! -d "$DOTFILES" ]; then
@@ -31,14 +32,14 @@
       cd "$DOTFILES"
 
       # Update flake inputs
-      nix flake update
+      nix flake update 2>&1 | tee -a "$BUILD_LOG"
 
       # Update overrides (e.g. llama-cpp)
       # We assume the script is robust and uses 'uv' for dependencies
       export XDG_CACHE_HOME="/var/lib/nix-auto-build/.cache"
       if [ -f "scripts/update_overrides.py" ]; then
         echo "Running update_overrides.py..."
-        uv run scripts/update_overrides.py || echo "Warning: Update overrides failed"
+        uv run scripts/update_overrides.py 2>&1 | tee -a "$BUILD_LOG" || echo "Warning: Update overrides failed"
       fi
 
       # Get the commit ID of the nixpkgs input (locked in flake.lock)
@@ -46,20 +47,21 @@
 
       # Build all host configurations (--cores 1 to limit memory usage)
       for host in nixos; do
-        echo "Building $host..."
+        echo "Building $host..." | tee -a "$BUILD_LOG"
         if nix build .#nixosConfigurations.$host.config.system.build.toplevel \
           --out-link "/var/lib/nix-auto-build/result-$host" \
           --print-out-paths \
           --show-trace \
+          --no-color \
           --cores 1 \
-          --max-jobs 1; then
+          --max-jobs 1 2>&1 | tee -a "$BUILD_LOG"; then
             echo "$COMMIT_ID" > "/var/lib/nix-auto-build/$host.rev"
         else
-            echo "Warning: $host build failed, continuing..."
+            echo "Warning: $host build failed, continuing..." | tee -a "$BUILD_LOG"
         fi
       done
 
-      echo "All builds completed at $(date)"
+      echo "All builds completed at $(date)" | tee -a "$BUILD_LOG"
     '';
     serviceConfig = {
       Type = "oneshot";
