@@ -5,7 +5,7 @@ let
   keyPath = "/var/lib/harmonia/cache-priv-key.pem";
 in
 {
-  services.harmonia = {
+  services.harmonia.cache = {
     enable = true;
     # Don't use signKeyPaths - it uses LoadCredential which is broken in LXC
     signKeyPaths = lib.mkForce [ ];
