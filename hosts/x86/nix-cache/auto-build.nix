@@ -50,6 +50,7 @@
         if nix build .#nixosConfigurations.$host.config.system.build.toplevel \
           --out-link "/var/lib/nix-auto-build/result-$host" \
           --print-out-paths \
+          --show-trace \
           --cores 1 \
           --max-jobs 1; then
             echo "$COMMIT_ID" > "/var/lib/nix-auto-build/$host.rev"
