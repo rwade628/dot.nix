@@ -6,7 +6,7 @@
     # enableFishIntegration = true;
     settings = {
       theme = "Catppuccin Mocha";
-      command = "tmux has-session -t 0 2>/dev/null && tmux attach || tmux new-session -d -s 0 && tmux attach";
+      command = "if tmux has-session -t 0 2>/dev/null; then tmux attach; else SESSION=\"ghostty-$$\"; tmux new-session -d -s \"$SESSION\" && tmux attach -t \"$SESSION\"; fi";
       font-family = "monospace";
       font-size = "11";
       background-opacity = "0.85";
