@@ -1,7 +1,12 @@
-{ ... }:
+{
+  inputs,
+  lib,
+  ...
+}:
 
 {
   imports = [
+    (lib.custom.relativeToRoot "modules/nixos/core") # sets up core nixos configuration
     # LXC base configuration (Tier 1)
     ./lxc-container.nix
 
@@ -16,4 +21,14 @@
     ./system-packages.nix
     ./auto-build.nix
   ];
+
+  networking = {
+    enableIPv6 = false;
+  };
+
+  ## System-wide packages ##
+  programs.nix-ld.enable = true;
+
+  # https://wiki.nixos.org/wiki/FAQ/When_do_I_update_stateVersion
+  system.stateVersion = "25.11";
 }
