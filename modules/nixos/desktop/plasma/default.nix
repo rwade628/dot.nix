@@ -82,7 +82,10 @@
   '';
 
   # Ensure user is in video group for DDC access
-  users.users.${host.user.name}.extraGroups = [ "video" ];
+  users.users.${host.user.name}.extraGroups = [
+    "video"
+    "lp"
+  ];
 
   environment.variables = {
     __GL_SHADER_DISK_CACHE_SIZE = "100000000000"; # 100GB disk cache for shaders

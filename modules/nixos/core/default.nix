@@ -30,6 +30,10 @@
 
   # Enable print to PDF.
   services.printing.enable = true;
+
+  # Enable CUPS printing
+  services.printing.drivers = [ pkgs.cups-dymo ];
+
   # Force home-manager to use global packages
   home-manager.useGlobalPkgs = true;
   # Install user packages to /etc/profiles per user
