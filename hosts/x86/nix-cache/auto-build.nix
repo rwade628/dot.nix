@@ -18,7 +18,6 @@
       export NIX_REMOTE=daemon
 
       DOTFILES="/var/lib/nix-auto-build/dotfiles"
-      BUILD_LOG="/var/lib/nix-auto-build/build.log"
 
       # Clone or update dotfiles
       if [ ! -d "$DOTFILES" ]; then
@@ -29,39 +28,37 @@
         git reset --hard origin/main
       fi
 
-      cd "$DOTFILES"
+      cd "$DOTFILES/configs/nixos"
 
       # Update flake inputs
-      nix flake update 2>&1 | tee -a "$BUILD_LOG"
+      # nix flake update
 
       # Update overrides (e.g. llama-cpp)
       # We assume the script is robust and uses 'uv' for dependencies
       export XDG_CACHE_HOME="/var/lib/nix-auto-build/.cache"
-      if [ -f "scripts/update_overrides.py" ]; then
-        echo "Running update_overrides.py..."
-        uv run scripts/update_overrides.py 2>&1 | tee -a "$BUILD_LOG" || echo "Warning: Update overrides failed"
-      fi
+      # if [ -f "scripts/update_overrides.py" ]; then
+      #   echo "Running update_overrides.py..."
+      #   uv run scripts/update_overrides.py || echo "Warning: Update overrides failed"
+      # fi
 
       # Get the commit ID of the nixpkgs input (locked in flake.lock)
       COMMIT_ID=$(jq -r .nodes.nixpkgs.locked.rev flake.lock)
 
       # Build all host configurations (--cores 1 to limit memory usage)
       for host in nixos; do
-        echo "Building $host..." | tee -a "$BUILD_LOG"
+        echo "Building $host..."
         if nix build .#nixosConfigurations.$host.config.system.build.toplevel \
           --out-link "/var/lib/nix-auto-build/result-$host" \
           --print-out-paths \
-          --show-trace \
-          --no-color \
           --cores 1 \
-          --max-jobs 1 2>&1 | tee -a "$BUILD_LOG"; then
+          --max-jobs 1; then
             echo "$COMMIT_ID" > "/var/lib/nix-auto-build/$host.rev"
         else
-            echo "Warning: $host build failed, continuing..." | tee -a "$BUILD_LOG"
+            echo "Warning: $host build failed, continuing..."
         fi
       done
 
-      echo "All builds completed at $(date)" | tee -a "$BUILD_LOG"
+      echo "All builds completed at $(date)"
     '';
     serviceConfig = {
       Type = "oneshot";
@@ -75,7 +72,7 @@
   systemd.timers.nix-auto-build = {
     wantedBy = [ "timers.target" ];
     timerConfig = {
-      OnCalendar = "*-*-* 02:30:00";
+      OnCalendar = "*-*-* 02:00:00";
       Persistent = true;
       RandomizedDelaySec = "1h";
     };
