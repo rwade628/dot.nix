@@ -6,7 +6,7 @@
 
 {
   imports = [
-    (lib.custom.relativeToRoot "modules/nixos/core") # sets up core nixos configuration
+    # (lib.custom.relativeToRoot "modules/nixos/core") # sets up core nixos configuration
     # LXC base configuration (Tier 1)
     ./lxc-container.nix
 
