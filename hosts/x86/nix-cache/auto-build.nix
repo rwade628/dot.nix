@@ -31,15 +31,15 @@
       cd "$DOTFILES"
 
       # Update flake inputs
-      # nix flake update
+      nix flake update
 
       # Update overrides (e.g. llama-cpp)
       # We assume the script is robust and uses 'uv' for dependencies
       export XDG_CACHE_HOME="/var/lib/nix-auto-build/.cache"
-      # if [ -f "scripts/update_overrides.py" ]; then
-      #   echo "Running update_overrides.py..."
-      #   uv run scripts/update_overrides.py || echo "Warning: Update overrides failed"
-      # fi
+      if [ -f "scripts/update_overrides.py" ]; then
+        echo "Running update_overrides.py..."
+        uv run scripts/update_overrides.py || echo "Warning: Update overrides failed"
+      fi
 
       # Get the commit ID of the nixpkgs input (locked in flake.lock)
       COMMIT_ID=$(jq -r .nodes.nixpkgs.locked.rev flake.lock)
