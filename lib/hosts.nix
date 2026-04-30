@@ -20,5 +20,13 @@
       };
       plasma = true;
     };
+    nix-cache = {
+      network = {
+        hostName = "nix-cache";
+      };
+      user = {
+        name = "ryan";
+      };
+    };
   };
 }
