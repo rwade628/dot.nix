@@ -23,12 +23,13 @@ in
     username = lib.mkDefault user.name;
     stateVersion = lib.mkDefault "25.05";
     sessionPath = [
-      "~/.local/bin"
+      "/home/${host.user.name}/.local/bin"
+      "/home/${host.user.name}/.local/npm"
     ];
     sessionVariables = {
-      EDITOR = lib.mkDefault "micro";
-      VISUAL = lib.mkDefault "micro";
-      FLAKE = lib.mkDefault "/repo/Nix/dot.nix";
+      EDITOR = lib.mkDefault "nvim";
+      VISUAL = lib.mkDefault "nvim";
+      FLAKE = lib.mkDefault "/home/${host.user.name}/git/dot.nix";
       SHELL = lib.getExe user.shell;
     };
     # preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
