@@ -1,6 +1,5 @@
 {
-  inputs,
-  lib,
+  pkgs,
   ...
 }:
 
@@ -25,6 +24,15 @@
   networking = {
     enableIPv6 = false;
   };
+
+  environment.systemPackages = with pkgs; [
+    git
+    nix
+    openssh
+    jq
+    uv
+    python3
+  ]
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
