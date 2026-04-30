@@ -8,6 +8,7 @@
     # (lib.custom.relativeToRoot "modules/nixos/core") # sets up core nixos configuration
     # LXC base configuration (Tier 1)
     ./lxc-container.nix
+    ./nix.nix
 
     # Optional modules (Tier 2)
     # Note: nix-cache is a headless build server, no desktop/audio
