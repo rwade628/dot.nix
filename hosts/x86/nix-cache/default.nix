@@ -32,7 +32,7 @@
     jq
     uv
     python3
-  ]
+  ];
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;
