@@ -62,6 +62,7 @@
   ];
 
   programs.firefox.enable = true;
+  programs.firefox.package = pkgs.firefox;
   programs.xwayland.enable = true;
 
   # Enable pipewire for audio
