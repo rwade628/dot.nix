@@ -15,19 +15,23 @@
 
     extras = {
       coding.yanky.enable = true;
-      editor.fzf.enable = true;
-      editor.snacks_explorer.enable = true;
-      editor.snacks_picker.enable = true;
-      lang.docker.enable = true;
-      lang.git.enable = true;
-      lang.go.enable = true;
-      lang.json.enable = true;
-      lang.markdown.enable = true;
-      lang.nix.enable = true;
-      lang.terraform.enable = true;
-      lang.toml.enable = true;
-      lang.typescript.enable = true;
-      lang.yaml.enable = true;
+      editor = {
+        fzf.enable = true;
+        snacks-explorer.enable = true;
+        snacks-picker.enable = true;
+      };
+      lang = {
+        docker.enable = true;
+        git.enable = true;
+        go.enable = true;
+        json.enable = true;
+        markdown.enable = true;
+        nix.enable = true;
+        terraform.enable = true;
+        toml.enable = true;
+        typescript.enable = true;
+        yaml.enable = true;
+      };
       util.dot.enable = true;
     };
 
