@@ -35,7 +35,6 @@
             -hf unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_M
             --fit on
             --fit-ctx 128000
-            --fit-target 256
             -np 1
             -fa on
             --no-mmproj-offload
@@ -141,6 +140,10 @@
       NoNewPrivileges = true;
     };
   };
+
+  environment.systemPackages = with pkgs; [
+    agent-browser
+  ];
 
   # --- Qdrant Vector Database ---
   services.qdrant = {

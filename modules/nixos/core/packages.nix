@@ -75,6 +75,7 @@ let
     jq # JSON processor
     just # Command runner (make alternative)
     keyd # Keyboard daemon
+    lastpass-cli # LastPass CLI
     lazydocker # TUI for docker
     lazygit # TUI for git
     lm_sensors # Hardware sensors

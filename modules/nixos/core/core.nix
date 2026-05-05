@@ -10,7 +10,36 @@
   i18n.defaultLocale = "en_US.UTF-8";
 
   # --- System Compatibility ---
-  programs.nix-ld.enable = true; # Run non-nix executables (e.g., micromamba)
+  programs.nix-ld = {
+    enable = true; # Run non-nix executables (e.g., micromamba)
+    # Provide the missing shared libraries specifically required by Chrome
+    libraries = with pkgs; [
+      alsa-lib
+      at-spi2-atk
+      at-spi2-core
+      atk
+      cairo
+      cups
+      dbus
+      expat
+      glib
+      gtk3
+      libgbm
+      libdrm
+      libxkbcommon
+      mesa
+      nspr
+      nss
+      pango
+      xorg.libX11
+      xorg.libXcomposite
+      xorg.libXdamage
+      xorg.libXext
+      xorg.libXfixes
+      xorg.libXrandr
+      xorg.libxcb
+    ];
+  };
 
   boot.kernelModules = [ "tcp_bbr" ];
 
