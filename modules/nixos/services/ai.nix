@@ -51,7 +51,6 @@
             --presence-penalty 0.0
             --repeat-penalty 1.0
             --reasoning-budget -1
-            --chat-template-kwargs "{\"preserve_thinking\": true}"
             --port ''${PORT}
 
       "gemma-4-26B-A4B-it-GGUF":
