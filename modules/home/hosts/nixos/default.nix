@@ -46,6 +46,7 @@
       python3
       go
       kubectl
+      krew
 
       ### Previous packages
       nnn # terminal file manager
