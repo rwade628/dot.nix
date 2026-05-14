@@ -25,6 +25,7 @@ in
     sessionPath = [
       "/home/${host.user.name}/.local/bin"
       "/home/${host.user.name}/.local/npm"
+      "/home/${host.user.name}/.krew/bin"
     ];
     sessionVariables = {
       EDITOR = lib.mkDefault "nvim";
