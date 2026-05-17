@@ -14,6 +14,7 @@
     lazyjournal # journalctl viewer
     trashy # trash cli
     unrar # rar extraction
+    wireshark # packet inspection
 
     # File operations (partial - unzip in system)
     zip # zip compression
