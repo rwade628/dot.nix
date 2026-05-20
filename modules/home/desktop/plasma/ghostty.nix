@@ -6,7 +6,7 @@
     # enableFishIntegration = true;
     settings = {
       theme = "Catppuccin Mocha";
-    
+
       font-family = "monospace";
       font-size = "11";
       background-opacity = "0.85";

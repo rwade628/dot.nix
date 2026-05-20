@@ -86,7 +86,6 @@
       imagemagick
       ghostscript
       tectonic
-      mermaid-cli
 
       # Other tools
       ast-grep
@@ -95,7 +94,6 @@
       # Build tools
       gcc
       tree-sitter
-      cargo
 
       # luarocks for lazy.nvim rocks health check
       luarocks

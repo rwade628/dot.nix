@@ -28,5 +28,17 @@
         name = "ryan";
       };
     };
+    loki = {
+      network = {
+        hostName = "loki";
+      };
+      user = {
+        name = "ryan";
+      };
+      mounts = {
+        media = true;
+      };
+      isServer = true;
+    };
   };
 }

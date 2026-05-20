@@ -1,32 +1,39 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  host,
+  ...
+}:
 {
   fonts = {
-    packages = with pkgs; [
-      # icon fonts
-      material-symbols
+    packages =
+      with pkgs;
+      lib.optionals (!host.isServer) [
+        # icon fonts
+        material-symbols
 
-      # Sans(Serif) fonts
-      lexend
-      noto-fonts
-      noto-fonts-color-emoji
-      roboto
-      (google-fonts.override {
-        fonts = [
-          "Inter"
-          "Laila"
-        ];
-      })
+        # Sans(Serif) fonts
+        lexend
+        noto-fonts
+        noto-fonts-color-emoji
+        roboto
+        (google-fonts.override {
+          fonts = [
+            "Inter"
+            "Laila"
+          ];
+        })
 
-      # monospace fonts
-      monocraft
-      nerd-fonts.roboto-mono
-      nerd-fonts.jetbrains-mono
+        # monospace fonts
+        monocraft
+        nerd-fonts.roboto-mono
+        nerd-fonts.jetbrains-mono
 
-      # nerdfonts
-      nerd-fonts.fira-code
-      nerd-fonts.symbols-only
-      nerd-fonts.meslo-lg
-    ];
+        # nerdfonts
+        nerd-fonts.fira-code
+        nerd-fonts.symbols-only
+        nerd-fonts.meslo-lg
+      ];
 
     # causes more issues than it solves
     enableDefaultPackages = false;

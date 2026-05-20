@@ -3,7 +3,12 @@
 # OWNERSHIP: These are system-level packages installed via NixOS
 # All packages listed here should NOT be duplicated in home-manager
 # User-specific apps should go in modules/home/core/packages.nix
-{ pkgs, ... }:
+{
+  pkgs,
+  lib,
+  host,
+  ...
+}:
 
 let
   # --- Base System Tools ---
@@ -116,10 +121,12 @@ let
 
   # --- Gaming ---
   # Gaming-related system packages
-  gaming = with pkgs; [
-    wineWow64Packages.full # Wine implementation
-    winetricks # Wine helper script
-  ];
+  gaming =
+    with pkgs;
+    lib.optionals (!host.isServer) [
+      wineWow64Packages.full # Wine implementation
+      winetricks # Wine helper script
+    ];
 
   # --- AI Tools ---
   # Artificial intelligence tools

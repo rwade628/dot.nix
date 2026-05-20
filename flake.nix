@@ -20,6 +20,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixos-wsl = {
+      url = "github:nix-community/nixos-wsl";
+      inputs.flake-compat.follows = "";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     ## Theming ##
 
     rose-pine-hyprcursor = {
