@@ -28,10 +28,10 @@
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;
-  };
+  # hardware.graphics = {
+  #   enable = true;
+  #   enable32Bit = true;
+  # };
 
   # nvidia-container-toolkit added an assertion requiring explicit driver
   # configuration. On WSL, drivers come from Windows.

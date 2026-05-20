@@ -23,8 +23,6 @@
       ffmpeg_8-full
 
       ## Tools ##
-      inspector
-      solaar
       nil
       nixpkgs-fmt
       nixfmt
