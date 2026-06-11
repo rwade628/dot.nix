@@ -146,10 +146,10 @@ let
     gcc # GNU Compiler Collection
     gnumake # Build automation
     meson # Build system
-    nodejs_20 # Node.js runtime
+    nodejs_26 # Node.js runtime
     pkg-config # Manage compile flags
     portaudio # Audio I/O library
-    (python3.withPackages (ps: [ ps.pipx ])) # Python with pipx
+    python3
   ];
 in
 {

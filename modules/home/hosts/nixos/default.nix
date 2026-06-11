@@ -34,7 +34,6 @@
       vesktop
 
       ## Tools ##
-      bitwarden-desktop
       inspector
       solaar
       nil
