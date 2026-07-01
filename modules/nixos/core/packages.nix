@@ -26,6 +26,7 @@ let
     pciutils # PCI device information
     sshfs # SSH filesystem client
     wget # Web downloader
+    tcpdump
   ];
 
   # --- Package Managers ---
