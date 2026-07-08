@@ -194,7 +194,7 @@ def resolve_hashes(file_path: Path, content: str, pkg: Package) -> str:
 
 
 def main():
-    file_path = Path("hosts/x86/nixos/package-overrides.nix")
+    file_path = Path("hosts/x86/loki/package-overrides.nix")
     if not file_path.exists():
         print(f"Error: {file_path} not found.")
         sys.exit(1)
