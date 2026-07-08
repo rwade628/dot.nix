@@ -19,6 +19,7 @@
 
   wsl = {
     enable = true;
+    useWindowsDriver = true;
     defaultUser = "ryan";
   };
 
