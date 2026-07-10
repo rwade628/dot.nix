@@ -2,6 +2,7 @@
 { pkgs, ... }:
 
 {
+
   # --- Ollama ---
   # services.ollama = {
   #   enable = true;
@@ -104,16 +105,6 @@
 
     # TTL keeps models in memory for specified seconds after last use
     ttl: 3600  # Keep models loaded for 1 hour (like OLLAMA_KEEP_ALIVE)
-
-    # Groups allow running multiple models simultaneously
-    groups:
-      embedding:
-        # Keep embedding model always loaded alongside any other model
-        persistent: true  # Prevents other groups from unloading this
-        swap: false       # Don't swap models within this group
-        exclusive: false  # Don't unload other groups when loading this
-        members:
-          - "embeddinggemma:300m"
   '';
 
   systemd.services.llama-swap = {
@@ -137,11 +128,14 @@
       # Simplified security settings to avoid namespace issues
       PrivateTmp = true;
       NoNewPrivileges = true;
+      LimitMEMLOCK = "infinity";
     };
   };
 
   environment.systemPackages = with pkgs; [
     agent-browser
+    llama-cpp
+    llama-swap
   ];
 
   # # --- Qdrant Vector Database ---

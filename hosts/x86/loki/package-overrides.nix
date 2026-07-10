@@ -40,7 +40,7 @@
             # for reproducible builds). We sacrifice portability for faster CPU layers.
             cmakeFlags = (oldAttrs.cmakeFlags or [ ]) ++ [
               "-DGGML_NATIVE=ON"
-              "-DCMAKE_CUDA_ARCHITECTURES=86" # RTX 3090 - needed since sandbox has no GPU
+              "-DCMAKE_CUDA_ARCHITECTURES=120" # RTX 5070 Ti - needed since sandbox has no GPU
             ];
 
             # Disable Nix's NIX_ENFORCE_NO_NATIVE which strips -march=native flags
