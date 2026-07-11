@@ -119,10 +119,17 @@
       Restart = "always";
       RestartSec = 10;
       # Environment for CUDA support
+      # Environment = [
+      #   "PATH=/run/current-system/sw/bin"
+      #   "LD_LIBRARY_PATH=/run/opengl-driver/lib:/run/opengl-driver-32/lib"
+      #   # llama-swap can use both GPUs (0,1), but Ollama is restricted to GPU 0
+      # ];
+      # Environment for WSL CUDA support
       Environment = [
-        "PATH=/run/current-system/sw/bin"
-        "LD_LIBRARY_PATH=/run/opengl-driver/lib:/run/opengl-driver-32/lib"
-        # llama-swap can use both GPUs (0,1), but Ollama is restricted to GPU 0
+        "CUDA_PATH=${pkgs.cudatoolkit}"
+        "LD_LIBRARY_PATH=/usr/lib/wsl/lib:${pkgs.linuxPackages.nvidia_x11}/lib:${pkgs.ncurses5}/lib"
+        "EXTRA_LDFLAGS=\"-L/lib -L${pkgs.linuxPackages.nvidia_x11}/lib\""
+        "EXTRA_CCFLAGS=\"-I/usr/include\""
       ];
       # Environment needs access to cache directories for model downloads
       # Simplified security settings to avoid namespace issues
