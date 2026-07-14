@@ -95,6 +95,11 @@
     "/share/xdg-desktop-portal"
   ];
 
+  catppuccin = {
+    enable = true;
+    autoEnable = true;
+  };
+
   ## NIX NIX NIX ##
   documentation.nixos.enable = lib.mkForce false;
 }
