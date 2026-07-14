@@ -84,6 +84,8 @@ in
 
   # Catpuccin flavor and accent
   catppuccin = {
+    enable = true;
+    autoEnable = true;
     flavor = "macchiato";
     accent = "lavender";
   };

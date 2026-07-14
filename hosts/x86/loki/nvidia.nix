@@ -21,19 +21,20 @@
     mount-nvidia-executables = false;
   };
 
-  systemd.services = {
-    nvidia-cdi-generator = {
-      description = "Generate nvidia cdi";
-      wantedBy = [ "docker.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${pkgs.nvidia-docker}/bin/nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml --nvidia-ctk-path=${pkgs.nvidia-container-toolkit}/bin/nvidia-ctk";
-      };
-    };
-  };
+  # systemd.services = {
+  #   nvidia-cdi-generator = {
+  #     description = "Generate nvidia cdi";
+  #     wantedBy = [ "docker.service" ];
+  #     serviceConfig = {
+  #       Type = "oneshot";
+  #       ExecStart = "${pkgs.nvidia-docker}/bin/nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml --nvidia-ctk-path=${pkgs.nvidia-container-toolkit}/bin/nvidia-ctk";
+  #     };
+  #   };
+  # };
 
   virtualisation.docker = {
-    daemon.settings.features.cdi = true;
-    daemon.settings.cdi-spec-dirs = [ "/etc/cdi" ];
+    enable = true;
+    # daemon.settings.features.cdi = true;
+    # daemon.settings.cdi-spec-dirs = [ "/etc/cdi" ];
   };
 }

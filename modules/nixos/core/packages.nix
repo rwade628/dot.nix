@@ -27,6 +27,7 @@ let
     sshfs # SSH filesystem client
     wget # Web downloader
     tcpdump
+    wl-clipboard
   ];
 
   # --- Package Managers ---
@@ -92,6 +93,7 @@ let
     nmap # Network scanner
     ookla-speedtest # Speed test
     opencode # AI chat agent TUI
+    claude-code # AI chat agent TUI for Claude
     packer # Packer CLI
     parallel # Parallel command execution
     postgresql # PostgreSQL database
