@@ -22,7 +22,7 @@
     sha256 = "sha256-UUaKD9kBuoWITv/AV6Nh9t0z5LPJnq1F8mc9L9eaiUM=";
   };
 
-  environment.etc."llama-templates/apriel-thinker.jinja".source = ./apriel-thinker.jinja;
+  environment.etc."llama-templates/qwen-fixed.jinja".source = ./qwen-fixed.jinja;
 
   environment.etc."llama-swap/config.yaml".text = ''
     # llama-swap configuration
@@ -30,10 +30,10 @@
 
     models:  # Ordered from newest to oldest
 
-      "Qwen3.6-35B-A3B-GGUF":
+      "Qwen3.6-35B-A3B-MTP-GGUF":
         cmd: |
             ${pkgs.llama-cpp}/bin/llama-server
-            -hf unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_M
+            -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:UD-Q4_K_M
             --fit on
             --fit-ctx 128000
             -np 1
@@ -51,8 +51,9 @@
             --min-p 0.0
             --presence-penalty 0.0
             --repeat-penalty 1.0
-            --reasoning-budget -1
             --port ''${PORT}
+            -- jinja
+            --chat-template-file /etc/llama-templates/qwen-fixed.jinja
 
       "gemma-4-26B-A4B-it-GGUF":
         cmd: |
