@@ -51,8 +51,9 @@
             --min-p 0.0
             --presence-penalty 0.0
             --repeat-penalty 1.0
+            --reasoning-preserve
             --port ''${PORT}
-            -- jinja
+            --jinja
             --chat-template-file /etc/llama-templates/qwen-fixed.jinja
 
       "gemma-4-26B-A4B-it-GGUF":

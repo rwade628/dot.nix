@@ -26,7 +26,7 @@ class Package:
     tag_prefix: str
     version_pattern: re.Pattern
     semver: bool = False
-    hash_count: int = 1  # ollama has 2 (hash + vendorHash)
+    hash_count: int = 1
 
 
 PACKAGES = [
@@ -148,8 +148,14 @@ def update_version(content: str, pkg: Package) -> tuple[str, bool]:
     else:
         content = pkg.version_pattern.sub(rf"\g<1>{latest}\g<3>", content)
 
-    # Replace hashes with dummy
-    content = replace_hashes_in_block(content, match.start(), pkg.hash_count)
+    # Replace hashes with dummy. Ollama's llama.cpp pin lives before the
+    # override block and is handled by update_ollama_llama_cpp_pin().
+    updated_match = pkg.version_pattern.search(content)
+    if not updated_match:
+        print(f"Could not find updated {pkg.name} version definition.")
+        return content, False
+    block_hash_count = 2 if pkg.name == "ollama" else pkg.hash_count
+    content = replace_hashes_in_block(content, updated_match.start(), block_hash_count)
 
     return content, True
 
@@ -160,7 +166,7 @@ def get_new_hash(pkg_attribute: str) -> str | None:
     result = subprocess.run(
         [
             "nix", "build",
-            f".#nixosConfigurations.nixos.pkgs.{pkg_attribute}",
+            f".#nixosConfigurations.loki.pkgs.{pkg_attribute}",
             "--no-link", "--cores", "1",
         ],
         capture_output=True,
@@ -177,15 +183,14 @@ def get_new_hash(pkg_attribute: str) -> str | None:
 def resolve_hashes(file_path: Path, content: str, pkg: Package) -> str:
     """Resolve dummy hashes by building and extracting correct values."""
     for i in range(pkg.hash_count):
-        hash_name = "vendorHash" if i == 1 else "hash"
-        print(f"Resolving {pkg.name} {hash_name}...")
+        print(f"Resolving {pkg.name} hash {i + 1}/{pkg.hash_count}...")
 
         new_hash = get_new_hash(pkg.name)
         if not new_hash:
-            print(f"Failed to resolve {pkg.name} {hash_name}.")
+            print(f"Failed to resolve {pkg.name} hash {i + 1}/{pkg.hash_count}.")
             sys.exit(1)
 
-        print(f"Found {hash_name}: {new_hash}")
+        print(f"Found hash: {new_hash}")
         content = content.replace(DUMMY_HASH, new_hash, 1)
         file_path.write_text(content)
 
