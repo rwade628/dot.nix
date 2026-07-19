@@ -1,5 +1,10 @@
 # Automatic nix build service for caching
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  host,
+  ...
+}:
 
 {
   # --- Auto-Build Service ---
@@ -41,7 +46,7 @@
         uv run scripts/ai/update_overrides.py || echo "Warning: Update overrides failed"
       fi
 
-      # Get the commit ID of the nixpkgs input (locked in flake.lock)
+      # Capture the nixpkgs revision from the updated flake.lock (used for builds)
       COMMIT_ID=$(jq -r .nodes.nixpkgs.locked.rev flake.lock)
 
       # Build all host configurations (--cores 1 to limit memory usage)
@@ -78,7 +83,7 @@
     '';
     serviceConfig = {
       Type = "oneshot";
-      User = "root";
+      User = host.user.name;
       # Generous timeout for CUDA builds
       TimeoutStartSec = "3d";
     };
@@ -96,6 +101,6 @@
 
   # Ensure build directory exists
   systemd.tmpfiles.rules = [
-    "d /var/lib/nix-auto-build 0755 root root -"
+    "d /var/lib/nix-auto-build 0755 ${host.user.name} users -"
   ];
 }
