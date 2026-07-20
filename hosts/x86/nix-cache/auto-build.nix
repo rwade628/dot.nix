@@ -47,7 +47,7 @@
       fi
 
       # Capture the nixpkgs revision from the updated flake.lock (used for builds)
-      NIXPKGS_KEY=$(jq -r '.root.inputs.nixpkgs' flake.lock)
+      NIXPKGS_KEY=$(jq -r .nodes.root.inputs.nixpkgs flake.lock)
       COMMIT_ID=$(jq -r .nodes.$NIXPKGS_KEY.locked.rev flake.lock)
 
       # Build all host configurations (--cores 1 to limit memory usage)
