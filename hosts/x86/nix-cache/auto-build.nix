@@ -26,7 +26,7 @@
 
       # Clone or update dotfiles via SSH
       if [ ! -d "$DOTFILES" ]; then
-        git clone git@github.com:rwade628/dot.nix "$DOTFILES"
+        git clone https://github.com/rwade628/dot.nix "$DOTFILES"
       else
         cd "$DOTFILES"
         git fetch origin
@@ -50,7 +50,6 @@
       COMMIT_ID=$(jq -r .nodes.nixpkgs.locked.rev flake.lock)
 
       # Build all host configurations (--cores 1 to limit memory usage)
-      ALL_SUCCESS=true
       for host in nixos loki; do
         echo "Building $host..."
         if nix build .#nixosConfigurations.$host.config.system.build.toplevel \
@@ -61,29 +60,14 @@
             echo "$COMMIT_ID" > "/var/lib/nix-auto-build/$host.rev"
         else
             echo "Warning: $host build failed, continuing..."
-            ALL_SUCCESS=false
         fi
       done
-
-      # Commit and push if all builds succeeded and there are changes
-      if [ "$ALL_SUCCESS" = true ]; then
-        if git diff --quiet; then
-          echo "No changes to commit."
-        else
-          echo "Committing updated flake inputs and package overrides..."
-          git add flake.lock hosts/x86/loki/package-overrides.nix
-          git commit -m "auto: update flake inputs and package overrides"
-          git pull --rebase origin main
-          git push origin main
-          echo "Pushed changes to origin/main."
-        fi
-      fi
 
       echo "All builds completed at $(date)"
     '';
     serviceConfig = {
       Type = "oneshot";
-      User = host.user.name;
+      User = "root";
       # Generous timeout for CUDA builds
       TimeoutStartSec = "3d";
     };
@@ -101,6 +85,6 @@
 
   # Ensure build directory exists
   systemd.tmpfiles.rules = [
-    "d /var/lib/nix-auto-build 0755 ${host.user.name} users -"
+    "d /var/lib/nix-auto-build 0755 root root -"
   ];
 }
