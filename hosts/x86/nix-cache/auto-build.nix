@@ -24,6 +24,9 @@
 
         DOTFILES="/var/lib/nix-auto-build/dotfiles"
 
+        # It's okay this is owned by root
+        git config --global --add safe.directory $DOTFILES
+
         # Clone or update dotfiles via SSH
         if [ ! -d "$DOTFILES" ]; then
           git clone git@github.com:rwade628/dot.nix "$DOTFILES"
