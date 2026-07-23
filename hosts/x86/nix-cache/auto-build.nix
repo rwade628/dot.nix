@@ -24,9 +24,6 @@
 
         DOTFILES="/var/lib/nix-auto-build/dotfiles"
 
-        # It's okay this is owned by root
-        git config --global --add safe.directory $DOTFILES
-
         # Clone or update dotfiles via SSH
         if [ ! -d "$DOTFILES" ]; then
           git clone git@github.com:rwade628/dot.nix "$DOTFILES"
@@ -71,9 +68,6 @@
 
         # 4. PUSH CHANGES if build succeeded
       if [ "$BUILD_SUCCESS" = true ]; then
-        git config user.name "Nix Auto Builder"
-        git config user.email "builder@localhost"
-        
         # Commit if there are changes
         if ! git diff --quiet || ! git diff --staged --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
           git add flake.lock
