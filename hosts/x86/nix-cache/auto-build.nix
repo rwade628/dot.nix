@@ -18,6 +18,7 @@
       jq
       uv
       python3
+      sudo
     ];
     script = ''
         set -euo pipefail
