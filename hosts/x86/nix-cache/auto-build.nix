@@ -53,7 +53,7 @@
 
         # Build all host configurations (--cores 1 to limit memory usage)
         BUILD_SUCCESS=true
-        for host in nixos loki; do
+        for host in loki; do
           echo "Building $host..."
           if nix build .#nixosConfigurations.$host.config.system.build.toplevel \
             --out-link "/var/lib/nix-auto-build/result-$host" \
