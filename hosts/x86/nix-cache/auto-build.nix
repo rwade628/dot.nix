@@ -55,7 +55,7 @@
         BUILD_SUCCESS=true
         for host in loki; do
           echo "Building $host..."
-          if nix build .#nixosConfigurations.$host.config.system.build.toplevel \
+          if sudo nix build .#nixosConfigurations.$host.config.system.build.toplevel \
             --out-link "/var/lib/nix-auto-build/result-$host" \
             --print-out-paths \
             --cores 1 \
