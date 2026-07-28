@@ -18,78 +18,79 @@
       jq
       uv
       python3
-      sudo
     ];
     script = ''
-        set -euo pipefail
-        export NIX_REMOTE=daemon
+      set -euo pipefail
+      export NIX_REMOTE=daemon
 
-        DOTFILES="/var/lib/nix-auto-build/dotfiles"
+      DOTFILES="/var/lib/nix-auto-build/dotfiles"
 
-        # Clone or update dotfiles via SSH
-        if [ ! -d "$DOTFILES" ]; then
-          git clone git@github.com:rwade628/dot.nix "$DOTFILES"
-        else
+      if [ ! -d "$DOTFILES" ]; then
+        sudo -H -u ryan git clone git@github.com:rwade628/dot.nix "$DOTFILES"
+      else
+        sudo -H -u ryan DOTFILES="$DOTFILES" bash -c '
           cd "$DOTFILES"
           git fetch origin
           git reset --hard origin/main
-        fi
+        '
+      fi
 
-        cd "$DOTFILES"
+      cd "$DOTFILES"
 
-        # Update flake inputs
-        nix flake update
+      # Update flake inputs
+      nix flake update
 
-        # Update overrides (e.g. llama-cpp)
-        # We assume the script is robust and uses 'uv' for dependencies
-        export XDG_CACHE_HOME="/var/lib/nix-auto-build/.cache"
-        if [ -f "scripts/ai/update_overrides.py" ]; then
-          echo "Running update_overrides.py..."
-          uv run scripts/ai/update_overrides.py || echo "Warning: Update overrides failed"
-        fi
+      # Update overrides (e.g. llama-cpp)
+      # We assume the script is robust and uses 'uv' for dependencies
+      export XDG_CACHE_HOME="/var/lib/nix-auto-build/.cache"
+      if [ -f "scripts/ai/update_overrides.py" ]; then
+        echo "Running update_overrides.py..."
+        uv run scripts/ai/update_overrides.py || echo "Warning: Update overrides failed"
+      fi
 
-        # Capture the nixpkgs revision from the updated flake.lock (used for builds)
-        NIXPKGS_KEY=$(jq -r .nodes.root.inputs.nixpkgs flake.lock)
-        COMMIT_ID=$(jq -r .nodes.$NIXPKGS_KEY.locked.rev flake.lock)
+      # Capture the nixpkgs revision from the updated flake.lock (used for builds)
+      NIXPKGS_KEY=$(jq -r .nodes.root.inputs.nixpkgs flake.lock)
+      COMMIT_ID=$(jq -r .nodes.$NIXPKGS_KEY.locked.rev flake.lock)
 
-        # Build all host configurations (--cores 1 to limit memory usage)
-        BUILD_SUCCESS=true
-        for host in loki; do
-          echo "Building $host..."
-          if sudo nix build .#nixosConfigurations.$host.config.system.build.toplevel \
-            --out-link "/var/lib/nix-auto-build/result-$host" \
-            --print-out-paths \
-            --cores 1 \
-            --max-jobs 1; then
-              echo "$COMMIT_ID" > "/var/lib/nix-auto-build/$host.rev"
-          else
-              BUILD_SUCCESS=false
-              echo "Warning: $host build failed, continuing..."
-          fi
-        done
-
-        # 4. PUSH CHANGES if build succeeded
-      if [ "$BUILD_SUCCESS" = true ]; then
-        # Commit if there are changes
-        if ! git diff --quiet || ! git diff --staged --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
-          git add flake.lock
-          git add -u  # Catches changes made by update_overrides.py
-          git commit -m "chore: automated nightly flake updates"
-          git push origin main
-          echo "Successfully pushed updated lockfile."
+      # Build all host configurations (--cores 1 to limit memory usage)
+      BUILD_SUCCESS=true
+      for host in loki; do
+        echo "Building $host..."
+        if nix build .#nixosConfigurations.$host.config.system.build.toplevel \
+          --out-link "/var/lib/nix-auto-build/result-$host" \
+          --print-out-paths \
+          --cores 1 \
+          --max-jobs 1; then
+            echo "$COMMIT_ID" > "/var/lib/nix-auto-build/$host.rev"
         else
-          echo "No updates available today."
+            BUILD_SUCCESS=false
+            echo "Warning: $host build failed, continuing..."
         fi
+      done
+
+      if [ "$BUILD_SUCCESS" = true ]; then
+        sudo -H -u ryan DOTFILES="$DOTFILES" bash -c '
+          cd "$DOTFILES"
+          if ! git diff --quiet || ! git diff --staged --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+            git add flake.lock
+            git add -u  # Catches changes made by update_overrides.py
+            git commit -m "chore: automated nightly flake updates"
+            git push origin main
+            echo "Successfully pushed updated lockfile."
+          else
+            echo "No updates available today."
+          fi
+        '
       else
         echo "Build failed, skipping git push to ensure client stability."
         exit 1
       fi
 
-        echo "All builds completed at $(date)"
+      echo "All builds completed at $(date)"
     '';
     serviceConfig = {
       Type = "oneshot";
-      User = "ryan";
+      User = "root";
       # Generous timeout for CUDA builds
       TimeoutStartSec = "3d";
     };
@@ -107,6 +108,6 @@
 
   # Ensure build directory exists
   systemd.tmpfiles.rules = [
-    "d /var/lib/nix-auto-build 0755 root root -"
+    "d /var/lib/nix-auto-build 0755 ryan users -"
   ];
 }
