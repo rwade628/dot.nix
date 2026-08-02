@@ -20,12 +20,12 @@
           blasSupport = true;
         }).overrideAttrs
           (oldAttrs: rec {
-            version = "10216";
+            version = "10223";
             src = pkgs.fetchFromGitHub {
               owner = "ggml-org";
               repo = "llama.cpp";
               tag = "b${version}";
-              hash = "sha256-eemI+BCwDAMT7rgzhl8fx0ZXiEimHUbzdQsjtveROrQ=";
+              hash = "sha256-haFPLpHYu24k/ce6At5DVTtjvFO+lPbYGgEEp1hrtp4=";
               leaveDotGit = true;
               postFetch = ''
                 git -C "$out" rev-parse --short HEAD > $out/COMMIT
