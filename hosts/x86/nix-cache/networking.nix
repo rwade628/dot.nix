@@ -2,7 +2,6 @@
 { ... }:
 
 {
-  networking.hostName = "nix-cache";
   networking.nftables.enable = true;
   networking.firewall.enable = true;
 

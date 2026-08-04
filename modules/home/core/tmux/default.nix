@@ -53,6 +53,11 @@
       set -ga terminal-overrides ",*256col*:Tc"
       set -ga terminal-overrides '*:Ss=\E[%p1%d q:Se=\E[ q'
       set-environment -g COLORTERM "truecolor"
+      # tmux >=3.2 negotiates truecolor via terminal-features, not the
+      # legacy terminal-overrides Tc/RGB trick above; without this, WSL +
+      # Windows Terminal falls back to 256-color quantization (catppuccin's
+      # dark hexes then round to near-black).
+      set -ga terminal-features ",xterm-256color:RGB"
 
       # VIM like resize
       bind -r C-k resize-pane -U
