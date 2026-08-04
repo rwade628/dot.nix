@@ -1,0 +1,22 @@
+# Nix build outputs
+result
+result-*
+
+# direnv
+.direnv/
+
+# Claude Code local settings (settings.json itself stays tracked)
+.claude/settings.local.json
+
+# Editor / OS cruft
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Secrets safety net (lib/secrets.nix is the sanctioned, git-crypt-encrypted secrets file — this just catches accidental strays)
+*.pem
+*.age
+.env
+id_rsa*
+id_ed25519*
