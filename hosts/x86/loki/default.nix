@@ -17,7 +17,7 @@
     (lib.custom.relativeToRoot "modules/nixos/core") # sets up core nixos configuration
 
     ## Optional Configs ##
-    (lib.custom.relativeToRoot "modules/nixos/services/ai.nix") # sets up llama-cpp and related tools
+    # (lib.custom.relativeToRoot "modules/nixos/services/ai.nix") # sets up llama-cpp and related tools
   ];
 
   wsl = {

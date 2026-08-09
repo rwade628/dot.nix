@@ -20,7 +20,7 @@
   home.packages = builtins.attrValues {
     inherit (pkgs)
       ## Media ##
-      ffmpeg_8-full
+      ffmpeg
 
       ## Tools ##
       nil

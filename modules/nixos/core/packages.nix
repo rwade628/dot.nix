@@ -134,7 +134,7 @@ let
   # --- AI Tools ---
   # Artificial intelligence tools
   ai = with pkgs; [
-    llama-cpp # LLM inference
+    # llama-cpp # LLM inference
   ];
 
   # --- Yazi Preview Dependencies ---

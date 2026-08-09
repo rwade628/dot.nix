@@ -24,7 +24,7 @@
   home.packages = builtins.attrValues {
     inherit (pkgs)
       ## Media ##
-      ffmpeg_8-full
+      ffmpeg
       spotify
       # gpu-screen-recorder-gtk
       mullvad-browser
