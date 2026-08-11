@@ -40,5 +40,16 @@
       };
       isServer = true;
     };
+
+    ## Darwin Hosts ##
+    idun = {
+      network = {
+        hostName = "idun";
+      };
+      user = {
+        name = "ryan";
+      };
+      hasDesktop = true;
+    };
   };
 }

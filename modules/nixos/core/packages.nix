@@ -126,7 +126,7 @@ let
   # Gaming-related system packages
   gaming =
     with pkgs;
-    lib.optionals (!host.isServer) [
+    lib.optionals host.hasDesktop [
       wineWow64Packages.full # Wine implementation
       winetricks # Wine helper script
     ];

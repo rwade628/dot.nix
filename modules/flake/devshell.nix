@@ -1,7 +1,7 @@
 { inputs, ... }:
 {
   perSystem =
-    { system, ... }:
+    { system, lib, ... }:
     let
       pkgs = import inputs.nixpkgs {
         inherit system;
@@ -10,50 +10,54 @@
     in
     {
       devShells.default = pkgs.mkShell {
-        packages = with pkgs; [
-          # Basic nix tools
-          nix
-          nixos-rebuild
-          home-manager
-          nh
-          # Git and git-crypt
-          git
-          git-crypt
-          gnupg
-          gpg-tui
-          # Shells
-          zsh
-          bash
-          # Config tools
-          dconf2nix
-          compose2nix
-          # Network tools
-          bind
-          curl
-          iperf3
-          mtr
-          netcat-gnu
-          nmap
-          tcpdump
-          traceroute
-          wget
-          whois
-          wireshark-cli # tshark
-          # System tools
-          coreutils
-          findutils
-          gzip
-          zstd
-          # Text editors
-          micro
-          # Diagnostics
-          inxi
-          pciutils
-          usbutils
-          lshw
-          # AI
-          github-copilot-cli
-        ];
+        packages =
+          with pkgs;
+          [
+            # Basic nix tools
+            nix
+            nixos-rebuild
+            home-manager
+            nh
+            # Git and git-crypt
+            git
+            git-crypt
+            gnupg
+            gpg-tui
+            # Shells
+            zsh
+            bash
+            # Config tools
+            dconf2nix
+            compose2nix
+            # Network tools
+            bind
+            curl
+            iperf3
+            mtr
+            netcat-gnu
+            nmap
+            tcpdump
+            wget
+            whois
+            wireshark-cli # tshark
+            # System tools
+            coreutils
+            findutils
+            gzip
+            zstd
+            # Text editors
+            micro
+            # Diagnostics
+            inxi
+            pciutils
+            usbutils
+            # AI
+            github-copilot-cli
+          ]
+          ++ lib.optionals pkgs.stdenv.isLinux [
+            traceroute # not packaged for Darwin
+            lshw # not packaged for Darwin
+          ];
 
         NIX_CONFIG = "experimental-features = nix-command flakes";
 

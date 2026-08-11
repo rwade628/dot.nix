@@ -1,4 +1,3 @@
-# IMPORTANT: This is used by NixOS and nix-darwin so options must exist in both!
 {
   inputs,
   outputs,
@@ -28,11 +27,11 @@
 
   services.devmon.enable = true;
 
-  # Enable print to PDF.
-  services.printing.enable = true;
-
-  # Enable CUPS printing
-  services.printing.drivers = [ pkgs.cups-dymo ];
+  # Printing is a desktop-oriented service - servers have no use for it
+  services.printing = lib.mkIf host.hasDesktop {
+    enable = true;
+    drivers = [ pkgs.cups-dymo ];
+  };
 
   # Force home-manager to use global packages
   home-manager.useGlobalPkgs = true;

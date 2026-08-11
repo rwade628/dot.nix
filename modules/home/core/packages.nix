@@ -19,7 +19,6 @@
       coreutils # standard gnu utils
       dust # disk usage (du replacement)
       lazyjournal # journalctl viewer
-      trashy # trash cli
       unrar # rar extraction
 
       # File operations (partial - unzip in system)
@@ -35,9 +34,14 @@
       # Additional user tools
       git-secret # Git encryption for secrets (user-specific script)
     ]
-    ++ lib.optionals (!host.isServer) [
+    ++ lib.optionals pkgs.stdenv.isLinux [
+      trashy # trash cli (not packaged for Darwin)
+    ]
+    ++ lib.optionals host.hasDesktop [
       # GUI Apps
-      vlc # media player
       wireshark # packet inspection
+    ]
+    ++ lib.optionals (host.hasDesktop && pkgs.stdenv.isLinux) [
+      vlc # media player (not packaged for Darwin)
     ];
 }

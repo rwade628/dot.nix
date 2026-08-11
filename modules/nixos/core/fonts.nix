@@ -8,7 +8,7 @@
   fonts = {
     packages =
       with pkgs;
-      lib.optionals (!host.isServer) [
+      lib.optionals host.hasDesktop [
         # icon fonts
         material-symbols
 

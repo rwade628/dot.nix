@@ -1,7 +1,8 @@
+{ host, ... }:
 {
   # alacritty - a cross-platform, GPU-accelerated terminal emulator
   programs.alacritty = {
-    enable = true;
+    enable = host.hasDesktop;
     # custom settings
     settings = {
       env.TERM = "xterm-256color";

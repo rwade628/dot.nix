@@ -14,6 +14,13 @@
       url = "github:nixos/nixos-hardware";
     };
 
+    ## Darwin ##
+
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -75,11 +82,13 @@
       systems = [
         "aarch64-linux"
         "x86_64-linux"
+        "aarch64-darwin"
       ];
 
       imports = [
         ./modules/flake/overlays.nix
         ./modules/flake/nixos.nix
+        ./modules/flake/darwin.nix
         ./modules/flake/packages.nix
         ./modules/flake/devshell.nix
       ];
