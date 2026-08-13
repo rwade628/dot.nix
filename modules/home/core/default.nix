@@ -32,6 +32,12 @@ in
       VISUAL = lib.mkDefault "nvim";
       FLAKE = lib.mkDefault "/home/${host.user.name}/git/dot.nix";
       SHELL = lib.getExe user.shell;
+
+      # homelab cluster credentials - kubectl/sops/talosctl read these natively,
+      # so cluster access works from anywhere without cd-ing into the repo
+      KUBECONFIG = "${config.home.homeDirectory}/git/homelab/kubeconfig";
+      SOPS_AGE_KEY_FILE = "${config.home.homeDirectory}/git/homelab/age.key";
+      TALOSCONFIG = "${config.home.homeDirectory}/git/homelab/talos/clusterconfig/talosconfig";
     };
     # preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
   };

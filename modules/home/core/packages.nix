@@ -33,6 +33,25 @@
 
       # Additional user tools
       git-secret # Git encryption for secrets (user-specific script)
+
+      # Homelab / Kubernetes tooling (formerly mise-managed in the homelab repo)
+      age
+      cilium-cli
+      cloudflared
+      cue
+      fluxcd # provides `flux`
+      gh
+      go-task # provides `task`
+      helmfile
+      jq
+      kubeconform
+      kubectl
+      kubernetes-helm # provides `helm`
+      kustomize
+      sops
+      talhelper
+      talosctl
+      yq-go # provides `yq`
     ]
     ++ lib.optionals pkgs.stdenv.isLinux [
       trashy # trash cli (not packaged for Darwin)

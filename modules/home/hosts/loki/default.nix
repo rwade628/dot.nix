@@ -93,7 +93,6 @@
       ethtool
       pciutils # lspci
       usbutils # lsusb
-      mise
       ;
   };
 }
