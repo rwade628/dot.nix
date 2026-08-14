@@ -20,7 +20,7 @@ let
     packages;
 
   # Linux-specific modifications
-  linuxModifications = final: prev: prev.lib.optionalAttrs prev.stdenv.isLinux { };
+  linuxModifications = final: prev: prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux { };
 
   # General modifications to existing packages
   modifications = final: prev: {

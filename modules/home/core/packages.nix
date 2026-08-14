@@ -53,14 +53,14 @@
       talosctl
       yq-go # provides `yq`
     ]
-    ++ lib.optionals pkgs.stdenv.isLinux [
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
       trashy # trash cli (not packaged for Darwin)
     ]
     ++ lib.optionals host.hasDesktop [
       # GUI Apps
       wireshark # packet inspection
     ]
-    ++ lib.optionals (host.hasDesktop && pkgs.stdenv.isLinux) [
+    ++ lib.optionals (host.hasDesktop && pkgs.stdenv.hostPlatform.isLinux) [
       vlc # media player (not packaged for Darwin)
     ];
 }

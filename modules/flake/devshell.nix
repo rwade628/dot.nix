@@ -54,7 +54,7 @@
             # AI
             github-copilot-cli
           ]
-          ++ lib.optionals pkgs.stdenv.isLinux [
+          ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
             traceroute # not packaged for Darwin
             lshw # not packaged for Darwin
           ];
