@@ -46,34 +46,43 @@
           options = {
             ## User configuration ##
             user = lib.mkOption {
-              type = lib.types.submodule {
-                options = {
-                  name = lib.mkOption {
-                    type = lib.types.str;
-                    description = "Username for the host's primary user";
-                  };
+              type = lib.types.submodule (
+                { config, ... }:
+                {
+                  options = {
+                    name = lib.mkOption {
+                      type = lib.types.str;
+                      description = "Username for the host's primary user (used for module paths, secrets lookup, and SSH key naming)";
+                    };
 
-                  uid = lib.mkOption {
-                    type = lib.types.nullOr lib.types.int;
-                    description = "User ID";
-                    default = null;
-                    example = 1000;
-                  };
+                    osName = lib.mkOption {
+                      type = lib.types.str;
+                      description = "Actual OS account name for this host, if it differs from `name` (e.g. a pre-existing macOS account). Defaults to `name`.";
+                      default = config.name;
+                    };
 
-                  group = lib.mkOption {
-                    type = lib.types.str;
-                    description = "Primary group for the user";
-                    default = "users";
-                  };
+                    uid = lib.mkOption {
+                      type = lib.types.nullOr lib.types.int;
+                      description = "User ID";
+                      default = null;
+                      example = 1000;
+                    };
 
-                  shell = lib.mkOption {
-                    type = lib.types.package;
-                    description = "Default shell for the user";
-                    default = pkgs.zsh;
-                    example = pkgs.bash;
+                    group = lib.mkOption {
+                      type = lib.types.str;
+                      description = "Primary group for the user";
+                      default = "users";
+                    };
+
+                    shell = lib.mkOption {
+                      type = lib.types.package;
+                      description = "Default shell for the user";
+                      default = pkgs.zsh;
+                      example = pkgs.bash;
+                    };
                   };
-                };
-              };
+                }
+              );
               description = "User configuration for this host";
             };
 

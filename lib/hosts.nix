@@ -48,6 +48,10 @@
       };
       user = {
         name = "ryan";
+        # Pre-existing macOS account; nix-darwin can't create accounts, so this
+        # must match the account already on the machine. Config, secrets, and
+        # the shared home-manager module still key off `name` ("ryan") above.
+        osName = "rdubs628";
       };
       hasDesktop = true;
     };
