@@ -51,7 +51,9 @@
       kubectl
       kubernetes-helm # provides `helm`
       kustomize
+      minijinja # provides `minijinja-cli`
       sops
+      stern # multi-pod kubernetes log tailing
       talhelper
       talosctl
       yq-go # provides `yq`
@@ -65,6 +67,7 @@
       yazi # Modern terminal file manager
       superfile # Interactive terminal file manager
       file # MIME type detection (yazi preview dependency)
+      sesh # tmux session manager
       # tmux comes from programs.tmux (modules/home/core/tmux)
 
       # CLI power tools & utilities
@@ -93,6 +96,7 @@
       lastpass-cli # LastPass CLI
       lazydocker # TUI for docker
       lazygit # TUI for git
+      moreutils # sponge, ts, chronic, vipe, etc.
       nixfmt # Nix formatter
       ookla-speedtest # Speed test
       packer # Packer CLI
@@ -102,6 +106,7 @@
       rclone # Cloud storage sync
       ripgrep # Fast grep alternative
       rsync # File sync tool
+      socat # Multipurpose socket relay
       starship # Cross-shell prompt
       tealdeer # Fast man page viewer
       terraform # Infrastructure as code
@@ -109,11 +114,18 @@
       tre-command # Tree alternative
       tree # Directory tree viewer
       typst # Modern typesetting
+      xz # LZMA compression utils
       zoxide # Smart cd replacement
 
       # Package managers
       cachix # Binary cache client
       bun # JavaScript runtime/package manager
+    ]
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
+      # Containers: NixOS hosts get docker from virtualisation.docker /
+      # modules/nixos/core/packages.nix, so these are Darwin-only.
+      colima # Container runtime VM for macOS
+      docker # Docker CLI
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
       trashy # trash cli (not packaged for Darwin)
