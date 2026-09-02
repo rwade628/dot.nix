@@ -65,7 +65,7 @@ flake.nix                          # Root flake, declares inputs + delegates to 
 │   ├── hardware/                  # audio.nix
 │   └── services/                  # ai, ddcutil, plymouth, gaming (steam/gamescope/lutris/sunshine)
 ├── modules/darwin/                # nix-darwin modules (standalone; shares nothing with modules/nixos)
-│   └── core/                      # default, user, packages, services, homebrew (GUI casks only)
+│   └── core/                      # default, user, packages, services, fonts, homebrew (GUI casks + brew PATH)
 ├── modules/home/                  # Home-manager modules
 │   ├── core/                      # Shared user config: neovim, zsh, bash, git, ssh, direnv, tmux, etc.
 │   ├── desktop/                   # niri/ and plasma/ user-level DE config (binds, windows, apps)
