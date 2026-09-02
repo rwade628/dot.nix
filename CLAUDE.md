@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is Ryan's NixOS dotfiles configuration, managed as a Nix flake using `flake-parts`. It provisions three hosts: **nixos** (KDE Plasma desktop), **loki** (headless WSL server), and **nix-cache** (LXC container running a Harmonia binary cache). The config uses home-manager for user environments, catppuccin for theming (macchiato/lavender), and supports Niri and Plasma desktops.
+This is Ryan's dotfiles configuration, managed as a Nix flake using `flake-parts`. It provisions four hosts across two platforms — three NixOS: **nixos** (KDE Plasma desktop), **loki** (headless WSL server), and **nix-cache** (LXC container running a Harmonia binary cache); and one Darwin: **idun** (Apple Silicon Mac via nix-darwin). The config uses home-manager for user environments, catppuccin for theming (macchiato/lavender), and supports Niri and Plasma desktops. See `docs/adr/0001-darwin-platform-support.md` for why the Darwin tree is a sibling of the NixOS one rather than a shared abstraction.
 
 ## Key Commands
 
@@ -44,7 +44,7 @@ yay rebuild
 nh clean all --keep 10 --keep-since 10d
 ```
 
-Hosts are defined in `hosts/x86/<hostname>/default.nix` and imported by `modules/flake/nixos.nix` via `mkHost`. The `lib.custom.getHostsData pkgs` function evaluates all host specs for inspection.
+NixOS hosts are defined in `hosts/x86/<hostname>/default.nix` and imported by `modules/flake/nixos.nix` via `mkHost`; Darwin hosts live in `hosts/darwin/<hostname>/default.nix` and are imported by `modules/flake/darwin.nix` via `mkDarwinHost`. The `lib.custom.getHostsData pkgs` function evaluates all host specs for inspection.
 
 ## Architecture
 
@@ -52,6 +52,7 @@ Hosts are defined in `hosts/x86/<hostname>/default.nix` and imported by `modules
 flake.nix                          # Root flake, declares inputs + delegates to flake-parts
 ├── modules/flake/                 # flake-parts pieces
 │   ├── nixos.nix                  # Generates nixosConfigurations per host
+│   ├── darwin.nix                 # Generates darwinConfigurations per host (mkDarwinHost)
 │   ├── overlays.nix               # Package overlays (additions, modifications, stable/unstable namespaces)
 │   ├── packages.nix               # Exposes pkgs/* as flake packages
 │   └── devshell.nix               # perSystem dev shell with all dev tools
@@ -63,16 +64,20 @@ flake.nix                          # Root flake, declares inputs + delegates to 
 │   ├── desktop/                   # niri/ and plasma/ system-level DE config
 │   ├── hardware/                  # audio.nix
 │   └── services/                  # ai, ddcutil, plymouth, gaming (steam/gamescope/lutris/sunshine)
+├── modules/darwin/                # nix-darwin modules (standalone; shares nothing with modules/nixos)
+│   └── core/                      # default, user, packages, services, homebrew (GUI casks only)
 ├── modules/home/                  # Home-manager modules
 │   ├── core/                      # Shared user config: neovim, zsh, bash, git, ssh, direnv, tmux, etc.
 │   ├── desktop/                   # niri/ and plasma/ user-level DE config (binds, windows, apps)
 │   ├── gaming/                    # mangohud, lsfgvk
-│   ├── hosts/                     # Per-host user overrides (loki/, nixos/, nix-cache/)
+│   ├── hosts/                     # Per-host user overrides (loki/, nixos/, nix-cache/, idun/)
 │   ├── users/ryan/                # User-level config + theme
 │   └── utilities/                 # xdg, mullvad
-├── hosts/x86/<hostname>/          # Per-host configuration drop-ins
+├── hosts/x86/<hostname>/          # Per-host NixOS configuration drop-ins
 │   ├── default.nix                # Imports core modules + host-specific services
 │   └── *.nix                      # Host-specific overrides (networking, mounts, nvidia, etc.)
+├── hosts/darwin/<hostname>/       # Per-host Darwin configuration drop-ins (idun/)
+│   └── default.nix                # Imports modules/darwin/core + host-specific config
 ├── lib/                           # Custom library (scanPaths, relativeToRoot, getHostConfig, mkAppriseUrl)
 ├── pkgs/                          # Custom packages (wine-app-wrapper.nix)
 └── docs/agents/                   # Agent instructions: issue-tracker, triage-labels, domain
