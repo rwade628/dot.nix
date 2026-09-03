@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is Ryan's dotfiles configuration, managed as a Nix flake using `flake-parts`. It provisions four hosts across two platforms — three NixOS: **nixos** (KDE Plasma desktop), **loki** (headless WSL server), and **nix-cache** (LXC container running a Harmonia binary cache); and one Darwin: **idun** (Apple Silicon Mac via nix-darwin). The config uses home-manager for user environments, catppuccin for theming (macchiato/lavender), and supports Niri and Plasma desktops. See `docs/adr/0001-darwin-platform-support.md` for why the Darwin tree is a sibling of the NixOS one rather than a shared abstraction.
+This is Ryan's dotfiles configuration, managed as a Nix flake using `flake-parts`. It provisions four hosts across two platforms — three NixOS: **nixos** (KDE Plasma desktop), **loki** (headless WSL server), and **nix-cache** (LXC container running a Harmonia binary cache); and one Darwin: **idun** (Apple Silicon Mac via nix-darwin). The config uses home-manager for user environments, catppuccin for theming (mocha/lavender), and supports Niri and Plasma desktops. See `docs/adr/0001-darwin-platform-support.md` for why the Darwin tree is a sibling of the NixOS one rather than a shared abstraction.
 
 ## Key Commands
 
@@ -116,7 +116,7 @@ Assertions prevent invalid combinations (both DEs, minimal+desktop, VPN without 
 - **stateVersion**: `system.stateVersion` is `25.11` on all hosts; home-manager's `home.stateVersion` defaults to `25.05` (`modules/home/core/default.nix`) except for `root`, which is pinned to `25.11` (`modules/nixos/core/user.nix`)
 - **unfree**: enabled globally (`nixpkgs.config.allowUnfree = true`)
 - **Wayland-first**: all DE configs target Wayland (Niri native, Plasma via SDDM Wayland)
-- **Catppuccin**: macchiato flavor with lavender accent, auto-enabled everywhere
+- **Catppuccin**: mocha flavor with lavender accent, auto-enabled everywhere
 - **Binary caches**: cache.nixos.org, chaotic-nyx, nix-community, nixos-cuda, and local harmonia at `http://10.0.10.14:5000`
 - **IPv6**: disabled on all hosts
 - **SSH**: key-based auth only, root login disabled, mosh enabled

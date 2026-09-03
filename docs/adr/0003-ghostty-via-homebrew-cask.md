@@ -20,9 +20,19 @@ the Mac than on the desktop — two configurations and two sets of muscle memory
 indefinitely. We valued one shared terminal configuration across every desktop host above
 declarative purity for one program on one host. The cost we accepted: `darwin-rebuild switch` no
 longer fully determines `idun`'s terminal, since the cask's version floats outside `flake.lock`
-and `nix flake check` cannot see it. Configuration is unaffected — home-manager still owns it,
-and Ghostty reads the XDG config path on macOS as well as Linux, so the same module serves both
+and `nix flake check` cannot see it. Configuration stays declarative — home-manager still owns
+it, and Ghostty reads the XDG config path on macOS as well as Linux, so one module serves both
 platforms.
+
+Sharing that one module was not free on the configuration side, though, and the cost landed on
+the Linux hosts as much as on `idun`. Darwin needed a system-level font module of its own
+(`modules/darwin/core/fonts.nix`, mirroring the Nerd Font half of `modules/nixos/core/fonts.nix`)
+so that the family the shared config names actually resolves. And `font-family` had to move off
+the `monospace` fontconfig alias, which has no meaning on macOS and silently falls back to a
+system font without Nerd Font glyphs, onto an explicit `JetBrainsMono Nerd Font Mono` — changing
+the NixOS hosts to serve a Darwin requirement. That back-propagation is the standing cost of one
+shared module instead of two, and it is the thing to weigh when a future platform-specific need
+appears.
 
 This is not a general policy that GUI software must come from Homebrew on Darwin. Nix-installed
 GUI applications work under nix-darwin: it rsyncs `.app` bundles into `/Applications/Nix Apps`

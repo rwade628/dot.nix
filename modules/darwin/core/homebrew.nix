@@ -23,9 +23,9 @@ in
     casks = [
       # Terminal emulator, configured by modules/home/core/ghostty.nix. nixpkgs
       # has no darwin build at all, so the cask is the only option - see
-      # docs/adr/0003-ghostty-via-homebrew-cask.md. Replaces wezterm, which is
-      # no longer declared here (a no-op against the installed app while
-      # onActivation.cleanup is "none", so it is reversible).
+      # docs/adr/0003-ghostty-via-homebrew-cask.md. Replaces wezterm: with
+      # onActivation.cleanup no longer "none", dropping it from this list is
+      # what uninstalls it, not merely a bookkeeping change.
       "ghostty"
 
       # Candidate for removal: nix already provides git-credential-osxkeychain
@@ -35,16 +35,16 @@ in
 
     brews = [ ];
 
-    # Not declared: sikarugir. It lives in the third-party tap
-    # sikarugir-app/sikarugir, which brew refuses to load without an explicit
-    # `brew trust`, so `brew bundle` fails on it. The already-installed copy is
-    # left alone by onActivation.cleanup = "none".
     taps = [ ];
 
-    # Leave pre-existing brew state alone for now. Once the formulae migrated
-    # to nix have been uninstalled by hand, flip this to "zap" so nix-darwin
-    # enforces the lists above.
-    onActivation.cleanup = "none";
+    # Enforce the lists above: anything installed that isn't declared here gets
+    # uninstalled on activation. The precondition the previous "none" was
+    # waiting on is met - no formulae remain in the Cellar.
+    #
+    # "uninstall", not "zap": the two are identical for enforcing presence, but
+    # zap also deletes a cask's application-support data, which would make every
+    # future edit to these lists - including a typo - irreversible for user data.
+    onActivation.cleanup = "uninstall";
   };
 
   # Homebrew is installed but puts nothing on PATH by itself, so `brew` cannot

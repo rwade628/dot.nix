@@ -20,6 +20,12 @@
     # the `+validate-config` change hook that would invoke a missing binary.
     package = if pkgs.stdenv.hostPlatform.isDarwin then null else pkgs.ghostty;
 
+    # No home.sessionVariables.TERM here, unlike the plasma module this
+    # replaces. Ghostty exports TERM=xterm-ghostty itself, and the old
+    # TERM="ghostty" named a terminfo entry that does not exist - set through
+    # sessionVariables it also leaked into every other shell, including ssh
+    # sessions to hosts that have no ghostty terminfo at all.
+
     # Sources a path under $GHOSTTY_RESOURCES_DIR - a variable ghostty exports
     # at runtime - behind a readability guard, so it never touches the package
     # and works with a null one.
