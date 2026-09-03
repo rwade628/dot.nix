@@ -4,5 +4,5 @@
 # overrides it here rather than the shared module branching on platform - the
 # variable is the display, not the OS.
 {
-  programs.ghostty.settings.font-size = "14";
+  programs.ghostty.settings.font-size = "15";
 }
