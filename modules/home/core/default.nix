@@ -7,6 +7,7 @@
 }:
 let
   user = host.user;
+  flakePath = "/home/${user.name}/git/dot.nix";
 in
 {
   imports = lib.flatten [
@@ -30,7 +31,7 @@ in
     sessionVariables = {
       EDITOR = lib.mkDefault "nvim";
       VISUAL = lib.mkDefault "nvim";
-      FLAKE = lib.mkDefault "/home/${host.user.name}/git/dot.nix";
+      FLAKE = lib.mkDefault flakePath;
       SHELL = lib.getExe user.shell;
 
       # homelab cluster credentials - kubectl/sops/talosctl read these natively,
@@ -44,6 +45,23 @@ in
 
   programs.nix-index = {
     enable = true;
+  };
+
+  # Cross-platform nh config: nix-darwin has no system-level programs.nh module,
+  # so this is the only place idun gets nh at all. The per-command *Flake vars
+  # replace the plain `flake` field, which nh deprecates in favor of NH_FLAKE.
+  #
+  # Uses the flakePath literal directly rather than
+  # config.home.sessionVariables.FLAKE: nh derives its legacy FLAKE env var
+  # compat shim from these *Flake options, so reading it back out of
+  # sessionVariables.FLAKE here closes an infinite-recursion loop.
+  programs.nh = {
+    enable = true;
+    clean.enable = true;
+    clean.extraArgs = "--keep-since 10d --keep 10";
+    osFlake = lib.mkDefault flakePath;
+    homeFlake = lib.mkDefault flakePath;
+    darwinFlake = lib.mkDefault flakePath;
   };
 
   nix = {

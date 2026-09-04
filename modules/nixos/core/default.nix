@@ -63,14 +63,6 @@
   networking.timeServers = [ "pool.ntp.org" ];
   environment.sessionVariables.TZ = config.time.timeZone;
 
-  ## Nix Helper ##
-  programs.nh = {
-    enable = true;
-    clean.enable = true;
-    clean.extraArgs = "--keep-since 10d --keep 10";
-    flake = "/home/ryan/git/dot.nix/";
-  };
-
   ## SUDO and Terminal ##
   environment.enableAllTerminfo = true;
   hardware.enableAllFirmware = true;

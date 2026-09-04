@@ -120,6 +120,38 @@
       # Package managers
       cachix # Binary cache client
       bun # JavaScript runtime/package manager
+
+      # Development toolchains (portable: no systemd/hardware dependency, so
+      # these live here instead of nixos/core/packages.nix's systemPackages)
+      gcc # GNU Compiler Collection
+      gnumake # Build automation
+      meson # Build system
+      nodejs_26 # Node.js runtime
+      pkg-config # Manage compile flags
+      portaudio # Audio I/O library
+      python3
+      go # Go toolchain
+      krew # kubectl plugin manager
+
+      # Formatters / linters
+      nil # Nix language server
+      nixpkgs-fmt # Nix formatter (alternate)
+      statix # Nix linter
+
+      # More utilities (formerly duplicated per-host in modules/home/hosts)
+      ffmpeg # Media transcoding
+      nnn # Terminal file manager
+      p7zip # 7z archive support
+      mtr # Network diagnostic tool (traceroute + ping)
+      ldns # Provides `drill`, a dig replacement
+      aria2 # Multi-protocol/multi-source download utility
+      ipcalc # IPv4/v6 address calculator
+      cowsay
+      which
+      gnutar
+      gawk
+      zstd
+      nix-output-monitor # Provides `nom`
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
       # Containers: NixOS hosts get docker from virtualisation.docker /
@@ -130,6 +162,13 @@
     ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
       trashy # trash cli (not packaged for Darwin)
       trickle # Rate limiter (not packaged for Darwin)
+
+      # Diagnostic tools (formerly duplicated per-host, not packaged for Darwin)
+      strace # System call tracing
+      ltrace # Library call tracing
+      sysstat
+      iotop
+      iftop
     ]
     ++ lib.optionals host.hasDesktop [
       # GUI Apps
@@ -137,5 +176,14 @@
     ]
     ++ lib.optionals (host.hasDesktop && pkgs.stdenv.hostPlatform.isLinux) [
       vlc # media player (not packaged for Darwin)
+
+      # GUI/desktop apps with no Darwin build - see
+      # docs/adr/0004-portable-packages-live-in-shared-list.md
+      spotify
+      telegram-desktop
+      vesktop
+      mullvad-browser
+      inspector
+      solaar
     ];
 }

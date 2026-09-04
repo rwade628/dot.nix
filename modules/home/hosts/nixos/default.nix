@@ -40,7 +40,6 @@
       nixpkgs-fmt
       nixfmt
       statix
-      nodejs
       gcc
       python3
       go

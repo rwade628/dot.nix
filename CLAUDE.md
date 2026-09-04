@@ -155,8 +155,8 @@ Single-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
 ## Gotchas
 
 - **`lib.custom` availability**: propagated into home-manager modules by extending `lib` itself in `specialArgs` (`modules/flake/nixos.nix`), not via `extraSpecialArgs`. Reference it as `lib.custom.*`, not as a standalone arg.
-- **Hardcoded flake path**: `programs.nh.flake` in `modules/nixos/core/default.nix:69` is hardcoded to `/home/ryan/git/dot.nix/`. This breaks `nh` on a clone at a different path.
-- **`FLAKE` env var**: set via `lib.mkDefault "/home/${host.user.name}/git/dot.nix"` in `modules/home/core/default.nix`; override per-host if the repo is checked out elsewhere.
+- **`nh` config lives in home-manager, not the NixOS module**: `programs.nh` is set in `modules/home/core/default.nix`, keyed off `config.home.sessionVariables.FLAKE` — not `modules/nixos/core/default.nix`. nix-darwin has no system-level `programs.nh` module, so this is the only way `nh` reaches idun.
+- **`FLAKE` env var**: set via `lib.mkDefault "/home/${host.user.name}/git/dot.nix"` in `modules/home/core/default.nix`; overridden per-host if the repo is checked out elsewhere (e.g. `modules/home/hosts/idun/paths.nix` for the `/Users/...` layout).
 - **`scanPaths` skips `default.nix`**: any `default.nix` in an auto-scanned directory must be imported explicitly elsewhere — it is never picked up by the scan itself.
 - **`neovim.nix` is a redirect**: `modules/home/core/neovim.nix` just imports `./neovim/`; the real config lives in that subdirectory.
 - **Wine package**: use `wineWow64Packages.full` (or `.waylandFull`/`.stable`), not `wineWowPackages.full`.

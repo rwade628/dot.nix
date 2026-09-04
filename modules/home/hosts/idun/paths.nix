@@ -11,4 +11,11 @@
     "/Users/${host.user.osName}/.krew/bin"
   ];
   home.sessionVariables.FLAKE = "/Users/${host.user.osName}/git/dot.nix";
+
+  # Mirrors FLAKE above - modules/home/core/default.nix can't derive these from
+  # sessionVariables.FLAKE itself (that creates an infinite recursion via nh's
+  # own FLAKE compat shim), so each per-platform path is set independently.
+  programs.nh.osFlake = "/Users/${host.user.osName}/git/dot.nix";
+  programs.nh.homeFlake = "/Users/${host.user.osName}/git/dot.nix";
+  programs.nh.darwinFlake = "/Users/${host.user.osName}/git/dot.nix";
 }

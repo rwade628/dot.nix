@@ -40,7 +40,6 @@ let
     keyd # Keyboard daemon
     lm_sensors # Hardware sensors
     lsof # List open files
-    mosh # Mobile shell (needs matching firewall rules)
     nmap # Network scanner
     postgresql # PostgreSQL database
     psmisc # Utilities (killall)
@@ -63,19 +62,7 @@ let
     # llama-cpp # LLM inference
   ];
 
-  # --- Development Toolchains ---
-  # Programming language toolchains and build tools
-  developmentToolchains = with pkgs; [
-    gcc # GNU Compiler Collection
-    gnumake # Build automation
-    meson # Build system
-    nodejs_26 # Node.js runtime
-    pkg-config # Manage compile flags
-    portaudio # Audio I/O library
-    python3
-  ];
 in
 {
-  environment.systemPackages =
-    baseSystemTools ++ systemTools ++ gaming ++ ai ++ developmentToolchains;
+  environment.systemPackages = baseSystemTools ++ systemTools ++ gaming ++ ai;
 }

@@ -25,9 +25,6 @@
     };
   };
 
-  # --- Mosh ---
-  programs.mosh.enable = true;
-
   # --- Known Hosts ---
   # programs.ssh.knownHosts = {
   #   "truenas.local" = {
