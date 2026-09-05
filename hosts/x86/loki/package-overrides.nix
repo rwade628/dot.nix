@@ -20,12 +20,12 @@
           blasSupport = true;
         }).overrideAttrs
           (oldAttrs: rec {
-            version = "10796";
+            version = "10816";
             src = pkgs.fetchFromGitHub {
               owner = "ggml-org";
               repo = "llama.cpp";
               tag = "b${version}";
-              hash = "sha256-LHCnP4PnaDHbqCBHxa2dvFKN4q7kV9M2Yq3On/1VaQk=";
+              hash = "sha256-i+k2kBpZzASkNDwrwrW6NuBm7dy+LAUee/greTbVsTk=";
               leaveDotGit = true;
               postFetch = ''
                 git -C "$out" rev-parse --short HEAD > $out/COMMIT
@@ -58,8 +58,8 @@
         mkdir -p $out/bin
         tar -xzf ${
           pkgs.fetchurl {
-            url = "https://github.com/mostlygeek/llama-swap/releases/download/v252/llama-swap_252_linux_amd64.tar.gz";
-            hash = "sha256-X4WNcqkK4oqnx1003yXQX519rsjEe5UD+4omS8bZXSU=";
+            url = "https://github.com/mostlygeek/llama-swap/releases/download/v253/llama-swap_253_linux_amd64.tar.gz";
+            hash = "sha256-kfTQr1bNVHHQEz1vidt6fbEYqc1vjs0rvf/VCqKeXrY=";
           }
         } -C $out/bin
         chmod +x $out/bin/llama-swap
