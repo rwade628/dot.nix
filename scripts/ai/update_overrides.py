@@ -198,6 +198,81 @@ def resolve_hashes(file_path: Path, content: str, pkg: Package) -> str:
     return content
 
 
+def prefetch_sri(url: str) -> str | None:
+    """Download `url` and return its hash in SRI format, without building anything."""
+    result = subprocess.run(
+        ["nix-prefetch-url", "--type", "sha256", url],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        print(f"Failed to prefetch {url}: {result.stderr.strip()}")
+        return None
+    base32_hash = result.stdout.strip().splitlines()[-1]
+    sri = subprocess.run(
+        ["nix", "hash", "convert", "--hash-algo", "sha256", "--to", "sri", base32_hash],
+        capture_output=True, text=True,
+    )
+    if sri.returncode != 0:
+        print(f"Failed to convert hash for {url}: {sri.stderr.strip()}")
+        return None
+    return sri.stdout.strip()
+
+
+def update_talosctl() -> None:
+    """Update pkgs/talosctl.nix to the latest siderolabs/talos release.
+
+    talosctl ships prebuilt binaries, so each per-system hash is just a
+    plain download hash - no nix build (and no darwin builder) required.
+    """
+    print("\n--- Checking talosctl ---")
+    file_path = Path("pkgs/talosctl.nix")
+    if not file_path.exists():
+        print(f"{file_path} not found, skipping.")
+        return
+
+    content = file_path.read_text()
+
+    version_match = re.search(r'version = "([\d.]+)";', content)
+    if not version_match:
+        print("Could not find talosctl version.")
+        return
+    current = version_match.group(1)
+
+    try:
+        response = requests.get(
+            "https://api.github.com/repos/siderolabs/talos/releases/latest"
+        )
+        response.raise_for_status()
+        latest = response.json()["tag_name"].lstrip("v")
+    except Exception as e:
+        print(f"Failed to fetch latest talos release: {e}")
+        return
+
+    print(f"Current: {current}, Latest: {latest}")
+
+    if not (parse_semver(latest) and parse_semver(latest) > parse_semver(current)):
+        print("Already up to date.")
+        return
+
+    print(f"Updating talosctl to {latest}...")
+    content = content.replace(f'version = "{current}";', f'version = "{latest}";', 1)
+
+    asset_pattern = re.compile(
+        r'(asset = ")(talosctl-[\w-]+)(";\s*\n\s*hash = ")(sha256-[^"]+)(";)'
+    )
+    for match in list(asset_pattern.finditer(content)):
+        asset, old_hash = match.group(2), match.group(4)
+        url = f"https://github.com/siderolabs/talos/releases/download/v{latest}/{asset}"
+        new_hash = prefetch_sri(url)
+        if not new_hash:
+            print(f"Aborting talosctl update; could not resolve hash for {asset}.")
+            sys.exit(1)
+        content = content.replace(old_hash, new_hash, 1)
+
+    file_path.write_text(content)
+    print("Successfully updated talosctl.")
+
+
 def main():
     file_path = Path("hosts/x86/loki/package-overrides.nix")
     if not file_path.exists():
@@ -211,6 +286,8 @@ def main():
         if updated:
             file_path.write_text(content)
             content = resolve_hashes(file_path, content, pkg)
+
+    update_talosctl()
 
 
 if __name__ == "__main__":
