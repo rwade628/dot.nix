@@ -27,9 +27,18 @@ _Avoid_: isServer (no longer a GUI gate), isDesktop.
 **isServer**:
 Whether a host's role is a headless, always-on network service (open ports, long-running
 daemons like Harmonia). Purely about role — does not imply and is not implied by
-`hasDesktop`.
-_Avoid_: headless (ambiguous with hasDesktop), isMinimal (a separate, stricter flag that also
-turns off home-manager's full user profile).
+`hasDesktop`, and has no bearing on which home-manager profile a host gets (see `isMinimal`).
+_Avoid_: headless (ambiguous with hasDesktop).
+
+**isMinimal**:
+Whether a host's home-manager profile imports only the shared `modules/home/core` tree
+(`true`) or `modules/home/users/<name>` (`false`, default), which pulls in `modules/home/core`
+plus that host's `modules/home/hosts/<hostname>` overrides. Home-manager itself is always
+wired up when the `home-manager` flake input exists, regardless of this flag — `isMinimal`
+only picks which import tree it loads. Also gates a few per-user conveniences directly (e.g.
+SSH push-URL rewriting in `modules/home/core/git.nix`).
+_Avoid_: "no home-manager" (inaccurate — home-manager runs either way), isServer (a separate,
+purely role-based flag with no effect on the home-manager tree).
 
 **Portable package**:
 A package that (a) has a working `aarch64-darwin` build in nixpkgs and (b) is useful standalone
@@ -59,3 +68,27 @@ list even when only one host currently needs them (gated on `hasDesktop`/platfor
 pinned to a hostname) — see `docs/adr/0004-portable-packages-live-in-shared-list.md`.
 _Avoid_: host config (too vague — nearly everything under `modules/home/hosts` and
 `hosts/<platform>/<hostname>` could be called that).
+
+**Host secrets file**:
+A per-host sops-encrypted file at `hosts/<platform>/<hostname>/secrets.yaml`, decryptable only
+by that host's Host age key. Replaces the single git-crypt-encrypted `lib/secrets.nix` — see
+`docs/adr/0006-sops-nix-replaces-git-crypt-for-secrets.md`.
+_Avoid_: secrets.nix (the superseded git-crypt file).
+
+**Common secrets file**:
+A sops-encrypted file decryptable by every host's Host age key, for values every host should
+have regardless of role (e.g. cluster credentials) — as opposed to a Host secrets file, which
+only its own host can decrypt.
+_Avoid_: shared secrets, global secrets (neither names the actual scoping mechanism).
+
+**Host age key**:
+The age identity a host uses to decrypt its sops secrets, derived from that host's own SSH host
+key (`ssh-to-age`) rather than a separately generated or backed-up key. Decryption happens only
+at activation time, on the host itself — never in CI.
+_Avoid_: personal key, master key (there is no single key that decrypts everything).
+
+## Related vocabulary (owned by sibling repos)
+
+- **Attic** — the binary cache server this flake's hosts substitute from, deployed in the
+  `homelab` cluster. Deployment/storage/network decisions live there, not here; see homelab's
+  `docs/adr/0015-nix-cache-attic-in-cluster.md`.

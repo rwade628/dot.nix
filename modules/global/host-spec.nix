@@ -251,7 +251,14 @@
 
             isMinimal = lib.mkOption {
               type = lib.types.bool;
-              description = "Host uses minimal configuration (No home-manager)";
+              description = ''
+                Home-manager is always enabled when the home-manager flake input is present,
+                regardless of this flag. isMinimal only controls which profile tree it imports:
+                true limits it to modules/home/core; false (default) imports
+                modules/home/users/<name>, which pulls in modules/home/core plus that host's
+                modules/home/hosts/<hostname> overrides. Also gates a few per-user conveniences
+                directly (e.g. SSH push-URL rewriting in modules/home/core/git.nix).
+              '';
               default = false;
             };
 

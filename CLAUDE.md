@@ -104,8 +104,8 @@ This enables type-safe config access via `host.*` and `secrets.*` in specialArgs
 
 Each host declares flags in `lib/hosts.nix`:
 
-- `isServer` — no home-manager, no desktop
-- `isMinimal` — no home-manager, no desktop (same as isServer currently)
+- `isServer` — role label only (headless, always-on network service, e.g. Harmonia on `nix-cache`); no functional effect on packages or home-manager — see `hasDesktop` for GUI package gating (`docs/adr/0002-hasdesktop-flag.md`)
+- `isMinimal` — home-manager is always enabled; this only chooses whether it imports just `modules/home/core` (`true`) or `modules/home/users/<name>` (`false`, default), which adds that host's `modules/home/hosts/<hostname>` overrides
 - `isExternal` — not on local network
 - `niri` / `plasma` — mutually exclusive desktop environments
 
