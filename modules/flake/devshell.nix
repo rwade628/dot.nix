@@ -23,6 +23,9 @@
             git-crypt
             gnupg
             gpg-tui
+            # Secrets (sops-nix)
+            sops
+            ssh-to-age
             # Shells
             zsh
             bash

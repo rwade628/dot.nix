@@ -98,7 +98,10 @@ This enables type-safe config access via `host.*` and `secrets.*` in specialArgs
 
 ### Secrets
 
-`lib/secrets.nix` contains encrypted inline secrets (SSH keys, passwords, tokens). The file is marked for git-crypt encryption. Secrets flow into NixOS via `secrets.users.<name>` and `secrets.service` specialArgs.
+Two mechanisms coexist during the migration described in `docs/adr/0006-sops-nix-replaces-git-crypt-for-secrets.md`:
+
+- **git-crypt** (`lib/secrets.nix`): encrypted inline secrets not yet migrated (SSH keys, HA token). Flows into NixOS/Darwin via `secrets.users.<name>` and `secrets.service` specialArgs.
+- **sops-nix**: per-host `hosts/<platform>/<hostname>/secrets.yaml`, decryptable only by that host's age key — derived at activation time from its own SSH host key (`sops.age.sshKeyPaths`), no separate key file to manage. A Common secrets file (`secrets/common.yaml`) is encrypted to every migrated host's key for values every host should have. Recipients are declared in `.sops.yaml`. `modules/nixos/core/sops.nix` wires this per-host, guarded by `builtins.pathExists` so hosts without a `secrets.yaml` yet keep using the git-crypt path. `hashedPassword` is the first migrated secret (`modules/nixos/core/user.nix`), sourced as `hashedPasswordFile` so the value never lands in the Nix store.
 
 ### Host Characteristics
 
@@ -161,4 +164,5 @@ Single-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
 - **`neovim.nix` is a redirect**: `modules/home/core/neovim.nix` just imports `./neovim/`; the real config lives in that subdirectory.
 - **Wine package**: use `wineWow64Packages.full` (or `.waylandFull`/`.stable`), not `wineWowPackages.full`.
 - **Secrets encryption**: `lib/secrets.nix` is transparently encrypted via `git-crypt` per `.gitattributes` — `git-crypt status` should show it as `encrypted`. Never bypass this (e.g. `git-crypt unlock` output, `git show` on old unencrypted history) when a public remote is involved.
+- **Not every host has a sops `secrets.yaml` yet**: `modules/nixos/core/sops.nix` only wires sops-nix for hosts where `hosts/x86/<hostname>/secrets.yaml` exists. A host missing that file (e.g. `nixos`, pending migration) silently keeps using the `lib/secrets.nix` value instead — check which path a given host is actually on before assuming a secret is sops-backed.
 - **NixOS/Home Manager lookups**: prefer the `nixos` MCP server's `nix`/`nix_versions` tools over guessing option names or package attributes — nixpkgs moves faster than training data.

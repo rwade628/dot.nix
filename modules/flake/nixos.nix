@@ -75,6 +75,7 @@ let
         };
         modules = [
           { nixpkgs.overlays = [ self.overlays.default ]; }
+          inputs.sops-nix.nixosModules.sops
 
           # Host-specific configuration
           (customLib.relativeToRoot "hosts/${folder}/${hostName}")

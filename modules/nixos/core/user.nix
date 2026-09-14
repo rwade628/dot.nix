@@ -14,6 +14,9 @@ let
   userSecrets = secrets.users.${user.name} or { };
   ifTheyExist = groups: builtins.filter (group: builtins.hasAttr group config.users.groups) groups;
   isMinimal = host.isMinimal;
+  # Migrated hosts (see modules/nixos/core/sops.nix) get the password from
+  # sops-nix; hosts not yet migrated keep the git-crypt-encrypted value.
+  hashedPasswordFile = config.sops.secrets.hashedPassword.path or null;
 in
 {
   users.mutableUsers = false;
@@ -22,7 +25,8 @@ in
     createHome = true;
     description = "Admin";
     homeMode = "750";
-    hashedPassword = userSecrets.hashedPassword;
+    hashedPasswordFile = hashedPasswordFile;
+    hashedPassword = lib.mkIf (hashedPasswordFile == null) userSecrets.hashedPassword;
     uid = 1000;
     shell = user.shell or pkgs.zsh;
     extraGroups = lib.flatten [
@@ -60,7 +64,12 @@ in
 
   users.users.root = {
     shell = pkgs.bash;
-    hashedPassword = lib.mkForce userSecrets.hashedPassword;
+    hashedPasswordFile = lib.mkForce hashedPasswordFile;
+    # Forced (not mkIf) because virtualisation/lxc-instance-common.nix sets
+    # root.initialHashedPassword = "" at mkOverride 150, which otherwise
+    # trips NixOS's "multiple password options set" warning even though
+    # hashedPasswordFile already wins on priority.
+    hashedPassword = lib.mkForce (if hashedPasswordFile == null then userSecrets.hashedPassword else null);
     openssh.authorizedKeys.keys = userSecrets.ssh.publicKeys or [ ];
   };
 }

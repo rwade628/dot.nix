@@ -69,6 +69,11 @@ let
         };
         modules = [
           { nixpkgs.overlays = [ self.overlays.default ]; }
+          # Module only - no Darwin host consumes a secret yet, so there's no
+          # analogue of modules/nixos/core/sops.nix wiring defaultSopsFile
+          # here. Add one (plus hosts/darwin/<hostname>/secrets.yaml) when
+          # idun needs its first sops-nix secret.
+          inputs.sops-nix.darwinModules.sops
 
           # Host-specific configuration
           (customLib.relativeToRoot "hosts/darwin/${hostName}")

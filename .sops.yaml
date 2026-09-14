@@ -1,0 +1,23 @@
+keys:
+  - &host_loki age1fdgvnnya4g8kg832kq275cavc9sudupslcw88rn4we67k66635ysh96scf
+  - &host_nix_cache age1skgrknex0q047ssh9wmrn2ehzgtjsr2ml75z2y8uax2599fdxq3sqs6e6m
+  # nixos's host age key is not yet added - it wasn't reachable to derive one
+  # when this was set up. Add `&host_nixos` here (and to the common rule
+  # below) once it's migrated. See docs/adr/0006.
+
+creation_rules:
+  - path_regex: hosts/x86/loki/secrets\.yaml$
+    key_groups:
+      - age:
+          - *host_loki
+
+  - path_regex: hosts/x86/nix-cache/secrets\.yaml$
+    key_groups:
+      - age:
+          - *host_nix_cache
+
+  - path_regex: secrets/common\.yaml$
+    key_groups:
+      - age:
+          - *host_loki
+          - *host_nix_cache
