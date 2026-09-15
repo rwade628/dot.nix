@@ -11,6 +11,12 @@ let
   ## Get the current user's SSH config ##
   userSsh = secrets.users.${host.user.name}.ssh or { };
 
+  ## sops-nix has taken over the git/GitHub key on migrated hosts (see below) -
+  ## drop it from the git-crypt-sourced set so its onChange hook doesn't clobber
+  ## the sops-managed ".ssh/git" symlink with the stale git-crypt copy. Hosts
+  ## not yet migrated (no gitSshPrivateKey secret) keep the git-crypt fallback.
+  hasSopsGitKey = hostConfig.sops.secrets ? gitSshPrivateKey;
+
   ## SSH key creation function ##
   mkSshKeyFile =
     name: content:
@@ -25,7 +31,7 @@ let
 
   ## Create private key files from privateKeyContents ##
   privateKeys = lib.mapAttrs (name: content: mkSshKeyFile "${host.user.name}-${name}" content) (
-    userSsh.privateKeyContents or { }
+    lib.filterAttrs (name: _: !(hasSopsGitKey && name == "git")) (userSsh.privateKeyContents or { })
   );
 
   ## Generate local key paths for the config ##
@@ -72,7 +78,7 @@ in
     ## sops-nix, so - unlike the keys above - it just needs a symlink, not a
     ## store-path copy. mkOutOfStoreSymlink avoids Nix trying to import the
     ## (not-yet-decrypted-at-eval-time) target into the store.
-    // lib.optionalAttrs (hostConfig.sops.secrets ? gitSshPrivateKey) {
+    // lib.optionalAttrs hasSopsGitKey {
       ".ssh/git".source = config.lib.file.mkOutOfStoreSymlink hostConfig.sops.secrets.gitSshPrivateKey.path;
     };
 }
