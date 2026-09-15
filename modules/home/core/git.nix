@@ -6,18 +6,16 @@
   inputs,
   host,
   hostConfig,
-  secrets,
   ...
 }:
 let
-  user = host.user;
-  userSecrets = secrets.users.${user.name};
-  # sops-nix migrated hosts render [user] name/email at activation time into
-  # a runtime file (see modules/nixos/core/sops.nix / modules/darwin/core/sops.nix)
-  # and it's pulled in below via `includes`, instead of being set here - that
-  # would bake the values into the Nix store via the generated ~/.gitconfig,
-  # exactly what this migration is meant to avoid. Hosts not yet migrated
-  # (nixos) fall back to the git-crypt-sourced value.
+  # sops-nix renders [user] name/email at activation time into a runtime
+  # file (see modules/nixos/core/sops.nix / modules/darwin/core/sops.nix)
+  # and it's pulled in below via `includes`, instead of being set here -
+  # that would bake the values into the Nix store via the generated
+  # ~/.gitconfig, exactly what this migration is meant to avoid. Hosts
+  # without that secret (nixos - intentionally never migrated, see #12)
+  # just get no git identity configured.
   hasSopsIdentity = hostConfig.sops.templates ? gitIdentity;
 in
 {
@@ -44,11 +42,6 @@ in
     # for things that don't need it. So I have to hardcode repos that require auth, and default to ssh for
     # actions that require auth.
     settings = {
-      user = lib.optionalAttrs (!hasSopsIdentity) {
-        name = userSecrets.fullName;
-        email = userSecrets.email;
-      };
-
       core = {
         pager = "delta";
         # pre-emptively ignore mac crap

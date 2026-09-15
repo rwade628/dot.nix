@@ -15,17 +15,9 @@
               type = lib.types.str;
               description = "Hashed password for the user"; # nix-shell -p whois --run 'mkpasswd --method=sha-512 --rounds=656000'
             };
-            email = lib.mkOption {
-              type = lib.types.str;
-              description = "Email address for the user";
-            };
             handle = lib.mkOption {
               type = lib.types.str;
               description = "The handle of the user (eg: github user)";
-            };
-            fullName = lib.mkOption {
-              type = lib.types.str;
-              description = "Full name of the user";
             };
             hassToken = lib.mkOption {
               type = lib.types.str;
