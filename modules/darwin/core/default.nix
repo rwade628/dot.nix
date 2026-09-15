@@ -52,5 +52,11 @@
     autoEnable = true;
   };
 
-  nix.enable = true;
+  nix = {
+    enable = true;
+    settings.experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+  };
 }
