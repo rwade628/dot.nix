@@ -3,6 +3,7 @@
   config,
   lib,
   host,
+  hostConfig,
   secrets,
   ...
 }:
@@ -63,5 +64,15 @@ in
           chmod 600 $HOME/.ssh/${name}
         '';
       };
-    }) privateKeys;
+    }) privateKeys
+
+    ## The git/GitHub key is sops-nix-backed (see modules/nixos/core/sops.nix
+    ## and modules/darwin/core/sops.nix): decrypted straight to a runtime-only
+    ## path outside the Nix store, with permissions already set correctly by
+    ## sops-nix, so - unlike the keys above - it just needs a symlink, not a
+    ## store-path copy. mkOutOfStoreSymlink avoids Nix trying to import the
+    ## (not-yet-decrypted-at-eval-time) target into the store.
+    // lib.optionalAttrs (hostConfig.sops.secrets ? gitSshPrivateKey) {
+      ".ssh/git".source = config.lib.file.mkOutOfStoreSymlink hostConfig.sops.secrets.gitSshPrivateKey.path;
+    };
 }

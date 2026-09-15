@@ -83,6 +83,12 @@ in
         host
         secrets
         ;
+      # hostConfig gives shared home-manager modules (e.g. ssh.nix, git.nix)
+      # read access to system-level config, namely `sops.secrets`/`sops.templates`
+      # paths - normalized so those modules don't need to branch on platform
+      # (NixOS's own home-manager module would expose this as `osConfig`,
+      # Darwin's as `darwinConfig`; we inject one consistent name instead).
+      hostConfig = config;
       # Don't pass lib - let home-manager use its own extended lib with hm namespace
     };
     users = {
