@@ -62,12 +62,12 @@ jobs:
         run: |
           set -euo pipefail
 
-          runners='{"x86_64-linux":"ubuntu-latest","aarch64-linux":"ubuntu-24.04-arm","aarch64-darwin":"macos-latest"}'
+          runners='{"x86_64-linux":"ubuntu-latest","aarch64-darwin":"macos-latest"}'
 
           matrix='[]'
 
           # packages.<system>.* for every system this flake evaluates
-          for system in x86_64-linux aarch64-linux aarch64-darwin; do
+          for system in x86_64-linux aarch64-darwin; do
             runner=$(jq -r --arg s "$system" '.[$s]' <<<"$runners")
             names=$(nix eval --json ".#packages.${system}" --apply builtins.attrNames)
             entries=$(jq -c --arg system "$system" --arg runner "$runner" \
@@ -125,6 +125,8 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
+            substituters = https://cache.nixos.org http://attic.warbler-matrix.ts.net:8080/fafnir
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U=
 
       # Ephemeral node, tagged per tailscale/github-action's requirement (a
       # federated identity isn't associated with a tailnet user). "tag:ci"
