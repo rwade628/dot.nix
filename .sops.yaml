@@ -2,9 +2,6 @@ keys:
   - &host_loki age1jhd3qnsguqq32zu3zmxk8rlt5j3rgmv4hwqpgjyjrjz6d8rlgeus0r5xs0
   - &host_nix_cache age1skgrknex0q047ssh9wmrn2ehzgtjsr2ml75z2y8uax2599fdxq3sqs6e6m
   - &host_idun age145cxlqfe52jm7tvgq22k6ft2fqunc5rvmhvmax4pueqz6yhsy3xqdqzkm8
-  # nixos is being deprecated - intentionally not migrating it to sops-nix.
-  # It stays on the git-crypt fallback path (modules/nixos/core/sops.nix's
-  # `builtins.pathExists` guard) until it's decommissioned. See #12.
 
 creation_rules:
   - path_regex: hosts/x86/loki/secrets\.yaml$

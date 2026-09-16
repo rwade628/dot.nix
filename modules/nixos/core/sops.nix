@@ -2,10 +2,9 @@
 # key at activation time (sops.age.sshKeyPaths) - no separate age key file to
 # generate or back up. See docs/adr/0006.
 #
-# Guarded by pathExists because not every NixOS host has been migrated off
-# lib/secrets.nix yet (see modules/nixos/core/user.nix) - hosts without a
-# secrets.yaml keep using the git-crypt-encrypted path until they are.
-# nixos is intentionally never migrated (being deprecated - see #12).
+# Guarded by pathExists so a newly-added host with no secrets.yaml yet (see
+# "Adding a New Host" in CLAUDE.md) just gets no sops secrets wired, rather
+# than failing evaluation.
 {
   config,
   host,

@@ -14,7 +14,7 @@ result-*
 .DS_Store
 *.swp
 
-# Secrets safety net (lib/secrets.nix is the sanctioned, git-crypt-encrypted secrets file — this just catches accidental strays)
+# Secrets safety net (sops-nix files are ciphertext and safe to commit — this just catches accidental plaintext strays)
 *.pem
 *.age
 .env

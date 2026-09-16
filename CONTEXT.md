@@ -71,9 +71,8 @@ _Avoid_: host config (too vague — nearly everything under `modules/home/hosts`
 
 **Host secrets file**:
 A per-host sops-encrypted file at `hosts/<platform>/<hostname>/secrets.yaml`, decryptable only
-by that host's Host age key. Replaces the single git-crypt-encrypted `lib/secrets.nix` — see
-`docs/adr/0006-sops-nix-replaces-git-crypt-for-secrets.md`.
-_Avoid_: secrets.nix (the superseded git-crypt file).
+by that host's Host age key. Historically replaced a single git-crypt-encrypted `lib/secrets.nix`
+(now removed) — see `docs/adr/0006-sops-nix-replaces-git-crypt-for-secrets.md`.
 
 **Common secrets file**:
 A sops-encrypted file decryptable by every host's Host age key, for values every host should

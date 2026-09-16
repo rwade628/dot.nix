@@ -18,9 +18,8 @@
             nixos-rebuild
             home-manager
             nh
-            # Git and git-crypt
+            # Git
             git
-            git-crypt
             gnupg
             gpg-tui
             # Secrets (sops-nix)

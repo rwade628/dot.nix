@@ -5,7 +5,6 @@
   host,
   lib,
   pkgs,
-  secrets,
   ...
 }:
 {

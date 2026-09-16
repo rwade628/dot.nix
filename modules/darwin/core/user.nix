@@ -7,7 +7,6 @@
   host,
   lib,
   pkgs,
-  secrets,
   ...
 }:
 let
@@ -26,14 +25,13 @@ in
 // lib.optionalAttrs (inputs ? "home-manager") {
   # Set up home-manager for the configured user. The attr name must match the
   # OS account (user.osName); the imported module content still keys off
-  # user.name ("ryan") for secrets and the shared modules/home/users/ module.
+  # user.name ("ryan") for the shared modules/home/users/ module.
   home-manager = {
     extraSpecialArgs = {
       inherit
         pkgs
         inputs
         host
-        secrets
         ;
       # hostConfig gives shared home-manager modules (e.g. ssh.nix, git.nix)
       # read access to system-level config, namely `sops.secrets`/`sops.templates`
@@ -56,7 +54,6 @@ in
                 inputs
                 lib
                 pkgs
-                secrets
                 ;
             }
           )

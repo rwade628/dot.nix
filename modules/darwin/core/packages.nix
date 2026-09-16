@@ -8,7 +8,6 @@
     coreutils
     curl
     git
-    git-crypt
     gnupg
     openssh
     wget

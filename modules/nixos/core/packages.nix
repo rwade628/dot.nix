@@ -21,7 +21,6 @@ let
     curl # URL transfer tool
     ethtool # Network device configuration
     git # Version control
-    git-crypt # Git file encryption
     gnupg # OpenPGP encryption
     openssh # SSH client/server
     pciutils # PCI device information

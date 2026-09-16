@@ -5,18 +5,17 @@
 }:
 let
   # Public key authorized to log in as `ryan` on every host - not sensitive,
-  # so it lives here as a plain value rather than in lib/secrets.nix (see #12:
-  # openssh.authorizedKeys.keys needs a Nix-eval-time value, which sops-nix
-  # secrets can't provide, and this way it doesn't need to move again once
-  # the git-crypt path is decommissioned). Paired private key is the
-  # sops-nix-managed `serverSshPrivateKey` secret in secrets/common.yaml.
+  # so it lives here as a plain value rather than as a sops-nix secret
+  # (openssh.authorizedKeys.keys needs a Nix-eval-time value, which sops-nix
+  # secrets can't provide). Paired private key is the sops-nix-managed
+  # `serverSshPrivateKey` secret in secrets/common.yaml.
   ryanSshAuthorizedKeys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM/G59cekOy/Yw2v6+hJcG7gDYY4bPUblCAt/whZixW7 ryan"
   ];
 
   # SSH client config - not sensitive (no secrets, just IdentityFile paths
   # and connection settings), and identical for every host, so it lives
-  # here rather than in lib/secrets.nix (see #12).
+  # here as a plain value rather than as a secret.
   ryanSshConfig = ''
     Host github.com
       IdentityFile "~/.ssh/git"
@@ -42,20 +41,6 @@ in
 
   hostSpec = {
     ## X86 Hosts ##
-    nixos = {
-      network = {
-        hostName = "nixos";
-      };
-      user = {
-        name = "ryan";
-        sshAuthorizedKeys = ryanSshAuthorizedKeys;
-        sshConfig = ryanSshConfig;
-      };
-      mounts = {
-        media = true;
-      };
-      plasma = true;
-    };
     nix-cache = {
       network = {
         hostName = "nix-cache";
@@ -95,8 +80,8 @@ in
         sshAuthorizedKeys = ryanSshAuthorizedKeys;
         sshConfig = ryanSshConfig;
         # Pre-existing macOS account; nix-darwin can't create accounts, so this
-        # must match the account already on the machine. Config, secrets, and
-        # the shared home-manager module still key off `name` ("ryan") above.
+        # must match the account already on the machine. Config and the
+        # shared home-manager module still key off `name` ("ryan") above.
         osName = "rdubs628";
       };
       hasDesktop = true;

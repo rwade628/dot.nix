@@ -12,7 +12,6 @@
     description = "Build and cache NixOS configurations";
     path = with pkgs; [
       git
-      git-crypt
       nix
       openssh
       jq

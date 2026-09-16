@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is Ryan's dotfiles configuration, managed as a Nix flake using `flake-parts`. It provisions four hosts across two platforms — three NixOS: **nixos** (KDE Plasma desktop), **loki** (headless WSL server), and **nix-cache** (LXC container running a Harmonia binary cache); and one Darwin: **idun** (Apple Silicon Mac via nix-darwin). The config uses home-manager for user environments, catppuccin for theming (mocha/lavender), and supports Niri and Plasma desktops. See `docs/adr/0001-darwin-platform-support.md` for why the Darwin tree is a sibling of the NixOS one rather than a shared abstraction.
+This is Ryan's dotfiles configuration, managed as a Nix flake using `flake-parts`. It provisions three hosts across two platforms — two NixOS: **loki** (headless WSL server) and **nix-cache** (LXC container running a Harmonia binary cache); and one Darwin: **idun** (Apple Silicon Mac via nix-darwin). The config uses home-manager for user environments, catppuccin for theming (mocha/lavender), and supports Niri and Plasma desktops (neither currently exercised by an active host — both stay maintained for whenever a desktop host returns). See `docs/adr/0001-darwin-platform-support.md` for why the Darwin tree is a sibling of the NixOS one rather than a shared abstraction.
 
 ## Key Commands
 
@@ -15,7 +15,6 @@ nix develop
 # Rebuild a specific host
 nixos-rebuild switch --flake .#nixosConfigurations.<hostname>
 # Examples:
-nixos-rebuild switch --flake .#nixosConfigurations.nixos
 nixos-rebuild switch --flake .#nixosConfigurations.loki
 nixos-rebuild switch --flake .#nixosConfigurations.nix-cache
 
@@ -57,8 +56,7 @@ flake.nix                          # Root flake, declares inputs + delegates to 
 │   ├── packages.nix               # Exposes pkgs/* as flake packages
 │   └── devshell.nix               # perSystem dev shell with all dev tools
 ├── modules/global/                # Shared spec modules (type definitions)
-│   ├── host-spec.nix              # HostSpec option types (network, mounts, DE, user, flags)
-│   └── secret-spec.nix            # SecretsSpec option types (users, SSH, GPG, SMTP, services)
+│   └── host-spec.nix              # HostSpec option types (network, mounts, DE, user, flags)
 ├── modules/nixos/                 # NixOS modules
 │   ├── core/                      # Shared across all hosts: nix, ssh, user, fonts, packages, services
 │   ├── desktop/                   # niri/ and plasma/ system-level DE config
@@ -70,7 +68,7 @@ flake.nix                          # Root flake, declares inputs + delegates to 
 │   ├── core/                      # Shared user config: neovim, zsh, bash, git, ssh, direnv, tmux, etc.
 │   ├── desktop/                   # niri/ and plasma/ user-level DE config (binds, windows, apps)
 │   ├── gaming/                    # mangohud, lsfgvk
-│   ├── hosts/                     # Per-host user overrides (loki/, nixos/, nix-cache/, idun/)
+│   ├── hosts/                     # Per-host user overrides (loki/, nix-cache/, idun/)
 │   ├── users/ryan/                # User-level config + theme
 │   └── utilities/                 # xdg, mullvad
 ├── hosts/x86/<hostname>/          # Per-host NixOS configuration drop-ins
@@ -85,12 +83,12 @@ flake.nix                          # Root flake, declares inputs + delegates to 
 
 ### Spec/Implementation Pattern
 
-Host and secret data use a two-file pattern with `lib.evalModules`:
+Host data uses a two-file pattern with `lib.evalModules`:
 
-- **Spec** (`modules/global/host-spec.nix`, `modules/global/secret-spec.nix`): defines option types and validation assertions
-- **Implementation** (`lib/hosts.nix`, `lib/secrets.nix`): provides concrete values
+- **Spec** (`modules/global/host-spec.nix`): defines option types and validation assertions
+- **Implementation** (`lib/hosts.nix`): provides concrete values
 
-This enables type-safe config access via `host.*` and `secrets.*` in specialArgs. Validation runs at flake evaluation time (e.g., VPN without WireGuard, mutually exclusive DEs, minimal hosts without desktop).
+This enables type-safe config access via `host.*` in specialArgs. Validation runs at flake evaluation time (e.g., VPN without WireGuard, mutually exclusive DEs, minimal hosts without desktop).
 
 ### Module Loading
 
@@ -98,10 +96,7 @@ This enables type-safe config access via `host.*` and `secrets.*` in specialArgs
 
 ### Secrets
 
-Two mechanisms coexist during the migration described in `docs/adr/0006-sops-nix-replaces-git-crypt-for-secrets.md`:
-
-- **git-crypt** (`lib/secrets.nix`): encrypted inline secrets not yet migrated (SSH keys, HA token). Flows into NixOS/Darwin via `secrets.users.<name>` and `secrets.service` specialArgs.
-- **sops-nix**: per-host `hosts/<platform>/<hostname>/secrets.yaml`, decryptable only by that host's age key — derived at activation time from its own SSH host key (`sops.age.sshKeyPaths`), no separate key file to manage. A Common secrets file (`secrets/common.yaml`) is encrypted to every migrated host's key for values every host should have. Recipients are declared in `.sops.yaml`. `modules/nixos/core/sops.nix` wires this per-host, guarded by `builtins.pathExists` so hosts without a `secrets.yaml` yet keep using the git-crypt path. `hashedPassword` is the first migrated secret (`modules/nixos/core/user.nix`), sourced as `hashedPasswordFile` so the value never lands in the Nix store.
+All secrets are sops-nix (see `docs/adr/0006-sops-nix-replaces-git-crypt-for-secrets.md` — git-crypt was fully removed once every consumer migrated). Each host has its own `hosts/<platform>/<hostname>/secrets.yaml`, decryptable only by that host's age key — derived at activation time from its own SSH host key (`sops.age.sshKeyPaths`), no separate key file to manage. A Common secrets file (`secrets/common.yaml`) is encrypted to every host's key for values every host should have (git identity, the shared server SSH key). Recipients are declared in `.sops.yaml`. `modules/nixos/core/sops.nix` wires this per-host, guarded by `builtins.pathExists` so a newly-added host with no `secrets.yaml` yet just gets no sops secrets wired rather than failing evaluation. `hashedPassword` is sourced as `hashedPasswordFile` (via `modules/nixos/core/user.nix`) so the value never lands in the Nix store.
 
 ### Host Characteristics
 
@@ -132,10 +127,11 @@ Assertions prevent invalid combinations (both DEs, minimal+desktop, VPN without 
 2. Create `hosts/x86/<hostname>/default.nix` importing core modules and host-specific config
 3. Optionally add host-specific drop-in files (mounted auto-scanned by `scanPaths`)
 4. If user config needed, add `modules/home/hosts/<hostname>/`
+5. Create `hosts/x86/<hostname>/secrets.yaml` (add the host's age key to `.sops.yaml` first) with at least `hashedPassword` — there's no fallback path anymore, so the user account has no password until this exists
 
 ## Adding a New NixOS Module
 
-Place in `modules/nixos/` under the appropriate subdirectory (core, desktop, hardware, services). The module should be a standalone `.nix` file accepting standard NixOS module arguments (`config`, `lib`, `pkgs`, `host`, `inputs`, `secrets`, ...). It will be auto-scanned if placed in a subdirectory, or explicitly imported in a host's `default.nix`.
+Place in `modules/nixos/` under the appropriate subdirectory (core, desktop, hardware, services). The module should be a standalone `.nix` file accepting standard NixOS module arguments (`config`, `lib`, `pkgs`, `host`, `inputs`, ...). It will be auto-scanned if placed in a subdirectory, or explicitly imported in a host's `default.nix`.
 
 ## Adding a New Home-Manager Module
 
@@ -163,6 +159,5 @@ Single-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
 - **`scanPaths` skips `default.nix`**: any `default.nix` in an auto-scanned directory must be imported explicitly elsewhere — it is never picked up by the scan itself.
 - **`neovim.nix` is a redirect**: `modules/home/core/neovim.nix` just imports `./neovim/`; the real config lives in that subdirectory.
 - **Wine package**: use `wineWow64Packages.full` (or `.waylandFull`/`.stable`), not `wineWowPackages.full`.
-- **Secrets encryption**: `lib/secrets.nix` is transparently encrypted via `git-crypt` per `.gitattributes` — `git-crypt status` should show it as `encrypted`. Never bypass this (e.g. `git-crypt unlock` output, `git show` on old unencrypted history) when a public remote is involved.
-- **Not every host has a sops `secrets.yaml` yet**: `modules/nixos/core/sops.nix` only wires sops-nix for hosts where `hosts/x86/<hostname>/secrets.yaml` exists. A host missing that file (e.g. `nixos`, pending migration) silently keeps using the `lib/secrets.nix` value instead — check which path a given host is actually on before assuming a secret is sops-backed.
+- **Not every host has a sops `secrets.yaml` yet**: `modules/nixos/core/sops.nix` only wires sops-nix for hosts where `hosts/x86/<hostname>/secrets.yaml` exists — relevant if you're adding a new host before creating its secrets file (see "Adding a New Host"); such a host simply has no sops secrets wired, not a fallback to anything.
 - **NixOS/Home Manager lookups**: prefer the `nixos` MCP server's `nix`/`nix_versions` tools over guessing option names or package attributes — nixpkgs moves faster than training data.

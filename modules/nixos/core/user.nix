@@ -5,17 +5,14 @@
   inputs,
   lib,
   pkgs,
-  secrets,
   ...
 }:
 let
   user = host.user;
-  # Get user-specific secrets if they exist
-  userSecrets = secrets.users.${user.name} or { };
   ifTheyExist = groups: builtins.filter (group: builtins.hasAttr group config.users.groups) groups;
   isMinimal = host.isMinimal;
-  # Migrated hosts (see modules/nixos/core/sops.nix) get the password from
-  # sops-nix; hosts not yet migrated keep the git-crypt-encrypted value.
+  # Set once the host has a secrets.yaml wiring sops-nix (modules/nixos/core/sops.nix).
+  # Null on a host that hasn't created one yet.
   hashedPasswordFile = config.sops.secrets.hashedPassword.path or null;
 in
 {
@@ -26,7 +23,6 @@ in
     description = "Admin";
     homeMode = "750";
     hashedPasswordFile = hashedPasswordFile;
-    hashedPassword = lib.mkIf (hashedPasswordFile == null) userSecrets.hashedPassword;
     uid = 1000;
     shell = user.shell or pkgs.zsh;
     extraGroups = lib.flatten [
@@ -69,9 +65,7 @@ in
     # root.initialHashedPassword = "" at mkOverride 150, which otherwise
     # trips NixOS's "multiple password options set" warning even though
     # hashedPasswordFile already wins on priority.
-    hashedPassword = lib.mkForce (
-      if hashedPasswordFile == null then userSecrets.hashedPassword else null
-    );
+    hashedPassword = lib.mkForce null;
     openssh.authorizedKeys.keys = user.sshAuthorizedKeys;
   };
 }
@@ -83,7 +77,6 @@ in
         pkgs
         inputs
         host
-        secrets
         ;
       # hostConfig gives shared home-manager modules (e.g. ssh.nix, git.nix)
       # read access to system-level config, namely `sops.secrets`/`sops.templates`
@@ -114,7 +107,6 @@ in
                   inputs
                   lib
                   pkgs
-                  secrets
                   ;
               }
           )

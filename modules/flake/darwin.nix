@@ -36,19 +36,13 @@ let
           # Import host spec and implementation
           (customLib.relativeToRoot "modules/global/host-spec.nix")
           (customLib.relativeToRoot "lib/hosts.nix")
-
-          # Import secret spec and implementation
-          (customLib.relativeToRoot "modules/global/secret-spec.nix")
-          (customLib.relativeToRoot "lib/secrets.nix")
         ];
         specialArgs = {
           inherit pkgs lib;
         };
       };
 
-      # Extract both host and secrets from the single evaluation
       host = dataEval.config.hostSpec.${hostName} or { };
-      secrets = dataEval.config.secretsSpec;
     in
     {
       "${hostName}" = inputs.nix-darwin.lib.darwinSystem {
@@ -56,7 +50,6 @@ let
           inherit
             host
             inputs
-            secrets
             system
             ;
           outputs = self;
