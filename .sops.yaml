@@ -1,5 +1,5 @@
 keys:
-  - &host_loki age1fdgvnnya4g8kg832kq275cavc9sudupslcw88rn4we67k66635ysh96scf
+  - &host_loki age1jhd3qnsguqq32zu3zmxk8rlt5j3rgmv4hwqpgjyjrjz6d8rlgeus0r5xs0
   - &host_nix_cache age1skgrknex0q047ssh9wmrn2ehzgtjsr2ml75z2y8uax2599fdxq3sqs6e6m
   - &host_idun age145cxlqfe52jm7tvgq22k6ft2fqunc5rvmhvmax4pueqz6yhsy3xqdqzkm8
   # nixos is being deprecated - intentionally not migrating it to sops-nix.
