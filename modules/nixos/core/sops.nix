@@ -41,6 +41,15 @@ lib.mkIf (builtins.pathExists secretsFile) {
     owner = host.user.name;
   };
 
+  # The general-purpose "log into any of my own boxes" identity (see #12) -
+  # its public half is a plain value (modules/global/host-spec.nix's
+  # `user.sshAuthorizedKeys`, set in lib/hosts.nix) since sops secrets can't
+  # supply the Nix-eval-time value openssh.authorizedKeys.keys needs.
+  sops.secrets.serverSshPrivateKey = {
+    sopsFile = commonSecretsFile;
+    owner = host.user.name;
+  };
+
   # git.nix includes this rendered file for [user] instead of baking
   # name/email into the Nix store via programs.git.settings.
   sops.templates.gitIdentity = {

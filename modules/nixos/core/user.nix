@@ -44,7 +44,7 @@ in
         "input"
       ])
     ];
-    openssh.authorizedKeys.keys = userSecrets.ssh.publicKeys or [ ];
+    openssh.authorizedKeys.keys = user.sshAuthorizedKeys;
   };
 
   # Special sudo config for user
@@ -69,8 +69,10 @@ in
     # root.initialHashedPassword = "" at mkOverride 150, which otherwise
     # trips NixOS's "multiple password options set" warning even though
     # hashedPasswordFile already wins on priority.
-    hashedPassword = lib.mkForce (if hashedPasswordFile == null then userSecrets.hashedPassword else null);
-    openssh.authorizedKeys.keys = userSecrets.ssh.publicKeys or [ ];
+    hashedPassword = lib.mkForce (
+      if hashedPasswordFile == null then userSecrets.hashedPassword else null
+    );
+    openssh.authorizedKeys.keys = user.sshAuthorizedKeys;
   };
 }
 // lib.optionalAttrs (inputs ? "home-manager") {

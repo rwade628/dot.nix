@@ -24,35 +24,6 @@
               description = "Home Assistant long-lived access token for the user";
             };
 
-            ## SSH configuration ##
-            ssh = lib.mkOption {
-              type = lib.types.submodule {
-                options = {
-                  publicKeys = lib.mkOption {
-                    type = lib.types.listOf lib.types.str;
-                    description = "SSH public keys for the user";
-                    default = [ ];
-                  };
-                  privateKeyContents = lib.mkOption {
-                    type = lib.types.attrsOf lib.types.str;
-                    description = "SSH private key contents keyed by name";
-                    default = { };
-                  };
-                  config = lib.mkOption {
-                    type = lib.types.path;
-                    description = "SSH config file path";
-                  };
-                  knownHosts = lib.mkOption {
-                    type = lib.types.listOf lib.types.str;
-                    description = "SSH known hosts entries";
-                    default = [ ];
-                  };
-                };
-              };
-              default = { };
-              description = "SSH configuration for the user";
-            };
-
             ## GPG configuration ##
             gpg = lib.mkOption {
               type = lib.types.submodule {

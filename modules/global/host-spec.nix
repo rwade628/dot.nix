@@ -80,6 +80,18 @@
                       default = pkgs.zsh;
                       example = pkgs.bash;
                     };
+
+                    sshAuthorizedKeys = lib.mkOption {
+                      type = lib.types.listOf lib.types.str;
+                      description = "SSH public keys authorized to log in as this user. Not sensitive - plain values, evaluated at build time (openssh.authorizedKeys.keys needs a Nix-eval-time value, which sops-nix secrets cannot provide).";
+                      default = [ ];
+                    };
+
+                    sshConfig = lib.mkOption {
+                      type = lib.types.lines;
+                      description = "SSH client config (~/.ssh/config) for this user. Not sensitive - plain text, the same for every host.";
+                      default = "";
+                    };
                   };
                 }
               );

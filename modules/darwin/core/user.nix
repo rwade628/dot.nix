@@ -12,7 +12,6 @@
 }:
 let
   user = host.user;
-  userSecrets = secrets.users.${user.name} or { };
 in
 {
   system.primaryUser = user.osName;
@@ -21,7 +20,7 @@ in
     home = "/Users/${user.osName}";
     shell = user.shell or pkgs.zsh;
     uid = lib.mkIf (user.uid != null) user.uid;
-    openssh.authorizedKeys.keys = userSecrets.ssh.publicKeys or [ ];
+    openssh.authorizedKeys.keys = user.sshAuthorizedKeys;
   };
 }
 // lib.optionalAttrs (inputs ? "home-manager") {
