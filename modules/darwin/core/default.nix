@@ -54,9 +54,22 @@
 
   nix = {
     enable = true;
-    settings.experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
+    settings = {
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
+
+      # Attic, in the homelab cluster (cache "fafnir") - CI is the only
+      # writer. idun is a roaming Mac, so the tailnet hostname is the only
+      # one that's always reachable - see docs/adr/0005.
+      substituters = [
+        "http://attic.warbler-matrix.ts.net:8080/fafnir"
+      ];
+
+      trusted-public-keys = [
+        "fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U="
+      ];
+    };
   };
 }

@@ -1,0 +1,181 @@
+name: Build and cache
+
+# Replaces the old TrueNAS nix-auto-build systemd timer: builds every flake output
+# generically (no hand-maintained package list) and pushes to the Attic cache
+# (fafnir) over Tailscale. CI is the cache's only writer.
+# See docs/adr/0005-nix-cache-moves-to-cluster-ci-builds-all-platforms.md
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Nightly: updates flake.lock first, only commits it if the build below is green.
+    - cron: "17 9 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Discover flake outputs
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      lockfile-changed: ${{ steps.lockfile.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Update flake inputs (nightly only)
+        if: github.event_name == 'schedule'
+        run: nix flake update
+
+      - name: Check whether flake.lock changed
+        id: lockfile
+        run: |
+          if git diff --quiet -- flake.lock; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Downstream build jobs check out the same commit but need whatever
+      # flake.lock this job ended up with (updated or not), so it travels as
+      # an artifact rather than relying on a second `nix flake update`.
+      - name: Upload flake.lock for downstream jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: flake-lock
+          path: flake.lock
+
+      - name: Compute build matrix
+        id: matrix
+        run: |
+          set -euo pipefail
+
+          runners='{"x86_64-linux":"ubuntu-latest","aarch64-linux":"ubuntu-24.04-arm","aarch64-darwin":"macos-latest"}'
+
+          matrix='[]'
+
+          # packages.<system>.* for every system this flake evaluates
+          for system in x86_64-linux aarch64-linux aarch64-darwin; do
+            runner=$(jq -r --arg s "$system" '.[$s]' <<<"$runners")
+            names=$(nix eval --json ".#packages.${system}" --apply builtins.attrNames)
+            entries=$(jq -c --arg system "$system" --arg runner "$runner" \
+              '[.[] | {kind: "package", system: $system, runner: $runner, name: ., attr: ("packages." + $system + "." + .)}]' \
+              <<<"$names")
+            matrix=$(jq -c -n --argjson a "$matrix" --argjson b "$entries" '$a + $b')
+          done
+
+          # every nixosConfigurations output except "nixos" (not deployed anywhere)
+          nixos_systems=$(nix eval --json '.#nixosConfigurations' \
+            --apply 'cfgs: builtins.mapAttrs (n: c: c.config.nixpkgs.hostPlatform.system) cfgs')
+          entries=$(jq -c --argjson runners "$runners" \
+            '[to_entries[] | select(.key != "nixos") | {kind: "nixos", system: .value, runner: $runners[.value], name: .key, attr: ("nixosConfigurations." + .key + ".config.system.build.toplevel")}]' \
+            <<<"$nixos_systems")
+          matrix=$(jq -c -n --argjson a "$matrix" --argjson b "$entries" '$a + $b')
+
+          # every darwinConfigurations output
+          darwin_systems=$(nix eval --json '.#darwinConfigurations' \
+            --apply 'cfgs: builtins.mapAttrs (n: c: c.config.nixpkgs.hostPlatform.system) cfgs')
+          entries=$(jq -c --argjson runners "$runners" \
+            '[to_entries[] | {kind: "darwin", system: .value, runner: $runners[.value], name: .key, attr: ("darwinConfigurations." + .key + ".config.system.build.toplevel")}]' \
+            <<<"$darwin_systems")
+          matrix=$(jq -c -n --argjson a "$matrix" --argjson b "$entries" '$a + $b')
+
+          # Every host's system must be one of the $runners keys above, or
+          # `runs-on` for that matrix entry would silently be `null` -
+          # nixosConfigurations/darwinConfigurations aren't restricted to
+          # the flake's own `systems` list the way packages.* is, so a new
+          # host on an unmapped system wouldn't be caught any other way.
+          unmapped=$(jq -c '[.[] | select(.runner == null)]' <<<"$matrix")
+          if [ "$unmapped" != "[]" ]; then
+            echo "::error::no runner mapping for: $unmapped" >&2
+            exit 1
+          fi
+
+          echo "matrix={\"include\":$matrix}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: ${{ matrix.attr }}
+    needs: prepare
+    permissions:
+      id-token: write # tailscale/github-action exchanges this for a tailnet auth key (workload identity federation, no static OAuth secret)
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: flake-lock
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      # Ephemeral node, tagged per tailscale/github-action's requirement (a
+      # federated identity isn't associated with a tailnet user). "tag:ci"
+      # must already exist in the tailnet's ACL policy with access to the
+      # Attic instance, and the federated identity trust rule must grant it.
+      - name: Join tailnet
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          audience: ${{ vars.TS_AUDIENCE }}
+          tags: tag:ci
+
+      - name: Build
+        run: nix build --no-link --print-out-paths ".#${{ matrix.attr }}" > /tmp/out-paths
+
+      - name: Push to Attic
+        env:
+          ATTIC_ENDPOINT: ${{ vars.ATTIC_ENDPOINT }}
+          ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
+        run: |
+          nix run --inputs-from . nixpkgs#attic-client -- login ci "$ATTIC_ENDPOINT" "$ATTIC_TOKEN"
+          xargs nix run --inputs-from . nixpkgs#attic-client -- push fafnir < /tmp/out-paths
+
+  commit-lockfile:
+    name: Commit updated flake.lock
+    needs: [prepare, build]
+    # A job's own `if:` replaces (not adds to) the default implicit
+    # "all `needs` succeeded" gate, so that has to be spelled out here too -
+    # otherwise a failed build leg (fail-fast: false lets the rest finish)
+    # wouldn't stop the lockfile commit, defeating the whole point of
+    # gating it on green.
+    if: success() && github.event_name == 'schedule' && needs.prepare.outputs.lockfile-changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: flake-lock
+
+      - name: Commit and push
+        run: |
+          if git diff --quiet -- flake.lock; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add flake.lock
+          git commit -m "flake.lock: update inputs
+
+          Automated update after a green build in ${{ github.workflow }}."
+          git push
