@@ -5,7 +5,9 @@
   ...
 }:
 let
-  inherit (inputs.nixpkgs) lib;
+  # Darwin evaluates against nixpkgs-darwin (see flake.nix), not the
+  # nixos-unstable `nixpkgs` the NixOS hosts use.
+  inherit (inputs.nixpkgs-darwin) lib;
   customLib = import (self.outPath + "/lib") { inherit lib; };
 
   ARM_DARWIN = "aarch64-darwin";
@@ -20,7 +22,7 @@ let
       system = ARM_DARWIN;
 
       # Import and evaluate the data modules to extract configuration
-      pkgs = import inputs.nixpkgs { inherit system; };
+      pkgs = import inputs.nixpkgs-darwin { inherit system; };
 
       # Evaluate all data modules together (specs + implementations)
       dataEval = lib.evalModules {
@@ -53,10 +55,10 @@ let
             system
             ;
           outputs = self;
-          lib = inputs.nixpkgs.lib.extend (
+          lib = inputs.nixpkgs-darwin.lib.extend (
             # INFO: Extend lib with lib.custom; This approach allows lib.custom to propagate into hm
             self: super: {
-              custom = import (customLib.relativeToRoot "lib") { inherit (inputs.nixpkgs) lib; };
+              custom = import (customLib.relativeToRoot "lib") { inherit (inputs.nixpkgs-darwin) lib; };
             }
           );
         };
