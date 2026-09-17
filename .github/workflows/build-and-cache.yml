@@ -142,6 +142,26 @@ jobs:
       - name: Build
         run: nix build --no-link --print-out-paths ".#${{ matrix.attr }}" > /tmp/out-paths
 
+      # Dumps the full requisite closure (every .drv and output store path
+      # basename, hash included) for host closures only. This is temporary
+      # instrumentation for root-causing why `nixos-rebuild switch` on loki
+      # evaluates a different derivation locally than what CI built for the
+      # same commit (see rwade628/dot.nix#15's "substitute with no local
+      # build" AC) — lets a local closure be diffed exactly against CI's,
+      # instead of inferring from log-scraped, name-collision-prone output.
+      - name: Dump derivation closure
+        if: matrix.kind == 'nixos' || matrix.kind == 'darwin'
+        run: |
+          drv=$(nix eval --raw ".#${{ matrix.attr }}.drvPath")
+          nix-store --query --requisites "$drv" | xargs -n1 basename | sort > /tmp/closure-manifest.txt
+
+      - name: Upload derivation closure manifest
+        if: matrix.kind == 'nixos' || matrix.kind == 'darwin'
+        uses: actions/upload-artifact@v4
+        with:
+          name: closure-manifest-${{ matrix.name }}
+          path: /tmp/closure-manifest.txt
+
       - name: Push to Attic
         env:
           ATTIC_ENDPOINT: ${{ vars.ATTIC_ENDPOINT }}
