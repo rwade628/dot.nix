@@ -41,6 +41,8 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
+            max-jobs = auto
+            cores = 0
 
       - name: Update flake inputs (nightly only)
         if: github.event_name == 'schedule' || inputs.simulate_nightly == true
@@ -145,6 +147,8 @@ jobs:
             experimental-features = nix-command flakes
             substituters = https://cache.nixos.org http://attic.warbler-matrix.ts.net:8080/fafnir
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U=
+            max-jobs = auto
+            cores = 0
 
       # Ephemeral node, tagged per tailscale/github-action's requirement (a
       # federated identity isn't associated with a tailnet user). "tag:ci"
