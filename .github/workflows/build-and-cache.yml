@@ -160,6 +160,15 @@ jobs:
           nixpkgs_nix=$(nix build --no-link --print-out-paths --inputs-from . nixpkgs#nix)
           echo "$nixpkgs_nix/bin" >> "$GITHUB_PATH"
 
+      # Temporary debug: self's resolved path/narHash/URL differed from a
+      # local eval even after the Nix-version pin above, so print exactly
+      # what CI computes for it (root-causing #15's reproducibility AC).
+      - name: Debug self metadata
+        if: matrix.kind == 'nixos' || matrix.kind == 'darwin'
+        run: |
+          nix --version
+          nix flake metadata --json | jq '{revision, dirtyRevision, lastModified, path, resolvedUrl, url}'
+
       - name: Build
         run: nix build --no-link --print-out-paths ".#${{ matrix.attr }}" > /tmp/out-paths
 
