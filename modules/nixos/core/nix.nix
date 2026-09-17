@@ -10,7 +10,23 @@
   nix = {
     # This will add each flake input as a registry
     # To make nix3 commands consistent with your flake
-    registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
+    #
+    # `self` is deliberately excluded: unlike every other input, it isn't
+    # fetched via a pinned github: URL - it's a git+file:// fetch of this
+    # working tree, which Nix's git-porcelain fetcher (unlike the
+    # GitHub-tarball-API path used for github: inputs) doesn't reproduce
+    # identically across machines for identical commits (see
+    # https://github.com/NixOS/nix/issues/5313). Registering it here baked
+    # that non-reproducible path into /etc/nix/registry.json and $NIX_PATH
+    # (via nixPath below), which cascaded into set-environment.drv and
+    # friends, forcing a local rebuild of those on every switch even when
+    # every actual package substituted fine. All it ever bought was being
+    # able to type `self#...`/`<self>` from outside this repo's directory,
+    # which `.`/`<nixpkgs>`-style relative usage from inside it already
+    # covers.
+    registry = lib.mapAttrs (_: value: { flake = value; }) (
+      builtins.removeAttrs inputs [ "self" ]
+    );
 
     # This will add your inputs to the system's legacy channels
     # Making legacy nix commands consistent as well, awesome!
