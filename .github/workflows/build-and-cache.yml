@@ -9,8 +9,10 @@ on:
   push:
     branches: [main]
   schedule:
-    # Nightly: updates flake.lock first, only commits it if the build below is green.
-    - cron: "17 9 * * *"
+    # Nightly (~3am America/New_York): updates flake.lock first, only commits
+    # it if the build below is green. Cron is UTC; 07:07 UTC ~= 3:07am EDT /
+    # 2:07am EST, off the top-of-hour per GitHub's own scheduling advice.
+    - cron: "7 7 * * *"
   workflow_dispatch: {}
 
 concurrency:
