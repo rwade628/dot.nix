@@ -8,6 +8,15 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
 
+    # Darwin hosts track nixpkgs-unstable, not nixos-unstable: the nixos-*
+    # branches are gated on the NixOS jobset (kernel, bootloader, VM tests),
+    # which says nothing about whether aarch64-darwin was built - so darwin
+    # lands on revisions Hydra has not finished and compiles from source.
+    # The converse is worse: pointing NixOS at a darwin branch leaves kernel
+    # and bootloader unchecked. Keep each platform on the branch that gates
+    # what it actually boots.
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
     ## NixOS ##
 
     hardware = {
@@ -18,7 +27,7 @@
 
     nix-darwin = {
       url = "github:LnL7/nix-darwin/master";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs-darwin";
     };
 
     home-manager = {
