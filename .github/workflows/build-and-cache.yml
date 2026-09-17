@@ -44,11 +44,7 @@ jobs:
       # Re-exec through the flake's own pinned nixpkgs#nix for every step
       # from here on, so CI evaluates with the exact same Nix version that
       # `nixos-rebuild switch`/`darwin-rebuild switch` use on the hosts
-      # (nix.package = pkgs.nix, tied to the same nixpkgs revision) - a
-      # version mismatch here was the actual cause of loki's and
-      # nix-cache's full closures re-evaluating to a different derivation
-      # locally than what CI built, even though every input was pinned
-      # identically (see #15's "substitute with no local build" AC).
+      # (nix.package = pkgs.nix, tied to the same nixpkgs revision).
       - name: Switch to nixpkgs-pinned Nix
         run: |
           nixpkgs_nix=$(nix build --no-link --print-out-paths --inputs-from . nixpkgs#nix)
