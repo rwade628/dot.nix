@@ -24,6 +24,12 @@ let
 
   # General modifications to existing packages
   modifications = final: prev: {
+    # Compat shim: nixpkgs retired buildGo125Module (Go 1.25 EOL, 2026-09-15)
+    # faster than sops-nix's pkgs/sops-install-secrets/default.nix, which
+    # still calls it directly upstream. Remove once sops-nix bumps its Go
+    # builder past this.
+    buildGo125Module = prev.buildGo126Module;
+
     # Update Spotify to latest version (upstream is outdated)
     # Check for updates: curl -s -H 'X-Ubuntu-Series: 16' "https://api.snapcraft.io/api/v1/snaps/details/spotify?channel=stable" | jq '.revision,.download_sha512,.version'
     spotify = prev.spotify.overrideAttrs (old: rec {
