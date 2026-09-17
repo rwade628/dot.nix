@@ -13,7 +13,12 @@ on:
     # it if the build below is green. Cron is UTC; 07:07 UTC ~= 3:07am EDT /
     # 2:07am EST, off the top-of-hour per GitHub's own scheduling advice.
     - cron: "7 7 * * *"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      simulate_nightly:
+        description: "Run the nightly-only steps (flake update + lockfile commit) as if this were the scheduled trigger"
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}
@@ -38,7 +43,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Update flake inputs (nightly only)
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' || inputs.simulate_nightly == true
         run: nix flake update
 
       # install-nix-action's bootstrap Nix is whatever version that action
@@ -177,7 +182,7 @@ jobs:
     # otherwise a failed build leg (fail-fast: false lets the rest finish)
     # wouldn't stop the lockfile commit, defeating the whole point of
     # gating it on green.
-    if: success() && github.event_name == 'schedule' && needs.prepare.outputs.lockfile-changed == 'true'
+    if: success() && (github.event_name == 'schedule' || inputs.simulate_nightly == true) && needs.prepare.outputs.lockfile-changed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
