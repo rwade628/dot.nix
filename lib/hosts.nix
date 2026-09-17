@@ -41,16 +41,6 @@ in
 
   hostSpec = {
     ## X86 Hosts ##
-    nix-cache = {
-      network = {
-        hostName = "nix-cache";
-      };
-      user = {
-        name = "ryan";
-        sshAuthorizedKeys = ryanSshAuthorizedKeys;
-        sshConfig = ryanSshConfig;
-      };
-    };
     loki = {
       network = {
         hostName = "loki";

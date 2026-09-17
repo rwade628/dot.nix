@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is Ryan's dotfiles configuration, managed as a Nix flake using `flake-parts`. It provisions three hosts across two platforms — two NixOS: **loki** (headless WSL server) and **nix-cache** (LXC container running a Harmonia binary cache); and one Darwin: **idun** (Apple Silicon Mac via nix-darwin). The config uses home-manager for user environments, catppuccin for theming (mocha/lavender), and supports Niri and Plasma desktops (neither currently exercised by an active host — both stay maintained for whenever a desktop host returns). See `docs/adr/0001-darwin-platform-support.md` for why the Darwin tree is a sibling of the NixOS one rather than a shared abstraction.
+This is Ryan's dotfiles configuration, managed as a Nix flake using `flake-parts`. It provisions two hosts across two platforms — one NixOS: **loki** (headless WSL server); and one Darwin: **idun** (Apple Silicon Mac via nix-darwin). The config uses home-manager for user environments, catppuccin for theming (mocha/lavender), and supports Niri and Plasma desktops (neither currently exercised by an active host — both stay maintained for whenever a desktop host returns). See `docs/adr/0001-darwin-platform-support.md` for why the Darwin tree is a sibling of the NixOS one rather than a shared abstraction.
 
 ## Key Commands
 
@@ -14,18 +14,14 @@ nix develop
 
 # Rebuild a specific host
 nixos-rebuild switch --flake .#nixosConfigurations.<hostname>
-# Examples:
+# Example:
 nixos-rebuild switch --flake .#nixosConfigurations.loki
-nixos-rebuild switch --flake .#nixosConfigurations.nix-cache
 
 # Preferred local rebuild (uses nh, shorter output, auto-generation-diffing)
 nh os switch . --hostname <hostname>
 
 # Build a host without switching
 nixos-rebuild build --flake .#nixosConfigurations.<hostname>
-
-# Rebuild pinned to the nixpkgs revision the cache server last built (maximizes cache hits)
-scripts/nix/upgrade-from-cache.sh
 
 # Home-manager switch (runs via nixos-rebuild modules)
 home-manager switch --flake .#homeConfigurations.<hostname>.<user>
@@ -68,7 +64,7 @@ flake.nix                          # Root flake, declares inputs + delegates to 
 │   ├── core/                      # Shared user config: neovim, zsh, bash, git, ssh, direnv, tmux, etc.
 │   ├── desktop/                   # niri/ and plasma/ user-level DE config (binds, windows, apps)
 │   ├── gaming/                    # mangohud, lsfgvk
-│   ├── hosts/                     # Per-host user overrides (loki/, nix-cache/, idun/)
+│   ├── hosts/                     # Per-host user overrides (loki/, idun/)
 │   ├── users/ryan/                # User-level config + theme
 │   └── utilities/                 # xdg, mullvad
 ├── hosts/x86/<hostname>/          # Per-host NixOS configuration drop-ins
@@ -102,7 +98,7 @@ All secrets are sops-nix (see `docs/adr/0006-sops-nix-replaces-git-crypt-for-sec
 
 Each host declares flags in `lib/hosts.nix`:
 
-- `isServer` — role label only (headless, always-on network service, e.g. Harmonia on `nix-cache`); no functional effect on packages or home-manager — see `hasDesktop` for GUI package gating (`docs/adr/0002-hasdesktop-flag.md`)
+- `isServer` — role label only (headless, always-on network service); no functional effect on packages or home-manager — see `hasDesktop` for GUI package gating (`docs/adr/0002-hasdesktop-flag.md`)
 - `isMinimal` — home-manager is always enabled; this only chooses whether it imports just `modules/home/core` (`true`) or `modules/home/users/<name>` (`false`, default), which adds that host's `modules/home/hosts/<hostname>` overrides
 - `isExternal` — not on local network
 - `niri` / `plasma` — mutually exclusive desktop environments
@@ -115,7 +111,7 @@ Assertions prevent invalid combinations (both DEs, minimal+desktop, VPN without 
 - **unfree**: enabled globally (`nixpkgs.config.allowUnfree = true`)
 - **Wayland-first**: all DE configs target Wayland (Niri native, Plasma via SDDM Wayland)
 - **Catppuccin**: mocha flavor with lavender accent, auto-enabled everywhere
-- **Binary caches**: cache.nixos.org, chaotic-nyx, nix-community, nixos-cuda, and local harmonia at `http://10.0.10.14:5000`
+- **Binary caches**: cache.nixos.org, chaotic-nyx, nix-community, nixos-cuda, and Attic (`fafnir`) in the homelab cluster over Tailscale — CI is the only writer (`docs/adr/0005-nix-cache-moves-to-cluster-ci-builds-all-platforms.md`)
 - **IPv6**: disabled on all hosts
 - **SSH**: key-based auth only, root login disabled, mosh enabled
 - **Timezone**: America/New_York

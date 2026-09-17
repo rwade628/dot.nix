@@ -18,7 +18,6 @@ flake.nix                          # Entry: flake-parts, imports 4 modules
 ├── lib/default.nix                # Custom lib (relativeToRoot, scanPaths, getHostConfig)
 │
 ├── hosts/<arch>/<host>/           # Host-specific configs (infrastructure only)
-│   x86/nix-cache/                 # Build server host
 │
 ├── modules/nixos/core/            # Core NixOS (imports scanPaths + DE conditionals)
 ├── modules/nixos/hardware/        # Audio, GPU, input
@@ -60,9 +59,6 @@ nix flake check
 
 # Update flake inputs
 nix flake update
-
-# Rebuild from cache server revision (ensures binary cache hit)
-scripts/nix/upgrade-from-cache.sh
 ```
 
 ## Gotchas
@@ -74,7 +70,7 @@ scripts/nix/upgrade-from-cache.sh
 - **`scanPaths` skips `default.nix`**: When using `lib.custom.scanPaths`, `default.nix` files are excluded from auto-import. They must be imported explicitly.
 - **`neovim.nix` is a redirect**: `modules/home/core/neovim.nix` just does `{ imports = [ ./neovim ]; }`. The actual config is in `modules/home/core/neovim/`.
 - **`lib/hosts.nix` has no secrets**: Only non-sensitive host data goes here. SSH keys, passwords, tokens are sops-nix secrets (`hosts/<platform>/<hostname>/secrets.yaml` or `secrets/common.yaml`).
-- **Cache server**: Local Nix cache at `10.0.10.14:5000`. The `upgrade-from-cache.sh` script fetches the cached revision and rebuilds with it.
+- **Cache server**: Attic (`fafnir`) running in the homelab cluster, reached over Tailscale. CI is the only writer — pushes on every commit to `main` and nightly; local hosts are read-only substituters, so a plain `git pull` keeps `flake.lock` close to what's cached.
 - **`nixos-rebuild` needs `--use-remote-sudo` for remote hosts**.
 - **`nh os switch . --hostname <host>`** is the recommended local rebuild command (from devshell).
 - **Gaming packages**: `wineWow64Packages.full` (not `wineWowPackages.full`).

@@ -1,6 +1,5 @@
 keys:
   - &host_loki age1jhd3qnsguqq32zu3zmxk8rlt5j3rgmv4hwqpgjyjrjz6d8rlgeus0r5xs0
-  - &host_nix_cache age1skgrknex0q047ssh9wmrn2ehzgtjsr2ml75z2y8uax2599fdxq3sqs6e6m
   - &host_idun age145cxlqfe52jm7tvgq22k6ft2fqunc5rvmhvmax4pueqz6yhsy3xqdqzkm8
 
 creation_rules:
@@ -9,14 +8,8 @@ creation_rules:
       - age:
           - *host_loki
 
-  - path_regex: hosts/x86/nix-cache/secrets\.yaml$
-    key_groups:
-      - age:
-          - *host_nix_cache
-
   - path_regex: secrets/common\.yaml$
     key_groups:
       - age:
           - *host_loki
-          - *host_nix_cache
           - *host_idun

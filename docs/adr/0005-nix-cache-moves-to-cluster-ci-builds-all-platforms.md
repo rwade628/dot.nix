@@ -28,3 +28,21 @@ The `nix-cache` host (`hosts/x86/nix-cache/`, its `lib/hosts.nix` entry,
 `modules/home/hosts/nix-cache/`) is removed from this repo once the new Attic deployment is
 verified working — see the `homelab` repo's `docs/adr/0015-nix-cache-attic-in-cluster.md` for
 the cluster-side deployment.
+
+## Follow-up: `nix-cache` removed, `upgrade-from-cache.sh` retired
+
+With CI proven out, the `nix-cache` host tree, its `lib/hosts.nix` entry, and
+`modules/home/hosts/nix-cache/` were deleted, and its sops age key was dropped as a recipient of
+`secrets/common.yaml` (`sops updatekeys`) since the box no longer exists to hold the matching
+private key.
+
+`scripts/nix/upgrade-from-cache.sh` SSHed into `nix-cache` to read a per-host
+last-known-good-revision file that the old auto-build timer wrote, then pinned `nixpkgs` to it
+before rebuilding — necessary because that timer only ran occasionally and only against `loki`,
+so a host's `flake.lock` could otherwise drift well past what was actually cached. CI removes
+that gap: every push to `main` builds and pushes to Attic, and the nightly `nix flake update` job
+only advances `flake.lock` on `main` when the resulting build is green. A plain `git pull` (or
+just staying on `main`) followed by `nh os switch .` now rebuilds against a `flake.lock` that CI
+has already built and cached, on every host `packages`/`nixosConfigurations`/
+`darwinConfigurations` covers — so the script's SSH-and-override dance no longer buys a better
+cache hit rate than not having it, and it was deleted rather than repointed.

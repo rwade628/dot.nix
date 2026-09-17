@@ -61,7 +61,6 @@
         # "https://chaotic-nyx.cachix.org"
         # "https://nix-community.cachix.org"
         "https://cache.nixos-cuda.org"
-        "http://10.0.10.14:5000"
         # Attic, in the homelab cluster (cache "fafnir") - CI is the only
         # writer. Reachable over Tailscale (see docs/adr/0005), and the
         # hostname is the tailnet one even for LAN-only hosts like loki -
@@ -74,7 +73,6 @@
         "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
         # "chaotic-nyx.cachix.org-1:HfnXSw4pj95iI/n17rIDy40agHj12WfF+Gqk6SonIT8="
         # "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-        "nix-cache-1:l0MELFrnGO0vALbbnA2/7yD5+S2bgJmnvqjCln3L+gg="
         "fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U="
       ];
     };
