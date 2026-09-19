@@ -167,6 +167,12 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
     runs-on: ${{ matrix.runner }}
+    # A fully-cached build finishes in a few minutes (see run history); this
+    # is sized for legitimately-slow-but-fine from-source builds (llama-cpp,
+    # CUDA), not for a fresh/uncached package quietly compiling for hours
+    # (e.g. nodejs running its full upstream test suite from scratch) -
+    # that should fail fast instead of burning the whole 6h default.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -207,8 +213,27 @@ jobs:
           nixpkgs_nix=$(nix build --no-link --print-out-paths --inputs-from . nixpkgs#nix)
           echo "$nixpkgs_nix/bin" >> "$GITHUB_PATH"
 
+      # Cheap upfront diagnostic: lists exactly which derivations aren't
+      # substitutable from any configured cache and would have to be built
+      # from scratch - before spending any real time on the build below.
+      # This is what would have flagged nodejs-slim-26.9.0 as the blocker in
+      # seconds instead of two hours.
+      - name: Show what would be built from source
+        run: |
+          {
+            echo "### Build plan for \`${{ matrix.attr }}\`"
+            echo '```'
+            nix build --dry-run --no-link ".#${{ matrix.attr }}" 2>&1
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # -L/--print-build-logs streams each derivation's build output live
+      # instead of staying silent until failure (or success) - so a slow
+      # from-source build is visibly making progress rather than looking
+      # hung, and its full log is inline here instead of needing a
+      # separate `nix log` run against a store path from a finished job.
       - name: Build
-        run: nix build --no-link --print-out-paths ".#${{ matrix.attr }}" > /tmp/out-paths
+        run: nix build -L --no-link --print-out-paths ".#${{ matrix.attr }}" > /tmp/out-paths
 
       - name: Push to Attic
         env:
