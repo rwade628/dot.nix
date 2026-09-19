@@ -58,8 +58,11 @@
       # Binary cache substituters
       substituters = [
         "https://cache.nixos.org"
+        # chaotic-nyx isn't a flake input here (no overlay/packages consumed
+        # from it), so this substituter would never match anything we
+        # actually build - only re-enable alongside adding that input.
         # "https://chaotic-nyx.cachix.org"
-        # "https://nix-community.cachix.org"
+        "https://nix-community.cachix.org"
         "https://cache.nixos-cuda.org"
         # Attic, in the homelab cluster (cache "fafnir") - CI is the only
         # writer. Reachable over Tailscale (see docs/adr/0005), and the
@@ -70,9 +73,9 @@
 
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
         "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
         # "chaotic-nyx.cachix.org-1:HfnXSw4pj95iI/n17rIDy40agHj12WfF+Gqk6SonIT8="
-        # "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
         "fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U="
       ];
     };

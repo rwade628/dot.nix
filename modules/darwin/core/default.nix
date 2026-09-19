@@ -63,12 +63,17 @@
       # Attic, in the homelab cluster (cache "fafnir") - CI is the only
       # writer. idun is a roaming Mac, so the tailnet hostname is the only
       # one that's always reachable - see docs/adr/0005.
+      #
+      # nix-community also covers aarch64-darwin builds more thoroughly than
+      # cache.nixos.org/Hydra does, which is why it's worth having here too.
       substituters = [
         "http://attic.warbler-matrix.ts.net:8080/fafnir"
+        "https://nix-community.cachix.org"
       ];
 
       trusted-public-keys = [
         "fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U="
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       ];
     };
   };

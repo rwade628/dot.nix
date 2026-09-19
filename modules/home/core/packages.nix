@@ -126,7 +126,7 @@
       gcc # GNU Compiler Collection
       gnumake # Build automation
       meson # Build system
-      nodejs_26 # Node.js runtime
+      nodejs # Node.js runtime (LTS default - far better Hydra cache coverage than the Current/odd-major releases)
       pkg-config # Manage compile flags
       portaudio # Audio I/O library
       python3
