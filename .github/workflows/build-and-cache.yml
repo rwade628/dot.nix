@@ -207,6 +207,25 @@ jobs:
           audience: ${{ vars.TS_AUDIENCE }}
           tags: tag:ci
 
+      # tailscale/github-action's configureDNSOnMacOS unconditionally
+      # overwrites the *entire* system resolver (networksetup
+      # -setdnsservers) to MagicDNS (100.100.100.100) with no domain
+      # scoping, so every lookup - not just *.ts.net - rides on the
+      # tailnet's DNS forwarding. That forwarding has been flaky for public
+      # hostnames (github.com, tarballs.nixos.org - see run 35510021938),
+      # breaking `Build` below when it needs to fetch an un-substitutable
+      # source. macOS has no per-domain knob in networksetup, but does
+      # support split-DNS natively via /etc/resolver/<domain> (man 5
+      # resolver) - so revert to the runner's normal DHCP resolvers for
+      # everything, and scope MagicDNS to just the tailnet's own domain
+      # (still needed to resolve the Attic cache's tailnet hostname below).
+      - name: Un-clobber DNS on macOS (split-DNS scoped to the tailnet)
+        if: runner.os == 'macOS'
+        run: |
+          sudo networksetup -setdnsservers Ethernet Empty
+          sudo mkdir -p /etc/resolver
+          echo "nameserver 100.100.100.100" | sudo tee /etc/resolver/warbler-matrix.ts.net
+
       # See the matching step in the `prepare` job for why.
       - name: Switch to nixpkgs-pinned Nix
         run: |
@@ -306,12 +325,15 @@ jobs:
       # AlertmanagerConfig in the homelab cluster's o11y namespace already
       # default-routes everything to Pushover; `severity: critical` just
       # makes that explicit instead of relying on the fallthrough route.
-      # vars.ALERTMANAGER_URL is a tailnet hostname (e.g. Alertmanager
-      # exposed the same way grafana-service is) - unset until that's wired
-      # up on the cluster side.
+      # vars.ALERTMANAGER_URL is a tailnet hostname (Alertmanager exposed the
+      # same way grafana-service is), stored with a trailing slash to match
+      # ATTIC_ENDPOINT's convention - strip it so this doesn't double up
+      # with the leading slash below.
       - name: Notify Alertmanager
+        env:
+          ALERTMANAGER_URL: ${{ vars.ALERTMANAGER_URL }}
         run: |
-          curl -sf -X POST "${{ vars.ALERTMANAGER_URL }}/api/v2/alerts" \
+          curl -sf -X POST "${ALERTMANAGER_URL%/}/api/v2/alerts" \
             -H 'Content-Type: application/json' \
             -d '[{
               "labels": {
