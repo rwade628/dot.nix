@@ -291,8 +291,42 @@ jobs:
       # from-source build is visibly making progress rather than looking
       # hung, and its full log is inline here instead of needing a
       # separate `nix log` run against a store path from a finished job.
+      # stderr (where -L's substitution/build messages go) is teed to a
+      # file so the next step can report where paths actually came from,
+      # without losing the live-streamed log in the Actions UI.
       - name: Build
-        run: nix build -L --no-link --print-out-paths ".#${{ matrix.attr }}" > /tmp/out-paths
+        run: |
+          nix build -L --no-link --print-out-paths ".#${{ matrix.attr }}" \
+            > /tmp/out-paths \
+            2> >(tee /tmp/build-stderr.log >&2)
+
+      # Answers "did this just pull from cache.nixos.org (free CDN), from
+      # fafnir over the tailnet (homelab's own bandwidth), or actually
+      # compile from source?" - fafnir's nix-cache-info advertises Priority
+      # 41 vs. cache.nixos.org's 40 (lower wins), so it's only ever hit for
+      # paths that aren't mirrored upstream; this just makes that visible
+      # instead of it being buried in the full build log. attic push below
+      # already dedupes server-side against what fafnir has (including
+      # upstream-signed paths), so there's no matching waste on the way back
+      # out - see https://docs.attic.rs/tutorial.html.
+      - name: Show where paths came from
+        if: always()
+        run: |
+          {
+            echo "### Fetch/build breakdown for \`${{ matrix.attr }}\`"
+            echo
+            if [ -s /tmp/build-stderr.log ]; then
+              built=$(grep -c "^building '" /tmp/build-stderr.log || true)
+              echo "- Built from source: **${built:-0}**"
+              grep -oE "copying path '[^']+' from '[^']+'\.\.\.$" /tmp/build-stderr.log \
+                | sed -E "s/.*from '([^']+)'\.\.\.\$/\1/" \
+                | sed -E 's#^https://cache\.nixos\.org.*#cache.nixos.org (public)#; s#^http://attic\.warbler-matrix\.ts\.net.*#fafnir (homelab)#' \
+                | sort | uniq -c | sort -rn \
+                | awk '{count=$1; $1=""; sub(/^ /, ""); print "- Fetched from " $0 ": **" count "**"}'
+            else
+              echo "No build log captured (step above didn't run or produced no output)."
+            fi
+          } | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Push to Attic
         env:
