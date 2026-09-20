@@ -243,12 +243,25 @@ jobs:
       # lines. Reshape it into: the fetch count/size as one line, a bolded
       # "nothing to build" when fully cached, or the derivation list under a
       # collapsed <details> (still there, just not unfolded by default).
+      #
+      # The plan also gates the rest of the job: when nothing has to be built,
+      # every output is already substitutable from a cache, so `Build` would
+      # only download the whole closure to throw it away (--no-link) and
+      # there'd be nothing new to push to Attic. Skipping those steps saves
+      # that bandwidth (theirs and ours) and still finishes green.
       - name: Show what would be built from source
+        id: plan
         run: |
+          nix build --dry-run --no-link ".#${{ matrix.attr }}" > /tmp/plan.log 2>&1
+          if grep -q 'will be built:$' /tmp/plan.log; then
+            echo "needs-build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "needs-build=false" >> "$GITHUB_OUTPUT"
+          fi
           {
             echo "### Build plan for \`${{ matrix.attr }}\`"
             echo
-            nix build --dry-run --no-link ".#${{ matrix.attr }}" 2>&1 | awk '
+            awk '
               /^copying path '"'"'/ { next }
               /^unpacking '"'"'/ { next }
               /^trace: / { next }
@@ -283,7 +296,10 @@ jobs:
               END {
                 if (state == "building") { print "```"; print "</details>" }
               }
-            '
+            ' /tmp/plan.log
+            if [ "$(grep -c 'will be built:$' /tmp/plan.log)" = 0 ]; then
+              echo "**Already fully cached - skipping build and push, nothing to download.**"
+            fi
           } | tee -a "$GITHUB_STEP_SUMMARY"
 
       # -L/--print-build-logs streams each derivation's build output live
@@ -295,6 +311,7 @@ jobs:
       # file so the next step can report where paths actually came from,
       # without losing the live-streamed log in the Actions UI.
       - name: Build
+        if: steps.plan.outputs.needs-build == 'true'
         run: |
           nix build -L --no-link --print-out-paths ".#${{ matrix.attr }}" \
             > /tmp/out-paths \
@@ -310,7 +327,7 @@ jobs:
       # upstream-signed paths), so there's no matching waste on the way back
       # out - see https://docs.attic.rs/tutorial.html.
       - name: Show where paths came from
-        if: always()
+        if: always() && steps.plan.outputs.needs-build == 'true'
         run: |
           {
             echo "### Fetch/build breakdown for \`${{ matrix.attr }}\`"
@@ -329,6 +346,7 @@ jobs:
           } | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Push to Attic
+        if: steps.plan.outputs.needs-build == 'true'
         env:
           ATTIC_ENDPOINT: ${{ vars.ATTIC_ENDPOINT }}
           ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
