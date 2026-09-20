@@ -236,13 +236,21 @@ jobs:
       # substitutable from any configured cache and would have to be built
       # from scratch - before spending any real time on the build below.
       # This is what would have flagged nodejs-slim-26.9.0 as the blocker in
-      # seconds instead of two hours.
+      # seconds instead of two hours. `nix build --dry-run` also lists every
+      # store path that'll be *fetched* from a cache, which is routine and
+      # can run into the thousands of lines - keep only that section's
+      # summary header (count + size), not the full path-by-path dump.
       - name: Show what would be built from source
         run: |
           {
             echo "### Build plan for \`${{ matrix.attr }}\`"
             echo '```'
-            nix build --dry-run --no-link ".#${{ matrix.attr }}" 2>&1
+            nix build --dry-run --no-link ".#${{ matrix.attr }}" 2>&1 | awk '
+              /will be built:$/ { building=1; print; next }
+              /will be fetched/ { building=0; print; next }
+              /^  / { if (building) print; next }
+              { print }
+            '
             echo '```'
           } | tee -a "$GITHUB_STEP_SUMMARY"
 
