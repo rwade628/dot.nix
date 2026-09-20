@@ -236,22 +236,54 @@ jobs:
       # substitutable from any configured cache and would have to be built
       # from scratch - before spending any real time on the build below.
       # This is what would have flagged nodejs-slim-26.9.0 as the blocker in
-      # seconds instead of two hours. `nix build --dry-run` also lists every
-      # store path that'll be *fetched* from a cache, which is routine and
-      # can run into the thousands of lines - keep only that section's
-      # summary header (count + size), not the full path-by-path dump.
+      # seconds instead of two hours. Raw `nix build --dry-run` output is
+      # mostly noise for that purpose: eval-time chatter (copying/unpacking/
+      # trace lines from resolving flake inputs) and, when nothing needs
+      # building, a paths-to-fetch list that can run into the thousands of
+      # lines. Reshape it into: the fetch count/size as one line, a bolded
+      # "nothing to build" when fully cached, or the derivation list under a
+      # collapsed <details> (still there, just not unfolded by default).
       - name: Show what would be built from source
         run: |
           {
             echo "### Build plan for \`${{ matrix.attr }}\`"
-            echo '```'
+            echo
             nix build --dry-run --no-link ".#${{ matrix.attr }}" 2>&1 | awk '
-              /will be built:$/ { building=1; print; next }
-              /will be fetched/ { building=0; print; next }
-              /^  / { if (building) print; next }
+              /^copying path '"'"'/ { next }
+              /^unpacking '"'"'/ { next }
+              /^trace: / { next }
+              /will be built:$/ {
+                header = $0
+                sub(/:$/, "", header)
+                print "**" header "**"
+                print ""
+                print "<details><summary>Show derivations</summary>"
+                print ""
+                print "```"
+                state = "building"
+                next
+              }
+              /will be fetched/ {
+                if (state == "building") {
+                  print "```"
+                  print "</details>"
+                  print ""
+                } else if (state != "fetching") {
+                  print "Nothing to build from source."
+                  print ""
+                }
+                print
+                state = "fetching"
+                next
+              }
+              state == "building" && /^  / { print; next }
+              state == "fetching" && /^  / { next }
+              /^[[:space:]]*$/ { next }
               { print }
+              END {
+                if (state == "building") { print "```"; print "</details>" }
+              }
             '
-            echo '```'
           } | tee -a "$GITHUB_STEP_SUMMARY"
 
       # -L/--print-build-logs streams each derivation's build output live
