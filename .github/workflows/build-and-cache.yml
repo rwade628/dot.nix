@@ -9,11 +9,13 @@ on:
   push:
     branches: [main]
   schedule:
-    # Nightly (~3am America/New_York): updates flake.lock and the hand-pinned
+    # Nightly (~10pm America/New_York): updates flake.lock and the hand-pinned
     # packages in scripts/ai/update_overrides.py first, only commits either if
-    # the build below is green. Cron is UTC; 07:07 UTC ~= 3:07am EDT / 2:07am
-    # EST, off the top-of-hour per GitHub's own scheduling advice.
-    - cron: "7 7 * * *"
+    # the build below is green. Cron is UTC; 02:17 UTC ~= 10:17pm EDT / 9:17pm
+    # EST, off the top-of-hour per GitHub's own scheduling advice. Deliberately
+    # early: scheduled runs have been observed starting ~5h late, so this keeps
+    # the worst case landing overnight rather than mid-morning.
+    - cron: "17 2 * * *"
   workflow_dispatch:
     inputs:
       simulate_nightly:
