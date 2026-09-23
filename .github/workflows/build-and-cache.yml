@@ -352,7 +352,9 @@ jobs:
           ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
         run: |
           nix run --inputs-from . nixpkgs#attic-client -- login ci "$ATTIC_ENDPOINT" "$ATTIC_TOKEN"
-          xargs nix run --inputs-from . nixpkgs#attic-client -- push fafnir < /tmp/out-paths
+          # -j 1: fafnir's sqlite DB is single-writer; concurrent uploads of large
+          # NARs (e.g. CUDA libs) exhaust its connection pool and 500/time out.
+          xargs nix run --inputs-from . nixpkgs#attic-client -- push -j 1 fafnir < /tmp/out-paths
 
   commit-pinned-updates:
     name: Commit updated flake.lock and pinned packages
