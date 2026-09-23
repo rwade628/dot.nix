@@ -5,51 +5,19 @@
 #     "requests",
 # ]
 # ///
-"""Update package versions in package-overrides.nix by fetching latest GitHub releases."""
+"""Bump the pinned, non-flake-input package versions to their latest upstream release.
+
+Each package here ships a prebuilt binary upstream, so a bump is a version
+string plus a plain download hash - no `nix build` (and so no darwin builder)
+is needed to resolve anything.
+"""
 
 import re
 import subprocess
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
 import requests
-
-DUMMY_HASH = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
-
-
-@dataclass
-class Package:
-    name: str
-    owner: str
-    repo: str
-    tag_prefix: str
-    version_pattern: re.Pattern
-    semver: bool = False
-    hash_count: int = 1
-
-
-PACKAGES = [
-    Package(
-        name="llama-cpp",
-        owner="ggml-org",
-        repo="llama.cpp",
-        tag_prefix="b",
-        version_pattern=re.compile(
-            r'(llama-cpp\s*=\s*.*?version\s*=\s*")(\d+)(";)', re.DOTALL
-        ),
-        hash_count=2,  # src hash + npmDepsHash
-    ),
-    Package(
-        name="llama-swap",
-        owner="mostlygeek",
-        repo="llama-swap",
-        tag_prefix="v",
-        version_pattern=re.compile(
-            r"(https://github\.com/mostlygeek/llama-swap/releases/download/v)(\d+)(/llama-swap_)(\d+)(_linux_amd64\.tar\.gz)"
-        ),
-    ),
-]
 
 
 def parse_semver(version_str: str) -> tuple[int, ...] | None:
@@ -59,143 +27,6 @@ def parse_semver(version_str: str) -> tuple[int, ...] | None:
         return tuple(int(p) for p in version_str.split("."))
     except ValueError:
         return None
-
-
-def get_latest_release(pkg: Package) -> str | None:
-    """Fetch latest release version from GitHub."""
-    url = f"https://api.github.com/repos/{pkg.owner}/{pkg.repo}/releases"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        releases = response.json()
-    except Exception as e:
-        print(f"Failed to fetch releases for {pkg.owner}/{pkg.repo}: {e}")
-        return None
-
-    if pkg.semver:
-        max_ver, max_ver_str = (0, 0, 0), None
-        for release in releases:
-            if release.get("prerelease") or release.get("draft"):
-                continue
-            tag = release["tag_name"]
-            if tag.startswith(pkg.tag_prefix):
-                ver_str = tag[len(pkg.tag_prefix) :]
-                if (parsed := parse_semver(ver_str)) and parsed > max_ver:
-                    max_ver, max_ver_str = parsed, ver_str
-        return max_ver_str
-    else:
-        max_ver = 0
-        for release in releases:
-            tag = release["tag_name"]
-            if tag.startswith(pkg.tag_prefix):
-                try:
-                    ver = int(tag[len(pkg.tag_prefix) :])
-                    max_ver = max(max_ver, ver)
-                except ValueError:
-                    continue
-        return str(max_ver) if max_ver else None
-
-
-def compare_versions(current: str, latest: str, semver: bool) -> bool:
-    """Return True if latest > current."""
-    if semver:
-        return parse_semver(latest) > parse_semver(current)
-    return int(latest) > int(current)
-
-
-def replace_hashes_in_block(content: str, start: int, count: int) -> str:
-    """Replace `count` hash occurrences after `start` position with dummy hash."""
-    hash_pattern = re.compile(
-        r'((?:hash|vendorHash|npmDepsHash)\s*=\s*")(sha256-[^"]*)(";)'
-    )
-    pos = start
-    for _ in range(count):
-        match = hash_pattern.search(content, pos)
-        if match:
-            content = content[: match.start(2)] + DUMMY_HASH + content[match.end(2) :]
-            pos = match.start(2) + len(DUMMY_HASH)
-    return content
-
-
-def update_version(content: str, pkg: Package) -> tuple[str, bool]:
-    """Update package version and replace hashes with dummy values."""
-    print(f"\n--- Checking {pkg.name} ---")
-
-    match = pkg.version_pattern.search(content)
-    if not match:
-        print(f"Could not find {pkg.name} version definition.")
-        return content, False
-
-    current = match.group(2)
-    latest = get_latest_release(pkg)
-
-    if not latest:
-        return content, False
-
-    print(f"Current: {current}, Latest: {latest}")
-
-    if not compare_versions(current, latest, pkg.semver):
-        print("Already up to date.")
-        return content, False
-
-    print(f"Updating {pkg.name} to {latest}...")
-
-    # Replace version - handle llama-swap special case (version appears twice in URL)
-    if pkg.name == "llama-swap":
-        content = pkg.version_pattern.sub(
-            rf"\g<1>{latest}\g<3>{latest}\g<5>", content
-        )
-    else:
-        content = pkg.version_pattern.sub(rf"\g<1>{latest}\g<3>", content)
-
-    # Replace hashes with dummy. Ollama's llama.cpp pin lives before the
-    # override block and is handled by update_ollama_llama_cpp_pin().
-    updated_match = pkg.version_pattern.search(content)
-    if not updated_match:
-        print(f"Could not find updated {pkg.name} version definition.")
-        return content, False
-    block_hash_count = 2 if pkg.name == "ollama" else pkg.hash_count
-    content = replace_hashes_in_block(content, updated_match.start(), block_hash_count)
-
-    return content, True
-
-
-def get_new_hash(pkg_attribute: str) -> str | None:
-    """Build package to extract correct hash from error message."""
-    print(f"Building {pkg_attribute} to capture hash...")
-    result = subprocess.run(
-        [
-            "nix", "build",
-            f".#nixosConfigurations.loki.pkgs.{pkg_attribute}",
-            "--no-link", "--cores", "1",
-        ],
-        capture_output=True,
-        text=True,
-    )
-
-    if match := re.search(r"\s+got:\s+(sha256-\S+)", result.stderr):
-        return match.group(1)
-
-    print(f"Could not extract hash for {pkg_attribute}.")
-    return None
-
-
-def resolve_hashes(file_path: Path, content: str, pkg: Package) -> str:
-    """Resolve dummy hashes by building and extracting correct values."""
-    for i in range(pkg.hash_count):
-        print(f"Resolving {pkg.name} hash {i + 1}/{pkg.hash_count}...")
-
-        new_hash = get_new_hash(pkg.name)
-        if not new_hash:
-            print(f"Failed to resolve {pkg.name} hash {i + 1}/{pkg.hash_count}.")
-            sys.exit(1)
-
-        print(f"Found hash: {new_hash}")
-        content = content.replace(DUMMY_HASH, new_hash, 1)
-        file_path.write_text(content)
-
-    print(f"Successfully updated {pkg.name}.")
-    return content
 
 
 def prefetch_sri(url: str) -> str | None:
@@ -273,21 +104,98 @@ def update_talosctl() -> None:
     print("Successfully updated talosctl.")
 
 
-def main():
-    file_path = Path("hosts/x86/loki/package-overrides.nix")
+def update_claude_code() -> None:
+    """Update the claude-code pin in modules/flake/overlays.nix.
+
+    Upstream publishes a prebuilt, zstd-compressed binary per platform, so
+    each hash is a plain download hash - no nix build (and no darwin builder)
+    required, same as talosctl. Only the systems listed in the overlay's
+    `platforms` table are prefetched; everything else falls through to
+    nixpkgs there and needs no hash here.
+    """
+    print("\n--- Checking claude-code ---")
+    file_path = Path("modules/flake/overlays.nix")
     if not file_path.exists():
-        print(f"Error: {file_path} not found.")
-        sys.exit(1)
+        print(f"{file_path} not found, skipping.")
+        return
 
     content = file_path.read_text()
 
-    for pkg in PACKAGES:
-        content, updated = update_version(content, pkg)
-        if updated:
-            file_path.write_text(content)
-            content = resolve_hashes(file_path, content, pkg)
+    # The pin is delimited by marker comments in the overlay so this only ever
+    # rewrites claude-code's own version/hashes, never another package's.
+    block_match = re.search(
+        r"# claude-code-pin-start\n(.*?)\n\s*# claude-code-pin-end", content, re.DOTALL
+    )
+    if not block_match:
+        print("Could not find the claude-code pin block in overlays.nix.")
+        return
+    block = block_match.group(1)
 
+    version_match = re.search(r'version = "([\d.]+)";', block)
+    if not version_match:
+        print("Could not find claude-code version.")
+        return
+    current = version_match.group(1)
+
+    try:
+        response = requests.get(
+            "https://downloads.claude.ai/claude-code-releases/latest"
+        )
+        response.raise_for_status()
+        latest = response.text.strip()
+    except Exception as e:
+        print(f"Failed to fetch latest claude-code release: {e}")
+        return
+
+    if not parse_semver(latest):
+        print(f"Unexpected claude-code version from upstream: {latest!r}")
+        return
+
+    print(f"Current: {current}, Latest: {latest}")
+
+    if not parse_semver(latest) > parse_semver(current):
+        print("Already up to date.")
+        return
+
+    # Map each nix system to its upstream platform directory, then to the
+    # hash line that needs replacing. Both tables are keyed by nix system, so
+    # they're zipped by key rather than by position.
+    platforms = dict(
+        re.findall(r"([\w-]+) = \"([\w-]+)\";", block.split("platforms = {")[1].split("};")[0])
+    )
+    hash_entries = re.findall(
+        r"([\w-]+) = \"(sha256-[^\"]+)\";", block.split("hashes = {")[1].split("};")[0]
+    )
+    if not platforms or not hash_entries:
+        print("Could not parse the claude-code platforms/hashes tables.")
+        return
+
+    print(f"Updating claude-code to {latest}...")
+    new_block = block.replace(f'version = "{current}";', f'version = "{latest}";', 1)
+
+    for system, old_hash in hash_entries:
+        platform = platforms.get(system)
+        if not platform:
+            print(f"No platform mapping for {system}; aborting claude-code update.")
+            sys.exit(1)
+        url = (
+            "https://downloads.claude.ai/claude-code-releases/"
+            f"{latest}/{platform}/claude.zst"
+        )
+        new_hash = prefetch_sri(url)
+        if not new_hash:
+            print(f"Aborting claude-code update; could not resolve hash for {platform}.")
+            sys.exit(1)
+        new_block = new_block.replace(old_hash, new_hash, 1)
+
+    content = content.replace(block, new_block, 1)
+    file_path.write_text(content)
+    print("Successfully updated claude-code.")
+
+
+def main():
     update_talosctl()
+    update_claude_code()
 
 
 if __name__ == "__main__":

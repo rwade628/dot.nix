@@ -73,12 +73,10 @@ jobs:
       - name: Snapshot pre-pinned-update diff
         run: git diff > /tmp/pre-pinned-update.patch
 
-      # Bumps talosctl/llama-cpp/llama-swap to their latest upstream release
-      # (none of these are flake inputs, so `nix flake update` above never
-      # touches them). talosctl/llama-swap ship prebuilt binaries - just a
-      # hash prefetch. llama-cpp is genuinely built from source; the build
-      # matrix below already compiles it (as part of loki's toplevel) so
-      # that's where a bad bump actually gets caught, not here.
+      # Bumps talosctl/claude-code to their latest upstream release (neither
+      # is a flake input, so `nix flake update` above never touches them).
+      # Both ship prebuilt binaries, so this is just a hash prefetch - no
+      # build happens here; the build matrix below is what catches a bad bump.
       - name: Update pinned packages (nightly only)
         if: github.event_name == 'schedule' || inputs.simulate_nightly == true
         id: update-pinned

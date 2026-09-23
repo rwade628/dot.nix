@@ -30,16 +30,43 @@ let
     # builder past this.
     buildGo125Module = prev.buildGo126Module;
 
-    # Update Spotify to latest version (upstream is outdated)
-    # Check for updates: curl -s -H 'X-Ubuntu-Series: 16' "https://api.snapcraft.io/api/v1/snaps/details/spotify?channel=stable" | jq '.revision,.download_sha512,.version'
-    spotify = prev.spotify.overrideAttrs (old: rec {
-      version = "1.2.74.477.g3be53afe";
-      rev = "89";
-      src = prev.fetchurl {
-        url = "https://api.snapcraft.io/api/v1/snaps/download/pOBIoZ2LrCB3rDohMxoYGnbN14EHOgD7_${rev}.snap";
-        hash = "sha512-mn1w/Ylt9weFgV67tB435CoF2/4V+F6gu1LUXY07J6m5nxi1PCewHNFm8/11qBRO/i7mpMwhcRXaiv0HkFAjYA==";
-      };
-    });
+    # Track claude-code's own release channel instead of waiting for nixpkgs
+    # to catch up (usually a day or two behind). Upstream already ships a
+    # prebuilt, zstd-compressed binary per platform, so this overrides only
+    # `version` + `src` and inherits nixpkgs' autoPatchelf/wrapProgram work
+    # (ripgrep, bubblewrap, socat, DISABLE_AUTOUPDATER, ...) rather than
+    # reimplementing it. Bumped nightly by scripts/ai/update_overrides.py -
+    # keep the attribute names below in sync if you edit this block.
+    claude-code =
+      let
+        # claude-code-pin-start
+        version = "2.1.280";
+
+        platforms = {
+          x86_64-linux = "linux-x64";
+          aarch64-darwin = "darwin-arm64";
+        };
+
+        hashes = {
+          x86_64-linux = "sha256-J5EOKucE2PLoAkiX2P3x53EIB7r09pgsDjeXwFgxU4Q=";
+          aarch64-darwin = "sha256-IU+v2dYLwDl8todHt2WrdSvktTMDwXatiFxMr74wgm8=";
+        };
+        # claude-code-pin-end
+
+        system = prev.stdenv.hostPlatform.system;
+      in
+      # Only the two systems any host actually uses are pinned; anything else
+      # falls through to nixpkgs' own claude-code rather than failing to eval.
+      if !(platforms ? ${system}) then
+        prev.claude-code
+      else
+        prev.claude-code.overrideAttrs {
+          inherit version;
+          src = prev.fetchurl {
+            url = "https://downloads.claude.ai/claude-code-releases/${version}/${platforms.${system}}/claude.zst";
+            hash = hashes.${system};
+          };
+        };
   };
 
   # Stable channel packages
