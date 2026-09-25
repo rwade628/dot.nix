@@ -201,7 +201,7 @@ jobs:
       # must already exist in the tailnet's ACL policy with access to the
       # Attic instance, and the federated identity trust rule must grant it.
       - name: Join tailnet
-        uses: tailscale/github-action@780049a30b6ff5c378a9e7b389d15ece7a204888 # v4.1.3
+        uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
         with:
           oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
           audience: ${{ vars.TS_AUDIENCE }}
@@ -409,7 +409,7 @@ jobs:
       id-token: write # tailscale/github-action exchanges this for a tailnet auth key
     steps:
       - name: Join tailnet
-        uses: tailscale/github-action@780049a30b6ff5c378a9e7b389d15ece7a204888 # v4.1.3
+        uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
         with:
           oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
           audience: ${{ vars.TS_AUDIENCE }}
