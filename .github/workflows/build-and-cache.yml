@@ -354,7 +354,17 @@ jobs:
           nix run --inputs-from . nixpkgs#attic-client -- login ci "$ATTIC_ENDPOINT" "$ATTIC_TOKEN"
           # -j 1: fafnir's sqlite DB is single-writer; concurrent uploads of large
           # NARs (e.g. CUDA libs) exhaust its connection pool and 500/time out.
-          xargs nix run --inputs-from . nixpkgs#attic-client -- push -j 1 fafnir < /tmp/out-paths
+          # That only serializes this job, though: after any big NAR lands
+          # (from this job or a sibling matrix job), the server's per-chunk
+          # cleanup can starve the pool for 30s and 500 the next request,
+          # whatever its size. Pushes are idempotent (already-cached paths are
+          # skipped), so just retry.
+          for attempt in 1 2 3; do
+            xargs nix run --inputs-from . nixpkgs#attic-client -- push -j 1 fafnir < /tmp/out-paths && exit 0
+            echo "::warning::attic push failed (attempt $attempt/3), retrying in 30s"
+            sleep 30
+          done
+          exit 1
 
   commit-pinned-updates:
     name: Commit updated flake.lock and pinned packages
