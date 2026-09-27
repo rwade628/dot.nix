@@ -44,6 +44,7 @@
       cue
       fluxcd # provides `flux`
       gh
+      gitleaks # secret scan; required by ~/git/workbench pre-commit hook (memory sync)
       go-task # provides `task`
       helmfile
       jq
