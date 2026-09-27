@@ -21,6 +21,12 @@ in
     uid = lib.mkIf (user.uid != null) user.uid;
     openssh.authorizedKeys.keys = user.sshAuthorizedKeys;
   };
+
+  # Passwordless sudo, matching the NixOS hosts. nix-darwin has no
+  # security.sudo.extraRules, so this goes in as a raw sudoers line.
+  security.sudo.extraConfig = ''
+    ${user.osName} ALL=(ALL) NOPASSWD: ALL
+  '';
 }
 // lib.optionalAttrs (inputs ? "home-manager") {
   # Set up home-manager for the configured user. The attr name must match the
