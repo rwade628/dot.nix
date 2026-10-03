@@ -40,6 +40,18 @@ let
       };
     });
 
+    # Compat shim: GCC 16 ships <simd> with the final C++26 API, but contour
+    # 0.6.3 prefers it whenever it exists and then uses the pre-standard
+    # std::experimental names (native_simd, rebind_simd_t, ...). Force its
+    # <experimental/simd> branch. Also pulled in via enableAllTerminfo;
+    # remove once nixpkgs patches it.
+    contour = prev.contour.overrideAttrs (old: {
+      postPatch = (old.postPatch or "") + ''
+        substituteInPlace src/vtbackend/Image.cpp \
+          --replace-fail '#if __has_include(<simd>)' '#if 0'
+      '';
+    });
+
     # Track claude-code's own release channel instead of waiting for nixpkgs
     # to catch up (usually a day or two behind). Upstream already ships a
     # prebuilt, zstd-compressed binary per platform, so this overrides only
