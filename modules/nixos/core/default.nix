@@ -63,7 +63,12 @@
   environment.sessionVariables.TZ = config.time.timeZone;
 
   ## SUDO and Terminal ##
-  environment.enableAllTerminfo = true;
+  # Only the terminals actually used. enableAllTerminfo pulls in ~13 emulators'
+  # terminfo outputs, which means building whole packages from source whenever
+  # cache.nixos.org lags (rxvt-unicode and contour both broke under GCC 16).
+  # alacritty sets TERM=xterm-256color and tmux uses tmux-256color, both
+  # already in ncurses.
+  environment.systemPackages = [ pkgs.ghostty.terminfo ];
   hardware.enableAllFirmware = true;
 
   security.sudo = {
