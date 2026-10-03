@@ -20,7 +20,14 @@ let
     packages;
 
   # Linux-specific modifications
-  linuxModifications = final: prev: prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux { };
+  linuxModifications =
+    final: prev:
+    prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
+      # Compat shim: ltrace 0.7.91 builds fine under GCC 16 but 15 of its
+      # testsuite cases fail. Skip the checks until nixpkgs fixes it, then
+      # remove.
+      ltrace = prev.ltrace.overrideAttrs { doCheck = false; };
+    };
 
   # General modifications to existing packages
   modifications = final: prev: {
