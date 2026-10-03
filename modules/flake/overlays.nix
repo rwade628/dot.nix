@@ -30,6 +30,16 @@ let
     # builder past this.
     buildGo125Module = prev.buildGo126Module;
 
+    # Compat shim: GCC 16 defaults to C++20, whose std::lerp makes
+    # rxvt-unicode 9.31's own lerp() template ambiguous (rxvttoolkit.C).
+    # Pulled onto every NixOS host via environment.enableAllTerminfo. Pin
+    # the old standard until nixpkgs patches it, then remove.
+    rxvt-unicode-unwrapped = prev.rxvt-unicode-unwrapped.overrideAttrs (old: {
+      env = old.env // {
+        CXXFLAGS = "-std=gnu++17";
+      };
+    });
+
     # Track claude-code's own release channel instead of waiting for nixpkgs
     # to catch up (usually a day or two behind). Upstream already ships a
     # prebuilt, zstd-compressed binary per platform, so this overrides only
