@@ -66,8 +66,12 @@
       #
       # nix-community also covers aarch64-darwin builds more thoroughly than
       # cache.nixos.org/Hydra does, which is why it's worth having here too.
+      #
+      # priority=30: both fafnir and nix-community advertise 41, and fafnir
+      # already holds every nix-community path CI used (it pushes anything
+      # not signed by cache.nixos.org) - prefer the tailnet copy.
       substituters = [
-        "http://attic.warbler-matrix.ts.net:8080/fafnir"
+        "http://attic.warbler-matrix.ts.net:8080/fafnir?priority=30"
         "https://nix-community.cachix.org"
       ];
 
@@ -75,6 +79,9 @@
         "fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U="
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       ];
+
+      # Fail over quickly when fafnir is unreachable (Mac off the tailnet).
+      connect-timeout = 5;
     };
   };
 }
