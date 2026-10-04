@@ -25,6 +25,16 @@ let
   # each of those systems and warns once cache.nixos.org has it - i.e. once
   # Hydra builds it again and the shim can be deleted.
   compatShims = {
+    # TEST ONLY - identity shim on a package Hydra caches, to exercise the
+    # CI warning path. Never merge.
+    hello = {
+      systems = [
+        "x86_64-linux"
+        "aarch64-darwin"
+      ];
+      apply = prev: prev.hello;
+    };
+
     # ltrace 0.7.91 builds fine under GCC 16 but 15 of its testsuite cases
     # fail, so Hydra never caches it.
     ltrace = {
