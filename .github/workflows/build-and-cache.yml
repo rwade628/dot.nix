@@ -62,6 +62,11 @@ jobs:
           nixpkgs_nix=$(nix build --no-link --print-out-paths --inputs-from . nixpkgs#nix)
           echo "$nixpkgs_nix/bin" >> "$GITHUB_PATH"
 
+      # Runs after the flake update so it judges the nixpkgs revision tonight's
+      # build will use. Warning-only - see the script header.
+      - name: Check whether compat shims are still needed
+        run: scripts/ci/check_compat_shims.sh
+
       # Baseline to fall back to if the pinned-package update below fails
       # partway through (e.g. a transient GitHub API/network error while
       # resolving a hash) - it writes files incrementally, so a failure can
