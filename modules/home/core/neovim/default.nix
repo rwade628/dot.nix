@@ -29,7 +29,6 @@
         nix.enable = true;
         terraform.enable = true;
         toml.enable = true;
-        typescript.enable = true;
         yaml.enable = true;
       };
       util.dot.enable = true;
@@ -41,7 +40,6 @@
     treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
       fish
       css
-      latex
       scss
       svelte
       typst
@@ -64,7 +62,6 @@
       lua-language-server
       taplo
       terraform-ls
-      vtsls
 
       # Language servers (already present)
       vscode-langservers-extracted
@@ -85,7 +82,6 @@
       # Image rendering tools (snacks.image)
       imagemagick
       ghostscript
-      tectonic
 
       # Other tools
       ast-grep

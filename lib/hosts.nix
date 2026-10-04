@@ -54,9 +54,8 @@ in
         media = true;
       };
       isServer = true;
-      # Explicit (matches the default) so it's clear loki needs the full
-      # modules/home/users/ryan profile — modules/home/hosts/loki carries
-      # kubectl, krew, ffmpeg, and its networking/monitoring tools.
+      # Explicit (matches the default) so it's clear loki gets the full
+      # modules/home/users/ryan profile, including modules/home/hosts/loki.
       isMinimal = false;
     };
 
