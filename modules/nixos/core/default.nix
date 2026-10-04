@@ -69,7 +69,6 @@
   # alacritty sets TERM=xterm-256color and tmux uses tmux-256color, both
   # already in ncurses.
   environment.systemPackages = [ pkgs.ghostty.terminfo ];
-  hardware.enableAllFirmware = true;
 
   security.sudo = {
     extraConfig = ''
