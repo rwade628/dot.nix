@@ -57,7 +57,7 @@ flake.nix                          # Root flake, declares inputs + delegates to 
 │   ├── core/                      # Shared across all hosts: nix, ssh, user, fonts, packages, services
 │   ├── desktop/                   # niri/ and plasma/ system-level DE config
 │   ├── hardware/                  # audio.nix
-│   └── services/                  # ai, ddcutil, plymouth, gaming (steam/gamescope/lutris/sunshine)
+│   └── services/                  # ddcutil, plymouth, gaming (steam/gamescope/lutris/sunshine)
 ├── modules/darwin/                # nix-darwin modules (standalone; shares nothing with modules/nixos)
 │   └── core/                      # default, user, packages, services, fonts, homebrew (GUI casks + brew PATH)
 ├── modules/home/                  # Home-manager modules
@@ -111,7 +111,7 @@ Assertions prevent invalid combinations (both DEs, minimal+desktop, VPN without 
 - **unfree**: enabled globally (`nixpkgs.config.allowUnfree = true`)
 - **Wayland-first**: all DE configs target Wayland (Niri native, Plasma via SDDM Wayland)
 - **Catppuccin**: mocha flavor with lavender accent, auto-enabled everywhere
-- **Binary caches**: cache.nixos.org, chaotic-nyx, nix-community, nixos-cuda, and Attic (`fafnir`) in the homelab cluster over Tailscale — CI is the only writer (`docs/adr/0005-nix-cache-moves-to-cluster-ci-builds-all-platforms.md`)
+- **Binary caches**: cache.nixos.org, nix-community, and Attic (`fafnir`) in the homelab cluster over Tailscale — CI is the only writer (`docs/adr/0005-nix-cache-moves-to-cluster-ci-builds-all-platforms.md`). Fafnir is pinned to `?priority=30` so it wins over nix-community (both advertise 41) for the paths CI has already mirrored
 - **IPv6**: disabled on all hosts
 - **SSH**: key-based auth only, root login disabled, mosh enabled
 - **Timezone**: America/New_York

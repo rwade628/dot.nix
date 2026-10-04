@@ -8,16 +8,12 @@
     inputs.nixos-wsl.nixosModules.wsl
     ## Hardware ##
     inputs.hardware.nixosModules.common-cpu-amd
-    # inputs.hardware.nixosModules.common-gpu-nvidia
     inputs.hardware.nixosModules.common-pc-ssd
 
     ## Required Configs ##
     (lib.custom.scanPaths ./.)
 
     (lib.custom.relativeToRoot "modules/nixos/core") # sets up core nixos configuration
-
-    ## Optional Configs ##
-    # (lib.custom.relativeToRoot "modules/nixos/services/ai.nix") # sets up llama-cpp and related tools
   ];
 
   wsl = {
@@ -31,18 +27,6 @@
   };
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-
-  # hardware.graphics = {
-  #   enable = true;
-  #   enable32Bit = true;
-  # };
-
-  # nvidia-container-toolkit added an assertion requiring explicit driver
-  # configuration. On WSL, drivers come from Windows.
-  # hardware.nvidia-container-toolkit = {
-  #   enable = true;
-  #   suppressNvidiaDriverAssertion = true;
-  # };
 
   ## System-wide packages ##
   programs.nix-ld.enable = true;

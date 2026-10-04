@@ -62,6 +62,11 @@ jobs:
           nixpkgs_nix=$(nix build --no-link --print-out-paths --inputs-from . nixpkgs#nix)
           echo "$nixpkgs_nix/bin" >> "$GITHUB_PATH"
 
+      # Runs after the flake update so it judges the nixpkgs revision tonight's
+      # build will use. Warning-only - see the script header.
+      - name: Check whether compat shims are still needed
+        run: scripts/ci/check_compat_shims.sh
+
       # Baseline to fall back to if the pinned-package update below fails
       # partway through (e.g. a transient GitHub API/network error while
       # resolving a hash) - it writes files incrementally, so a failure can
@@ -191,8 +196,8 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
-            substituters = https://cache.nixos.org http://attic.warbler-matrix.ts.net:8080/fafnir
-            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U=
+            substituters = https://cache.nixos.org http://attic.warbler-matrix.ts.net:8080/fafnir https://nix-community.cachix.org
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
             max-jobs = auto
             cores = 0
 
@@ -337,7 +342,7 @@ jobs:
               echo "- Built from source: **${built:-0}**"
               grep -oE "copying path '[^']+' from '[^']+'\.\.\.$" /tmp/build-stderr.log \
                 | sed -E "s/.*from '([^']+)'\.\.\.\$/\1/" \
-                | sed -E 's#^https://cache\.nixos\.org.*#cache.nixos.org (public)#; s#^http://attic\.warbler-matrix\.ts\.net.*#fafnir (homelab)#' \
+                | sed -E 's#^https://cache\.nixos\.org.*#cache.nixos.org (public)#; s#^http://attic\.warbler-matrix\.ts\.net.*#fafnir (homelab)#; s#^https://nix-community\.cachix\.org.*#nix-community (cachix)#' \
                 | sort | uniq -c | sort -rn \
                 | awk '{count=$1; $1=""; sub(/^ /, ""); print "- Fetched from " $0 ": **" count "**"}'
             else

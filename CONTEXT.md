@@ -86,6 +86,13 @@ key (`ssh-to-age`) rather than a separately generated or backed-up key. Decrypti
 at activation time, on the host itself — never in CI.
 _Avoid_: personal key, master key (there is no single key that decrypts everything).
 
+**Compat shim**:
+An overlay modification that exists only to work around a temporary upstream breakage (a failing
+testsuite, a retired builder an input still calls) rather than to change what a package is. Every
+Compat shim names a checkable removal condition, and is deleted once that condition holds.
+_Avoid_: override (too broad — also covers deliberate pins like claude-code and customisations
+like a package built with different flags), workaround, hack.
+
 ## Related vocabulary (owned by sibling repos)
 
 - **Attic** — the binary cache server this flake's hosts substitute from, deployed in the

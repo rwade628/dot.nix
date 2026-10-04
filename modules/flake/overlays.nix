@@ -19,24 +19,30 @@ let
     in
     packages;
 
-  # Linux-specific modifications
-  linuxModifications =
-    final: prev:
-    prev.lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
-      # Compat shim: ltrace 0.7.91 builds fine under GCC 16 but 15 of its
-      # testsuite cases fail. Skip the checks until nixpkgs fixes it, then
-      # remove.
-      ltrace = prev.ltrace.overrideAttrs { doCheck = false; };
+  # Compat shims (see CONTEXT.md): each works around a temporary upstream
+  # breakage on the listed systems only. The nightly CI job
+  # (scripts/ci/check_compat_shims.sh) evaluates the unmodified package for
+  # each of those systems and warns once cache.nixos.org has it - i.e. once
+  # Hydra builds it again and the shim can be deleted.
+  compatShims = {
+    # ltrace 0.7.91 builds fine under GCC 16 but 15 of its testsuite cases
+    # fail, so Hydra never caches it.
+    ltrace = {
+      systems = [ "x86_64-linux" ];
+      apply = prev: prev.ltrace.overrideAttrs { doCheck = false; };
     };
+  };
+
+  shimModifications =
+    final: prev:
+    lib.mapAttrs (_: shim: shim.apply prev) (
+      lib.filterAttrs (
+        _: shim: builtins.elem prev.stdenv.hostPlatform.system shim.systems
+      ) compatShims
+    );
 
   # General modifications to existing packages
   modifications = final: prev: {
-    # Compat shim: nixpkgs retired buildGo125Module (Go 1.25 EOL, 2026-09-15)
-    # faster than sops-nix's pkgs/sops-install-secrets/default.nix, which
-    # still calls it directly upstream. Remove once sops-nix bumps its Go
-    # builder past this.
-    buildGo125Module = prev.buildGo126Module;
-
     # Track claude-code's own release channel instead of waiting for nixpkgs
     # to catch up (usually a day or two behind). Upstream already ships a
     # prebuilt, zstd-compressed binary per platform, so this overrides only
@@ -93,12 +99,15 @@ let
   };
 in
 {
+  # Shim names -> systems, for scripts/ci/check_compat_shims.sh.
+  flake.lib.compatShims = lib.mapAttrs (_: shim: shim.systems) compatShims;
+
   flake.overlays = {
     default =
       final: prev:
       (additions final prev)
       // (modifications final prev)
-      // (linuxModifications final prev)
+      // (shimModifications final prev)
       // (stable-packages final prev)
       // (unstable-packages final prev);
   };

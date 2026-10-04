@@ -1,40 +1,24 @@
-{ pkgs, ... }:
+{ ... }:
 {
-  services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.graphics.enable = true;
-  hardware.nvidia.open = true;
-
-  environment.variables = {
-    CUDA_PATH = "${pkgs.cudatoolkit}";
-    EXTRA_LDFLAGS = "-L/lib -L${pkgs.linuxPackages.nvidia_x11}/lib";
-    EXTRA_CCFLAGS = "-I/usr/include";
-    LD_LIBRARY_PATH = [
-      "/usr/lib/wsl/lib"
-      "${pkgs.linuxPackages.nvidia_x11}/lib"
-      "${pkgs.ncurses5}/lib"
-    ];
-    MESA_D3D12_DEFAULT_ADAPTER_NAME = "Nvidia";
-  };
-
+  # GPU access is for containers only. NixOS-WSL's useWindowsDriver already
+  # links the Windows driver's libcuda/nvidia-smi into /run/opengl-driver and
+  # enables hardware.graphics, and the CDI spec the toolkit generates injects
+  # /dev/dxg plus the Windows driver store - no cudatoolkit or Linux driver
+  # libraries on the host are needed for `docker run --device
+  # nvidia.com/gpu=all`.
+  #
+  # No services.xserver.videoDrivers = [ "nvidia" ]: under WSL it only puts
+  # the Linux driver's libcuda (which can't reach the GPU without
+  # /dev/nvidia*) into /run/opengl-driver, shadowing the working Windows one.
+  # The toolkit still mounts hardware.nvidia.package into containers, so
+  # nvidia_x11 stays in the closure - forcing `mounts` to avoid that would
+  # override module internals that shift between nixpkgs bumps.
   hardware.nvidia-container-toolkit = {
     enable = true;
+    suppressNvidiaDriverAssertion = true;
+    discovery-mode = "wsl";
     mount-nvidia-executables = false;
   };
 
-  # systemd.services = {
-  #   nvidia-cdi-generator = {
-  #     description = "Generate nvidia cdi";
-  #     wantedBy = [ "docker.service" ];
-  #     serviceConfig = {
-  #       Type = "oneshot";
-  #       ExecStart = "${pkgs.nvidia-docker}/bin/nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml --nvidia-ctk-path=${pkgs.nvidia-container-toolkit}/bin/nvidia-ctk";
-  #     };
-  #   };
-  # };
-
-  virtualisation.docker = {
-    enable = true;
-    # daemon.settings.features.cdi = true;
-    # daemon.settings.cdi-spec-dirs = [ "/etc/cdi" ];
-  };
+  virtualisation.docker.enable = true;
 }

@@ -63,18 +63,22 @@
         # actually build - only re-enable alongside adding that input.
         # "https://chaotic-nyx.cachix.org"
         "https://nix-community.cachix.org"
-        "https://cache.nixos-cuda.org"
         # Attic, in the homelab cluster (cache "fafnir") - CI is the only
         # writer. Reachable over Tailscale (see docs/adr/0005), and the
         # hostname is the tailnet one even for LAN-only hosts like loki -
         # see the homelab repo's attic server.toml for why.
-        "http://attic.warbler-matrix.ts.net:8080/fafnir"
+        #
+        # priority=30 beats nix-community's advertised 41 (fafnir also
+        # advertises 41, so list order used to hand ties to cachix): CI
+        # builds and pushes everything not signed by cache.nixos.org, so
+        # fafnir already holds every nix-community path we use and serves
+        # it over the LAN/tailnet instead of a slow cachix download.
+        "http://attic.warbler-matrix.ts.net:8080/fafnir?priority=30"
       ];
 
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-        "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
         # "chaotic-nyx.cachix.org-1:HfnXSw4pj95iI/n17rIDy40agHj12WfF+Gqk6SonIT8="
         "fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U="
       ];
