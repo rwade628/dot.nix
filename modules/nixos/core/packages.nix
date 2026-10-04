@@ -55,13 +55,7 @@ let
       winetricks # Wine helper script
     ];
 
-  # --- AI Tools ---
-  # Artificial intelligence tools
-  ai = with pkgs; [
-    # llama-cpp # LLM inference
-  ];
-
 in
 {
-  environment.systemPackages = baseSystemTools ++ systemTools ++ gaming ++ ai;
+  environment.systemPackages = baseSystemTools ++ systemTools ++ gaming;
 }
