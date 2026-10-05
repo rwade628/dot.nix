@@ -24,7 +24,6 @@
 
     plugins = with pkgs.tmuxPlugins; [
       better-mouse-mode
-      catppuccin
       cpu
       sensible
       vim-tmux-navigator
@@ -32,16 +31,9 @@
         plugin = resurrect;
         extraConfig = ''
           set -g @resurrect-strategy-nvim 'session'
+          set -g @resurrect-capture-pane-contents 'on'
           set -g @resurrect-dir "$HOME/.tmux/resurrect/"
           set -g @resurrect-hook-post-save-all "sed -i 's| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/nix/store/.*/bin/||g' $(ls $HOME/.tmux/resurrect/last)"
-        '';
-      }
-      {
-        plugin = continuum;
-        extraConfig = ''
-          # Restore environment automatically
-          set -g @continuum-restore 'on'
-          set -g @continuum-save-interval '15'
         '';
       }
     ];
@@ -146,6 +138,15 @@
 
       # Must add this per https://nixos.wiki/wiki/Tmux
       run-shell ${pkgs.tmuxPlugins.cpu}/share/tmux-plugins/cpu/cpu.tmux
+
+      # Continuum autosaves by prepending a #(continuum_save.sh) call to
+      # status-right when it loads. home-manager emits plugin run-shells
+      # before extraConfig, so loaded as a regular plugin the status-right
+      # rewrite above erases the hook and nothing ever autosaves. Load it
+      # last (and only once: each load also kicks off an auto-restore).
+      set -g @continuum-restore 'on'
+      set -g @continuum-save-interval '5'
+      run-shell ${pkgs.tmuxPlugins.continuum.rtp}
     '';
   };
 }

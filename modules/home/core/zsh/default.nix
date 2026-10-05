@@ -17,6 +17,8 @@
       function ksn {
         kubectl config set-context --current --namespace $1 ;
       }
+
+      source ${./session-history.zsh}
     '';
 
     shellAliases = {

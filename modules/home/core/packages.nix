@@ -66,7 +66,6 @@
       # CLI power tools & utilities
       _1password-cli # 1Password CLI
       act # Run GitHub Actions locally
-      atuin # Shell history with sync
       bandwhich # Network bandwidth monitor
       bat # Cat clone with syntax highlighting
       # btop comes from programs.btop (modules/home/core/btop.nix)
