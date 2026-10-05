@@ -13,6 +13,10 @@
 
     dotDir = "${config.xdg.configHome}/zsh";
 
+    # SHARE_HISTORY appends with timestamps regardless; without this, full
+    # rewrites (exit, trim) strip them, leaving a mixed-format file.
+    history.extended = true;
+
     initContent = ''
       function ksn {
         kubectl config set-context --current --namespace $1 ;
