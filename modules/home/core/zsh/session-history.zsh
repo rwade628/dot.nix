@@ -1,8 +1,8 @@
 # Per-tmux-session history. Inside a named tmux session, the live history list
 # is $XDG_STATE_HOME/zsh/history/<session>; numeric (unnamed) sessions and
-# shells outside tmux stay on the global $HISTFILE. Every command is also
-# appended to the global file, which Alt-R searches and autosuggestions fall
-# back to.
+# shells outside tmux stay on the global $HISTFILE. Each command is saved to
+# exactly one of the two. Alt-R searches the global file and autosuggestions
+# fall back to it.
 
 typeset -g _sh_global=$HISTFILE
 typeset -g _sh_dir=${XDG_STATE_HOME:-$HOME/.local/state}/zsh/history
@@ -21,28 +21,10 @@ _sh_sync() {
   fc -p $target $HISTSIZE $SAVEHIST
 }
 
-# Double-write: the normal save puts the line in the session file; a copy is
-# appended to the global file from a subshell via fc -AI, so zsh still owns
-# the file format and locking. The hook only stashes the line and precmd does
-# the append: inside zshaddhistory, fc -AI silently writes nothing, and the
-# documented `fc -p` trick stops the session context's incremental writes.
-typeset -g _sh_pending
-_sh_addhistory() {
-  [[ $HISTFILE != $_sh_global && $1 != ' '* ]] && _sh_pending=${1%%$'\n'}
-  return 0
-}
-_sh_flush() {
-  [[ -z $_sh_pending ]] && return
-  ( fc -p "" 10 10; print -sr -- $_sh_pending; fc -AI $_sh_global )
-  _sh_pending=
-}
-
-# Only precmd switches: zsh undoes an fc -p made in zshaddhistory, so the
-# first command typed after a rename still lands in the old session's file.
+# Switching happens at the prompt, so the first command typed after a rename
+# still lands in the old session's file.
 autoload -Uz add-zsh-hook
-add-zsh-hook precmd _sh_flush
 add-zsh-hook precmd _sh_sync
-add-zsh-hook zshaddhistory _sh_addhistory
 
 # Alt-R: fzf over the global file. SAVEHIST=0 keeps the temporary context
 # read-only; -a pops it when the widget returns.
