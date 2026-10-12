@@ -25,11 +25,20 @@ let
   # each of those systems and warns once cache.nixos.org has it - i.e. once
   # Hydra builds it again and the shim can be deleted.
   compatShims = {
-    # ltrace 0.7.91 builds fine under GCC 16 but 15 of its testsuite cases
-    # fail, so Hydra never caches it.
-    ltrace = {
+    # sesh 2.32.0 builds with Go 1.27 and runs go-mockery in preBuild, but
+    # mockery 3.8.0's vendored x/tools can't read Go 1.27 export data
+    # ("export data version 5 is greater than maximum supported version 4").
+    # The generated mocks are only used by sesh's tests, so skip both and
+    # drop mockery from the build. Fix: nixpkgs#573099 (mockery 3.8.1).
+    sesh = {
       systems = [ "x86_64-linux" ];
-      apply = prev: prev.ltrace.overrideAttrs { doCheck = false; };
+      apply =
+        prev:
+        prev.sesh.overrideAttrs (old: {
+          nativeBuildInputs = lib.filter (p: (p.pname or "") != "go-mockery") old.nativeBuildInputs;
+          preBuild = "";
+          doCheck = false;
+        });
     };
   };
 
