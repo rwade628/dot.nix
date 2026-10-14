@@ -5,6 +5,20 @@
   ...
 }:
 
+let
+  # Continuum drops its lock as soon as it backgrounds the save, so two status
+  # refreshes (e.g. two attached clients) can save concurrently. Two saves in
+  # the same second share a filename: the second sees it identical to `last`
+  # and deletes it, leaving `last` dangling and restore with nothing to load.
+  # Hold a lock for the whole save, plus a second so a follow-up gets a new
+  # timestamp.
+  resurrectSaveLocked = pkgs.writeShellScript "tmux-resurrect-save-locked" ''
+    exec 9>"''${TMPDIR:-/tmp}/tmux-resurrect-save-$UID.lock"
+    ${pkgs.flock}/bin/flock -n 9 || exit 0
+    ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh "$@"
+    sleep 1
+  '';
+in
 {
   programs.tmux = {
     enable = true;
@@ -33,7 +47,10 @@
           set -g @resurrect-strategy-nvim 'session'
           set -g @resurrect-capture-pane-contents 'on'
           set -g @resurrect-dir "$HOME/.tmux/resurrect/"
-          set -g @resurrect-hook-post-save-all "sed -i 's| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/nix/store/.*/bin/||g' $(ls $HOME/.tmux/resurrect/last)"
+          # post-save-layout gets the new save file appended as an argument, so
+          # this edits it before resurrect's dedup check. (Running sed -i on
+          # `last` replaced the symlink with a regular file on every save.)
+          set -g @resurrect-hook-post-save-layout "sed -i 's| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/nix/store/.*/bin/||g'"
         '';
       }
     ];
@@ -145,6 +162,7 @@
       # rewrite above erases the hook and nothing ever autosaves. Load it
       # last (and only once: each load also kicks off an auto-restore).
       set -g @continuum-restore 'on'
+      set -g @resurrect-save-script-path '${resurrectSaveLocked}'
       set -g @continuum-save-interval '5'
       run-shell ${pkgs.tmuxPlugins.continuum.rtp}
     '';
