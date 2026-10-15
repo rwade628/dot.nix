@@ -6,6 +6,7 @@
 # The PATH ordering below enforces that rule at runtime.
 {
   config,
+  host,
   lib,
   pkgs,
   ...
@@ -27,11 +28,11 @@ in
       # onActivation.cleanup no longer "none", dropping it from this list is
       # what uninstalls it, not merely a bookkeeping change.
       "ghostty"
-
-      # Candidate for removal: nix already provides git-credential-osxkeychain
-      # via the git in modules/darwin/core/packages.nix.
-      "git-credential-manager"
-    ];
+    ]
+    # Candidate for removal: nix already provides git-credential-osxkeychain
+    # via the git in modules/darwin/core/packages.nix. Work hosts get GCM from
+    # nixpkgs instead (modules/home/core/git.nix).
+    ++ lib.optional (!host.isWork) "git-credential-manager";
 
     brews = [ ];
 
@@ -44,7 +45,10 @@ in
     # "uninstall", not "zap": the two are identical for enforcing presence, but
     # zap also deletes a cask's application-support data, which would make every
     # future edit to these lists - including a typo - irreversible for user data.
-    onActivation.cleanup = "uninstall";
+    #
+    # Work hosts start at "none" so nothing installed outside this list is ever
+    # removed; tighten to "uninstall" once that's confirmed safe there.
+    onActivation.cleanup = if host.isWork then "none" else "uninstall";
   };
 
   # Homebrew is installed but puts nothing on PATH by itself, so `brew` cannot

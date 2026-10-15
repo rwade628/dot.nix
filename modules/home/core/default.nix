@@ -7,7 +7,10 @@
 }:
 let
   user = host.user;
-  flakePath = "/home/${user.name}/git/dot.nix";
+  homeDir = config.home.homeDirectory;
+  # A Work host switches its Work wrapper flake, not this repo directly - see
+  # docs/work-host-setup.md.
+  flakePath = if host.isWork then "${homeDir}/.config/nix-darwin" else "${homeDir}/git/dot.nix";
 in
 {
   imports = lib.flatten [
@@ -20,25 +23,28 @@ in
 
   # services.ssh-agent.enable = true;
 
+  # home.homeDirectory comes from users.users.<osName>.home, which the NixOS
+  # and nix-darwin home-manager modules both forward - /home/... vs /Users/...
   home = {
-    username = lib.mkDefault user.name;
+    username = lib.mkDefault user.osName;
     stateVersion = lib.mkDefault "25.05";
     sessionPath = [
-      "/home/${host.user.name}/.local/bin"
-      "/home/${host.user.name}/.local/npm"
-      "/home/${host.user.name}/.krew/bin"
+      "${homeDir}/.local/bin"
+      "${homeDir}/.local/npm"
+      "${homeDir}/.krew/bin"
     ];
     sessionVariables = {
       EDITOR = lib.mkDefault "nvim";
       VISUAL = lib.mkDefault "nvim";
       FLAKE = lib.mkDefault flakePath;
       SHELL = lib.getExe user.shell;
-
-      # homelab cluster credentials - kubectl/sops/talosctl read these natively,
-      # so cluster access works from anywhere without cd-ing into the repo
-      KUBECONFIG = "${config.home.homeDirectory}/git/homelab/kubeconfig";
-      SOPS_AGE_KEY_FILE = "${config.home.homeDirectory}/git/homelab/age.key";
-      TALOSCONFIG = "${config.home.homeDirectory}/git/homelab/talos/clusterconfig/talosconfig";
+    }
+    // lib.optionalAttrs (!host.isWork) {
+      # Homelab tooling: cluster credentials - kubectl/sops/talosctl read these
+      # natively, so cluster access works from anywhere without cd-ing into the repo
+      KUBECONFIG = "${homeDir}/git/homelab/kubeconfig";
+      SOPS_AGE_KEY_FILE = "${homeDir}/git/homelab/age.key";
+      TALOSCONFIG = "${homeDir}/git/homelab/talos/clusterconfig/talosconfig";
     };
     # preferXdgDirectories = true; # whether to make programs use XDG directories whenever supported
   };
@@ -51,10 +57,10 @@ in
   # so this is the only place idun gets nh at all. The per-command *Flake vars
   # replace the plain `flake` field, which nh deprecates in favor of NH_FLAKE.
   #
-  # Uses the flakePath literal directly rather than
-  # config.home.sessionVariables.FLAKE: nh derives its legacy FLAKE env var
-  # compat shim from these *Flake options, so reading it back out of
-  # sessionVariables.FLAKE here closes an infinite-recursion loop.
+  # Uses flakePath directly rather than config.home.sessionVariables.FLAKE:
+  # nh derives its legacy FLAKE env var compat shim from these *Flake options,
+  # so reading it back out of sessionVariables.FLAKE here closes an
+  # infinite-recursion loop.
   programs.nh = {
     enable = true;
     clean.enable = true;

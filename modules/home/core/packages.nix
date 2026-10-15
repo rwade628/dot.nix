@@ -32,10 +32,8 @@
       uv # Python package manager
       fzf # Fuzzy finder
 
-      # Homelab / Kubernetes tooling (formerly mise-managed in the homelab repo)
-      age
-      cilium-cli
-      cloudflared
+      # Kubernetes / infra tooling (formerly mise-managed in the homelab repo).
+      # General-purpose - the homelab-only half is gated below.
       cue
       fluxcd # provides `flux`
       gh
@@ -48,12 +46,8 @@
       kubernetes-helm # provides `helm`
       kustomize
       minijinja # provides `minijinja-cli`
-      sops
       stern # multi-pod kubernetes log tailing
-      talhelper
-      talosctl
       yq-go # provides `yq`
-
 
       # neovim comes from programs.lazyvim (modules/home/core/neovim)
 
@@ -64,7 +58,6 @@
       # tmux comes from programs.tmux (modules/home/core/tmux)
 
       # CLI power tools & utilities
-      _1password-cli # 1Password CLI
       act # Run GitHub Actions locally
       bandwhich # Network bandwidth monitor
       bat # Cat clone with syntax highlighting
@@ -79,7 +72,6 @@
       gnugrep # grep with better defaults
       gnused # sed with better defaults
       gping # Ping with graph
-      hcloud # Hetzner Cloud CLI
       iperf3 # Network bandwidth tool
       just # Command runner (make alternative)
       lazydocker # TUI for docker
@@ -136,6 +128,17 @@
       gawk
       zstd
       nix-output-monitor # Provides `nom`
+    ]
+    ++ lib.optionals (!host.isWork) [
+      # Homelab tooling - never on a Work host (see docs/adr/0007)
+      _1password-cli # 1Password CLI
+      age
+      cilium-cli
+      cloudflared
+      hcloud # Hetzner Cloud CLI
+      sops
+      talhelper
+      talosctl
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
       # Containers: NixOS hosts get docker from virtualisation.docker /

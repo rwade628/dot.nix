@@ -22,7 +22,10 @@
 let
   commonSecretsFile = lib.custom.relativeToRoot "secrets/common.yaml";
 in
-{
+#
+# Work hosts get none of this: they are never recipients of the Common
+# secrets file (see docs/adr/0007).
+lib.mkIf (!host.isWork) {
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 
   sops.secrets.gitSshPrivateKey = {

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is Ryan's dotfiles configuration, managed as a Nix flake using `flake-parts`. It provisions two hosts across two platforms — one NixOS: **loki** (headless WSL server); and one Darwin: **idun** (Apple Silicon Mac via nix-darwin). The config uses home-manager for user environments, catppuccin for theming (mocha/lavender), and supports Niri and Plasma desktops (neither currently exercised by an active host — both stay maintained for whenever a desktop host returns). See `docs/adr/0001-darwin-platform-support.md` for why the Darwin tree is a sibling of the NixOS one rather than a shared abstraction.
+This is Ryan's dotfiles configuration, managed as a Nix flake using `flake-parts`. It provisions three hosts across two platforms — one NixOS: **loki** (headless WSL server); and two Darwin: **idun** (personal Apple Silicon Mac) and **brokkr** (work Mac, a Work host — see `docs/adr/0007-work-hosts.md` and `docs/work-host-setup.md`), both via nix-darwin. The config uses home-manager for user environments, catppuccin for theming (mocha/lavender), and supports Niri and Plasma desktops (neither currently exercised by an active host — both stay maintained for whenever a desktop host returns). See `docs/adr/0001-darwin-platform-support.md` for why the Darwin tree is a sibling of the NixOS one rather than a shared abstraction.
 
 ## Key Commands
 
@@ -64,13 +64,13 @@ flake.nix                          # Root flake, declares inputs + delegates to 
 │   ├── core/                      # Shared user config: neovim, zsh, bash, git, ssh, direnv, tmux, etc.
 │   ├── desktop/                   # niri/ and plasma/ user-level DE config (binds, windows, apps)
 │   ├── gaming/                    # mangohud, lsfgvk
-│   ├── hosts/                     # Per-host user overrides (loki/, idun/)
+│   ├── hosts/                     # Per-host user overrides (loki/, idun/, brokkr/)
 │   ├── users/ryan/                # User-level config + theme
 │   └── utilities/                 # xdg, mullvad
 ├── hosts/x86/<hostname>/          # Per-host NixOS configuration drop-ins
 │   ├── default.nix                # Imports core modules + host-specific services
 │   └── *.nix                      # Host-specific overrides (networking, mounts, nvidia, etc.)
-├── hosts/darwin/<hostname>/       # Per-host Darwin configuration drop-ins (idun/)
+├── hosts/darwin/<hostname>/       # Per-host Darwin configuration drop-ins (idun/, brokkr/)
 │   └── default.nix                # Imports modules/darwin/core + host-specific config
 ├── lib/                           # Custom library (scanPaths, relativeToRoot, getHostConfig, mkAppriseUrl)
 ├── pkgs/                          # Custom packages (wine-app-wrapper.nix)
@@ -101,9 +101,10 @@ Each host declares flags in `lib/hosts.nix`:
 - `isServer` — role label only (headless, always-on network service); no functional effect on packages or home-manager — see `hasDesktop` for GUI package gating (`docs/adr/0002-hasdesktop-flag.md`)
 - `isMinimal` — home-manager is always enabled; this only chooses whether it imports just `modules/home/core` (`true`) or `modules/home/users/<name>` (`false`, default), which adds that host's `modules/home/hosts/<hostname>` overrides
 - `isExternal` — not on local network
+- `isWork` — employer-owned machine: shared terminal environment only; no sops/Common secrets, personal SSH keys, Homelab tooling, Attic, sshd, passwordless sudo, or machine-name setting. Its private values (`user.osName`, `user.gitIdentity`) come from a Work wrapper flake on the machine, never `lib/hosts.nix` (the repo is public)
 - `niri` / `plasma` — mutually exclusive desktop environments
 
-Assertions prevent invalid combinations (both DEs, minimal+desktop, VPN without WireGuard).
+Assertions prevent invalid combinations (both DEs, minimal+desktop, VPN without WireGuard, Work host with personal SSH keys/config).
 
 ## Important Conventions
 
@@ -151,7 +152,8 @@ Single-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
 
 - **`lib.custom` availability**: propagated into home-manager modules by extending `lib` itself in `specialArgs` (`modules/flake/nixos.nix`), not via `extraSpecialArgs`. Reference it as `lib.custom.*`, not as a standalone arg.
 - **`nh` config lives in home-manager, not the NixOS module**: `programs.nh` is set in `modules/home/core/default.nix`, keyed off `config.home.sessionVariables.FLAKE` — not `modules/nixos/core/default.nix`. nix-darwin has no system-level `programs.nh` module, so this is the only way `nh` reaches idun.
-- **`FLAKE` env var**: set via `lib.mkDefault "/home/${host.user.name}/git/dot.nix"` in `modules/home/core/default.nix`; overridden per-host if the repo is checked out elsewhere (e.g. `modules/home/hosts/idun/paths.nix` for the `/Users/...` layout).
+- **`FLAKE` env var**: set via `lib.mkDefault` in `modules/home/core/default.nix` to `<homeDirectory>/git/dot.nix` (Work hosts: `<homeDirectory>/.config/nix-darwin`, the wrapper flake). `homeDirectory` itself comes from `users.users.<osName>.home`, so `/home/...` vs `/Users/...` needs no per-host override.
+- **Work host private values**: `darwinConfigurations.brokkr` in this repo builds with placeholders (CI only). The real config is the wrapper flake calling `outputs.lib.mkDarwinSystem { hostName; hostSpec; }` — keep that function's signature stable, or the work Mac breaks on its next `nix flake update`.
 - **`scanPaths` skips `default.nix`**: any `default.nix` in an auto-scanned directory must be imported explicitly elsewhere — it is never picked up by the scan itself.
 - **`neovim.nix` is a redirect**: `modules/home/core/neovim.nix` just imports `./neovim/`; the real config lives in that subdirectory.
 - **Wine package**: use `wineWow64Packages.full` (or `.waylandFull`/`.stable`), not `wineWowPackages.full`.

@@ -62,7 +62,7 @@ the code).
 
 **Host override**:
 `modules/home/hosts/<hostname>/` — config specific to one physical/named host and nothing else:
-path shims (`idun/paths.nix`'s `/Users/...` layout), one-off hardware quirks, module imports
+display tuning (`idun/ghostty.nix`'s Retina font size), one-off hardware quirks, module imports
 unique to that host. Never a place for Portable packages, which belong in the Shared package
 list even when only one host currently needs them (gated on `hasDesktop`/platform instead of
 pinned to a hostname) — see `docs/adr/0004-portable-packages-live-in-shared-list.md`.
@@ -75,10 +75,34 @@ by that host's Host age key. Historically replaced a single git-crypt-encrypted 
 (now removed) — see `docs/adr/0006-sops-nix-replaces-git-crypt-for-secrets.md`.
 
 **Common secrets file**:
-A sops-encrypted file decryptable by every host's Host age key, for values every host should
-have regardless of role (e.g. cluster credentials) — as opposed to a Host secrets file, which
-only its own host can decrypt.
+A sops-encrypted file decryptable by every Personal host's Host age key, for values every
+Personal host should have regardless of role (e.g. git identity, the key into Ryan's own
+machines) — as opposed to a Host secrets file, which only its own host can decrypt. Work hosts
+are never recipients.
 _Avoid_: shared secrets, global secrets (neither names the actual scoping mechanism).
+
+**Work host** (`isWork`):
+A host whose disk and OS account belong to an employer. It receives the shared terminal
+environment (shell, tmux, editor, terminal config) but no personal secrets, no personal SSH
+keys, and no Homelab tooling. Its identifying details (OS account name, work git identity) are
+private and never appear in this repo — only its neutral hostname does.
+_Avoid_: corporate host, managed host ("managed" collides with "managed by Nix").
+
+**Personal host**:
+Any host that is not a Work host. The default; there is no separate flag for it.
+
+**Homelab tooling**:
+Everything that exists only to reach or operate Ryan's homelab: its credentials and env vars,
+the personal SSH keys and config, the Attic substituter, and homelab-specific CLIs. Personal
+hosts get it; Work hosts never do. General-purpose tools that happen to be used against the
+homelab too (e.g. kubectl, helm, flux) are not Homelab tooling.
+_Avoid_: personal tools (too broad — the shared terminal environment is personal too).
+
+**Work wrapper flake**:
+A small private flake that lives only on a Work host. It takes this repo as an input and supplies
+the private values (OS account name, work git identity) the public repo must not contain. It is
+the flake that actually gets switched on that machine.
+_Avoid_: local overlay, private config (neither says it's a flake wrapping this one).
 
 **Host age key**:
 The age identity a host uses to decrypt its sops secrets, derived from that host's own SSH host

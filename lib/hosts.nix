@@ -75,5 +75,20 @@ in
       };
       hasDesktop = true;
     };
+
+    # Work Mac. Only the neutral hostname lives here: osName and
+    # gitIdentity are supplied by the Work wrapper flake on the machine
+    # itself (docs/work-host-setup.md), so this public repo's own
+    # darwinConfigurations.brokkr builds with placeholders, for CI only.
+    brokkr = {
+      network = {
+        hostName = "brokkr";
+      };
+      user = {
+        name = "ryan";
+      };
+      isWork = true;
+      hasDesktop = true;
+    };
   };
 }

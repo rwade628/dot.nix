@@ -23,8 +23,9 @@ in
   };
 
   # Passwordless sudo, matching the NixOS hosts. nix-darwin has no
-  # security.sudo.extraRules, so this goes in as a raw sudoers line.
-  security.sudo.extraConfig = ''
+  # security.sudo.extraRules, so this goes in as a raw sudoers line. Never on
+  # a Work host - an employer's machine keeps its normal sudo policy.
+  security.sudo.extraConfig = lib.mkIf (!host.isWork) ''
     ${user.osName} ALL=(ALL) NOPASSWD: ALL
   '';
 }

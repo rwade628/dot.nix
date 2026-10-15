@@ -28,6 +28,14 @@
           '';
         }
         {
+          assertion =
+            !hostCfg.isWork or false || (hostCfg.user.sshAuthorizedKeys == [ ] && hostCfg.user.sshConfig == "");
+          message = ''
+            Host '${hostname}' is a Work host but has personal SSH keys or SSH config.
+            Work hosts must not receive sshAuthorizedKeys or sshConfig.
+          '';
+        }
+        {
           assertion = !(hostCfg.plasma or false && hostCfg.niri or false);
           message = ''
             Host '${hostname}' has both Plasma and Niri enabled.
@@ -91,6 +99,19 @@
                       type = lib.types.lines;
                       description = "SSH client config (~/.ssh/config) for this user. Not sensitive - plain text, the same for every host.";
                       default = "";
+                    };
+
+                    gitIdentity = lib.mkOption {
+                      type = lib.types.nullOr (
+                        lib.types.submodule {
+                          options = {
+                            name = lib.mkOption { type = lib.types.str; };
+                            email = lib.mkOption { type = lib.types.str; };
+                          };
+                        }
+                      );
+                      description = "Plain-value git identity for a Work host, supplied by its Work wrapper flake (never set in lib/hosts.nix). Personal hosts get theirs from sops instead.";
+                      default = null;
                     };
                   };
                 }
@@ -270,6 +291,17 @@
                 modules/home/users/<name>, which pulls in modules/home/core plus that host's
                 modules/home/hosts/<hostname> overrides. Also gates a few per-user conveniences
                 directly (e.g. SSH push-URL rewriting in modules/home/core/git.nix).
+              '';
+              default = false;
+            };
+
+            isWork = lib.mkOption {
+              type = lib.types.bool;
+              description = ''
+                Host's disk and OS account belong to an employer. Gets the shared terminal
+                environment but no personal secrets, personal SSH keys, or Homelab tooling.
+                Its private values (osName, gitIdentity) come from a Work wrapper flake - see
+                docs/adr/0007-work-hosts.md.
               '';
               default = false;
             };

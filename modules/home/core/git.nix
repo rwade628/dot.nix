@@ -17,6 +17,9 @@ let
   # without that secret (nixos - intentionally never migrated, see #12)
   # just get no git identity configured.
   hasSopsIdentity = hostConfig.sops.templates ? gitIdentity;
+  # Work hosts get a plain-value identity from their Work wrapper flake instead
+  # (lands in the Nix store, but only that machine's store - never this repo).
+  workIdentity = host.user.gitIdentity;
 in
 {
   programs.git = {
@@ -81,7 +84,15 @@ in
         ];
       };
 
-      url = lib.optionalAttrs (!host.isMinimal) {
+      user = lib.mkIf (workIdentity != null) { inherit (workIdentity) name email; };
+
+      # Work hosts authenticate over HTTPS through Git Credential Manager (EMU
+      # accounts), with no SSH key to push with.
+      credential = lib.mkIf host.isWork {
+        helper = lib.getExe pkgs.git-credential-manager;
+      };
+
+      url = lib.optionalAttrs (!host.isMinimal && !host.isWork) {
         # Only force ssh if it's not minimal
         "ssh://git@github.com" = {
           pushInsteadOf = "https://github.com";

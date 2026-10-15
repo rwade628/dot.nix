@@ -33,9 +33,13 @@
   };
 
   ## Networking ##
-  networking.hostName = lib.mkDefault host.network.hostName;
-  networking.localHostName = lib.mkDefault host.network.hostName;
-  networking.computerName = lib.mkDefault host.network.hostName;
+  # A Work host's machine name belongs to IT; its neutral hostname only
+  # selects the flake output.
+  networking = lib.mkIf (!host.isWork) {
+    hostName = lib.mkDefault host.network.hostName;
+    localHostName = lib.mkDefault host.network.hostName;
+    computerName = lib.mkDefault host.network.hostName;
+  };
 
   ## Localization ##
   time.timeZone = lib.mkDefault "America/New_York";
@@ -70,15 +74,16 @@
       # priority=30: both fafnir and nix-community advertise 41, and fafnir
       # already holds every nix-community path CI used (it pushes anything
       # not signed by cache.nixos.org) - prefer the tailnet copy.
-      substituters = [
-        "http://attic.warbler-matrix.ts.net:8080/fafnir?priority=30"
-        "https://nix-community.cachix.org"
-      ];
+      #
+      # Work hosts skip fafnir: it's Homelab tooling, reachable only over the
+      # tailnet, which a Work host never joins - see docs/adr/0007.
+      substituters =
+        lib.optional (!host.isWork) "http://attic.warbler-matrix.ts.net:8080/fafnir?priority=30"
+        ++ [ "https://nix-community.cachix.org" ];
 
-      trusted-public-keys = [
-        "fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U="
-        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      ];
+      trusted-public-keys =
+        lib.optional (!host.isWork) "fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U="
+        ++ [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
 
       # Fail over quickly when fafnir is unreachable (Mac off the tailnet).
       connect-timeout = 5;
