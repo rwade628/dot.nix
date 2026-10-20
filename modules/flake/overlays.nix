@@ -62,7 +62,7 @@ let
     claude-code =
       let
         # claude-code-pin-start
-        version = "2.1.303";
+        version = "2.1.304";
 
         platforms = {
           x86_64-linux = "linux-x64";
@@ -70,8 +70,8 @@ let
         };
 
         hashes = {
-          x86_64-linux = "sha256-sAuSlbglFpl1mDyeHNPrLbvJyVgn+os3egvvC7i0cag=";
-          aarch64-darwin = "sha256-SCqkkNweAyi+4QoWO+9/WcfHLhTedTVpa1vTrsAIn30=";
+          x86_64-linux = "sha256-DzRo+ihfESZQ/rO+wpE0Jbe6XIPNTrQRtcdbQIZBa7Y=";
+          aarch64-darwin = "sha256-1NIeKWoFUGi+g6nNB1OBfrUDMjPWxHHMYEkXRXZkQcU=";
         };
         # claude-code-pin-end
 
