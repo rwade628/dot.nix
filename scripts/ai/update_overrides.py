@@ -193,9 +193,56 @@ def update_claude_code() -> None:
     print("Successfully updated claude-code.")
 
 
+def update_keepercommander() -> None:
+    """Update pkgs/keepercommander.nix to PyPI's latest keepercommander release.
+
+    The wrapper runs `uvx --from keepercommander==<version>`, so a bump is
+    just the version string - there's no download hash to prefetch.
+    """
+    print("\n--- Checking keepercommander ---")
+    file_path = Path("pkgs/keepercommander.nix")
+    if not file_path.exists():
+        print(f"{file_path} not found, skipping.")
+        return
+
+    content = file_path.read_text()
+
+    version_match = re.search(r'version = "([\d.]+)";', content)
+    if not version_match:
+        print("Could not find keepercommander version.")
+        return
+    current = version_match.group(1)
+
+    try:
+        response = requests.get("https://pypi.org/pypi/keepercommander/json")
+        response.raise_for_status()
+        latest = response.json()["info"]["version"]
+    except Exception as e:
+        print(f"Failed to fetch latest keepercommander release: {e}")
+        return
+
+    # PyPI's info.version is the latest release, but it can carry a
+    # pre/post-release suffix that parse_semver can't compare - skip those.
+    if not parse_semver(latest):
+        print(f"Unexpected keepercommander version from PyPI: {latest!r}")
+        return
+
+    print(f"Current: {current}, Latest: {latest}")
+
+    if not parse_semver(latest) > parse_semver(current):
+        print("Already up to date.")
+        return
+
+    print(f"Updating keepercommander to {latest}...")
+    content = content.replace(f'version = "{current}";', f'version = "{latest}";', 1)
+    file_path.write_text(content)
+    print("Successfully updated keepercommander.")
+
+
 def main():
     update_talosctl()
     update_claude_code()
+    update_keepercommander()
 
 
 if __name__ == "__main__":
