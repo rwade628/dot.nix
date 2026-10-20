@@ -136,6 +136,7 @@
       cilium-cli
       cloudflared
       hcloud # Hetzner Cloud CLI
+      keepercommander # Keeper Commander (`keeper`), pinned via uvx
       sops
       talhelper
       talosctl
