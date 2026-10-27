@@ -8,24 +8,24 @@
   installShellFiles,
 }:
 let
-  version = "1.14.4";
+  version = "1.14.5";
 
   sources = {
     x86_64-linux = {
       asset = "talosctl-linux-amd64";
-      hash = "sha256-Cmnj+baCxc2ES3ja4wX2BWzrhsX8xpE9zqeMUn7ZfO4=";
+      hash = "sha256-/0MraJhnCea2nFY6CKLO1CMtUZaw3M1tLng+nXFNfX0=";
     };
     aarch64-linux = {
       asset = "talosctl-linux-arm64";
-      hash = "sha256-pEMPrYG43FTZng3Ht+pdB0G5NkW8YSy+rfEoVcTsYLs=";
+      hash = "sha256-39OqM8MVmBDiFvw5r7aF1NEgyPJyjgF9jH92NdMTk4I=";
     };
     x86_64-darwin = {
       asset = "talosctl-darwin-amd64";
-      hash = "sha256-oDTnqdp/DbJidu+iCoqQS6w8qomPaVZwuFwReDf61J0=";
+      hash = "sha256-z5lPL5s7JJQfMxEkut4njra9hOnywrG7DPtffLSdsTw=";
     };
     aarch64-darwin = {
       asset = "talosctl-darwin-arm64";
-      hash = "sha256-BEdAwDXeNFP/bQkofpaC2j1oHsGb89F75+2bF/k/iyM=";
+      hash = "sha256-yGUHe9/JnDjXCzd3CGgu7BqP66uYfwYjIG5xOdkBMJY=";
     };
   };
 
