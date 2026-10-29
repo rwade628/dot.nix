@@ -25,7 +25,6 @@
       zip # zip compression
       unzip # zip extraction
 
-      opencode # media tools
       claude-code # AI chat agent TUI for Claude
 
       # Development tools
@@ -131,7 +130,6 @@
     ]
     ++ lib.optionals (!host.isWork) [
       # Homelab tooling - never on a Work host (see docs/adr/0007)
-      _1password-cli # 1Password CLI
       age
       cilium-cli
       cloudflared

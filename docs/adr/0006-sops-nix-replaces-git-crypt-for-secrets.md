@@ -30,3 +30,20 @@ Considered: a single shared personal age key instead of per-host keys (rejected 
 scoping and becomes one new high-value secret to protect); exporting a git-crypt key to GitHub
 Actions instead of migrating (rejected — still hands CI a repo-wide decryption key, and does
 nothing about secrets being baked into store paths in the first place).
+
+## Revisited 2026-10-18: kept, not moved to Bitwarden Secrets Manager
+
+When homelab moved to Bitwarden Secrets Manager (homelab ADR-0016), we checked whether dot.nix
+should fetch its secrets from SM at activation instead. We're keeping sops-nix. Fetching at
+activation would put a BWS machine token on every host. On the Free tier only one machine account
+is left, so every host would share that token, which is the shared-key design rejected above. It
+would also add a bootstrap secret that isn't derived from the host key, and activation would need
+network access. Two consequences follow:
+
+- **Recovery means rotating, not restoring.** Every value here can be regenerated: SSH keypairs,
+  the password hash and the git identity. So no copy is kept in the human vault. If every host is
+  lost, generate new values and re-encrypt them for the new Host age keys.
+- **Secrets shared with the cluster.** If dot.nix ever needs a value the cluster also uses, SM
+  holds the canonical copy and `secrets/common.yaml` holds a sops-encrypted copy made by hand.
+  Revisit this decision if hand-syncing those copies becomes routine, or if SM can issue a
+  separately scoped machine account per host.
