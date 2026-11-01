@@ -71,9 +71,10 @@
       # nix-community also covers aarch64-darwin builds more thoroughly than
       # cache.nixos.org/Hydra does, which is why it's worth having here too.
       #
-      # priority=30: both fafnir and nix-community advertise 41, and fafnir
-      # already holds every nix-community path CI used (it pushes anything
-      # not signed by cache.nixos.org) - prefer the tailnet copy.
+      # priority=30: below cache.nixos.org (40) and nix-community (both it
+      # and fafnir advertise 41). CI pushes each host's whole closure,
+      # upstream-signed paths included, so fafnir usually has everything -
+      # prefer the tailnet copy over cache.nixos.org's slow local POP.
       #
       # Work hosts skip fafnir: it's Homelab tooling, reachable only over the
       # tailnet, which a Work host never joins - see docs/adr/0007.

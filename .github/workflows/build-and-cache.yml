@@ -325,12 +325,12 @@ jobs:
       # Answers "did this just pull from cache.nixos.org (free CDN), from
       # fafnir over the tailnet (homelab's own bandwidth), or actually
       # compile from source?" - fafnir's nix-cache-info advertises Priority
-      # 41 vs. cache.nixos.org's 40 (lower wins), so it's only ever hit for
-      # paths that aren't mirrored upstream; this just makes that visible
-      # instead of it being buried in the full build log. attic push below
-      # already dedupes server-side against what fafnir has (including
-      # upstream-signed paths), so there's no matching waste on the way back
-      # out - see https://docs.attic.rs/tutorial.html.
+      # 41 vs. cache.nixos.org's 40 (lower wins), so on runners it's only
+      # ever hit for paths that aren't mirrored upstream; this just makes
+      # that visible instead of it being buried in the full build log. attic
+      # push below dedupes server-side against what fafnir already has, so
+      # re-pushing an unchanged closure is cheap - see
+      # https://docs.attic.rs/tutorial.html.
       - name: Show where paths came from
         if: always() && steps.plan.outputs.needs-build == 'true'
         run: |
@@ -364,8 +364,14 @@ jobs:
           # cleanup can starve the pool for 30s and 500 the next request,
           # whatever its size. Pushes are idempotent (already-cached paths are
           # skipped), so just retry.
+          #
+          # --ignore-upstream-cache-filter: push cache.nixos.org-signed paths
+          # too. Its Fastly POP for the house (JAX) caps each stream at
+          # ~0.6 MB/s even on cache hits, while these runners pull at full
+          # speed - so fafnir mirrors whole closures and hosts fetch over the
+          # tailnet. Costs ~35-40 GiB at 30-day retention (PVC is 100Gi).
           for attempt in 1 2 3; do
-            xargs nix run --inputs-from . nixpkgs#attic-client -- push -j 1 fafnir < /tmp/out-paths && exit 0
+            xargs nix run --inputs-from . nixpkgs#attic-client -- push -j 1 --ignore-upstream-cache-filter fafnir < /tmp/out-paths && exit 0
             echo "::warning::attic push failed (attempt $attempt/3), retrying in 30s"
             sleep 30
           done
