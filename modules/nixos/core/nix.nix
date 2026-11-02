@@ -68,11 +68,12 @@
         # hostname is the tailnet one even for LAN-only hosts like loki -
         # see the homelab repo's attic server.toml for why.
         #
-        # priority=30 beats nix-community's advertised 41 (fafnir also
-        # advertises 41, so list order used to hand ties to cachix): CI
-        # builds and pushes everything not signed by cache.nixos.org, so
-        # fafnir already holds every nix-community path we use and serves
-        # it over the LAN/tailnet instead of a slow cachix download.
+        # priority=30 beats cache.nixos.org (40) and nix-community's
+        # advertised 41 (fafnir also advertises 41, so list order used to
+        # hand ties to cachix): CI pushes each host's whole closure,
+        # upstream-signed paths included, so fafnir usually holds every
+        # path we use and serves it over the LAN/tailnet instead of a slow
+        # cachix download or cache.nixos.org's ~0.6 MB/s-per-stream POP.
         "http://attic.warbler-matrix.ts.net:8080/fafnir?priority=30"
       ];
 
