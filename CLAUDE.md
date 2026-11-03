@@ -101,7 +101,7 @@ Each host declares flags in `lib/hosts.nix`:
 - `isServer` — role label only (headless, always-on network service); no functional effect on packages or home-manager — see `hasDesktop` for GUI package gating (`docs/adr/0002-hasdesktop-flag.md`)
 - `isMinimal` — home-manager is always enabled; this only chooses whether it imports just `modules/home/core` (`true`) or `modules/home/users/<name>` (`false`, default), which adds that host's `modules/home/hosts/<hostname>` overrides
 - `isExternal` — not on local network
-- `isWork` — employer-owned machine: shared terminal environment only; no sops/Common secrets, personal SSH keys, Homelab tooling, Attic, sshd, passwordless sudo, or machine-name setting. Its private values (`user.osName`, `user.gitIdentity`) come from a Work wrapper flake on the machine, never `lib/hosts.nix` (the repo is public)
+- `isWork` — employer-owned machine: shared terminal environment only; no sops secrets from this repo (Host or Common), personal SSH keys, Homelab tooling, Attic, sshd, passwordless sudo, or machine-name setting. Its private values (`user.osName`, `user.gitIdentity`) come from a Work wrapper flake on the machine, never `lib/hosts.nix` (the repo is public). The wrapper also layers its own modules on via `extendModules` (employer CA, work aliases, sops-nix home-manager secrets under a machine-local age key) — see `docs/work-host-setup.md`. Work-only git: commits to `github.com/rwade628/*` remotes use the personal noreply identity via an `includeIf` in `modules/home/core/git.nix`
 - `niri` / `plasma` — mutually exclusive desktop environments
 
 Assertions prevent invalid combinations (both DEs, minimal+desktop, VPN without WireGuard, Work host with personal SSH keys/config).

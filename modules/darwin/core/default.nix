@@ -77,14 +77,19 @@
       # prefer the tailnet copy over cache.nixos.org's slow local POP.
       #
       # Work hosts skip fafnir: it's Homelab tooling, reachable only over the
-      # tailnet, which a Work host never joins - see docs/adr/0007.
+      # tailnet, which a Work host never joins - see docs/adr/0007. Without
+      # fafnir (which CI fills with the whole closure, catppuccin's derivations
+      # included), Work hosts take those from catppuccin's own public cache
+      # instead of building them locally.
       substituters =
         lib.optional (!host.isWork) "http://attic.warbler-matrix.ts.net:8080/fafnir?priority=30"
-        ++ [ "https://nix-community.cachix.org" ];
+        ++ [ "https://nix-community.cachix.org" ]
+        ++ lib.optional host.isWork "https://catppuccin.cachix.org";
 
       trusted-public-keys =
         lib.optional (!host.isWork) "fafnir:i+z8sCEUusMjfDIEPANiEGrNknaq7ajf8iUwiYwCc8U="
-        ++ [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
+        ++ [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ]
+        ++ lib.optional host.isWork "catppuccin.cachix.org-1:noG/4HkbhJb+lUAdKrph6LaozJvAeEEZj4N732IysmU=";
 
       # Fail over quickly when fafnir is unreachable (Mac off the tailnet).
       connect-timeout = 5;

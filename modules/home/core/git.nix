@@ -20,6 +20,12 @@ let
   # Work hosts get a plain-value identity from their Work wrapper flake instead
   # (lands in the Nix store, but only that machine's store - never this repo).
   workIdentity = host.user.gitIdentity;
+  # On a Work host, commits to Ryan's own (public) repos must not carry the work
+  # identity above. The GitHub noreply address is already public in this repo.
+  personalIdentity = {
+    name = "Ryan Wade";
+    email = "7883290+rwade628@users.noreply.github.com";
+  };
 in
 {
   programs.git = {
@@ -39,7 +45,12 @@ in
       ".direnv"
     ];
 
-    includes = lib.optional hasSopsIdentity { path = hostConfig.sops.templates.gitIdentity.path; };
+    includes =
+      lib.optional hasSopsIdentity { path = hostConfig.sops.templates.gitIdentity.path; }
+      ++ lib.optional host.isWork {
+        condition = "hasconfig:remote.*.url:https://github.com/rwade628/**";
+        contents.user = personalIdentity;
+      };
 
     # Anytime I use auth, I want to use my yubikey. But I don't want to always be having to touch it
     # for things that don't need it. So I have to hardcode repos that require auth, and default to ssh for
@@ -87,9 +98,12 @@ in
       user = lib.mkIf (workIdentity != null) { inherit (workIdentity) name email; };
 
       # Work hosts authenticate over HTTPS through Git Credential Manager (EMU
-      # accounts), with no SSH key to push with.
+      # accounts), with no SSH key to push with. useHttpPath keys stored
+      # credentials by repo path, so the EMU login and the personal dot.nix PAT
+      # don't overwrite each other under the single github.com host.
       credential = lib.mkIf host.isWork {
         helper = lib.getExe pkgs.git-credential-manager;
+        "https://github.com".useHttpPath = true;
       };
 
       url = lib.optionalAttrs (!host.isMinimal && !host.isWork) {
