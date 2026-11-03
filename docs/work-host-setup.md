@@ -132,6 +132,8 @@ Use the bundle **at its runtime path** everywhere (never copy it into the store 
        defaultSopsFile = ./secrets.yaml;
        secrets.some_work_token = { };
      };
+     # sops on macOS otherwise looks in ~/Library/Application Support/sops/age/.
+     home.sessionVariables.SOPS_AGE_KEY_FILE = config.sops.age.keyFile;
 
      programs.zsh.initContent = ''
        export SOME_WORK_TOKEN="$(cat ${config.sops.secrets.some_work_token.path})"
@@ -157,24 +159,31 @@ Use the bundle **at its runtime path** everywhere (never copy it into the store 
      - path_regex: secrets\.yaml$
        age: $(grep -o 'age1.*' ~/.config/sops/age/keys.txt)
    EOF
+   export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt   # not sops's macOS default, see below
    nix shell nixpkgs#sops -c sops secrets.yaml   # opens $EDITOR; add some_work_token: ...
    git add -A
    ```
 
-   Later edits: `nix shell nixpkgs#sops -c sops secrets.yaml` again. `sops` finds the key at
-   `~/.config/sops/age/keys.txt` on its own.
+   On macOS `sops` looks for the key in `~/Library/Application Support/sops/age/keys.txt`, not
+   `~/.config`, hence `SOPS_AGE_KEY_FILE` for this first edit. After the first switch,
+   `work-home.nix` sets it in every shell, so later edits are just
+   `nix shell nixpkgs#sops -c sops secrets.yaml`.
 
 6. **Move aside pre-existing dotfiles.** home-manager won't overwrite them, and several conflict
    silently rather than failing: zsh reads from `~/.config/zsh` so a leftover `~/.zshrc` is just
    ignored, and a `~/.gitconfig` *overrides* home-manager's `~/.config/git/config`. Rename each one
-   that exists to `<file>.before-nix`:
+   that exists to `<file>.before-nix-darwin` (the suffix nix-darwin's own error message asks
+   for). The `/etc` ones are files the Lix installer wrote or macOS ships, which nix-darwin refuses
+   to replace — `/etc/nix/nix.conf` included, which is why the first switch passes the CA on the
+   command line. Run the next step from this same shell: with Lix's `/etc/zshenv` aside, a new
+   shell won't have `nix` on PATH until the switch completes.
 
    ```sh
    for f in ~/.zshrc ~/.zprofile ~/.gitconfig ~/.tmux.conf ~/.config/nvim; do
-     [ -e "$f" ] || [ -L "$f" ] && mv "$f" "$f.before-nix"
+     [ -e "$f" ] || [ -L "$f" ] && mv "$f" "$f.before-nix-darwin"
    done
-   for f in /etc/zshrc /etc/zprofile /etc/bashrc; do
-     [ -e "$f" ] && sudo mv "$f" "$f.before-nix"
+   for f in /etc/zshrc /etc/zprofile /etc/zshenv /etc/bashrc /etc/nix/nix.conf; do
+     [ -e "$f" ] && sudo mv "$f" "$f.before-nix-darwin"
    done
    ```
 
@@ -186,9 +195,18 @@ Use the bundle **at its runtime path** everywhere (never copy it into the store 
 
    ```sh
    cd ~/.config/nix-darwin && git add -A
-   sudo nix --extra-experimental-features 'nix-command flakes' \
+   sudo NIX_SSL_CERT_FILE="$CA" nix --extra-experimental-features 'nix-command flakes' \
+     --option ssl-cert-file "$CA" \
+     --option extra-substituters https://catppuccin.cachix.org \
+     --option extra-trusted-public-keys 'catppuccin.cachix.org-1:noG/4HkbhJb+lUAdKrph6LaozJvAeEEZj4N732IysmU=' \
      run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin#brokkr
    ```
+
+   The `--option`s stand in for settings that only exist once nix-darwin has written `nix.conf`
+   (`/etc/nix/nix.conf` was just moved aside): the CA from `work.nix`, and the catppuccin cache
+   `modules/darwin/core/default.nix` adds for Work hosts (they have no Attic, so without it
+   catppuccin's derivations build locally and fail behind the TLS interception). Later switches
+   don't need them.
 
 8. **Git auth.** The first `git push`/`clone` of a private work repo opens a browser for Git
    Credential Manager; sign in with the EMU account. GCM stores it in the macOS Keychain, keyed
@@ -212,10 +230,11 @@ isn't `brokkr`, so auto-detection picks the wrong output (or none).
 
 After editing a wrapper file, `git add` it before switching.
 
-To try an uncommitted dot.nix change before pushing it, from a checkout on the work Mac:
+To try an uncommitted dot.nix change before pushing it, from a checkout on the work Mac (it lives
+at `~/dot.nix` there, not `~/dot.nix` as on personal hosts — nothing depends on the location):
 
 ```sh
-nh darwin switch -H brokkr -- --override-input dotnix path:$HOME/git/dot.nix
+nh darwin switch -H brokkr -- --override-input dotnix path:$HOME/dot.nix
 ```
 
 ### Pushing dot.nix from the work Mac
@@ -225,13 +244,13 @@ The EMU account can't push to personal repos, so pushing uses a separate token:
 1. On GitHub (personal account) create a **fine-grained** personal access token: repository access
    `rwade628/dot.nix` only, permission **Contents: read and write**, expiry ~7 days. Renew it when
    it lapses rather than making it long-lived.
-2. Use an HTTPS remote: `git -C ~/git/dot.nix remote set-url origin https://github.com/rwade628/dot.nix.git`.
+2. Use an HTTPS remote: `git -C ~/dot.nix remote set-url origin https://github.com/rwade628/dot.nix.git`.
 3. On the first push, GCM prompts; choose token auth and paste the PAT. It's stored for that repo
    path only.
 
 Commits in any `github.com/rwade628/*` checkout automatically use the personal GitHub noreply
 identity instead of the work one (an `includeIf` in `modules/home/core/git.nix`), so the work
-email never reaches public history. Check with `git -C ~/git/dot.nix config user.email` before
+email never reaches public history. Check with `git -C ~/dot.nix config user.email` before
 the first commit.
 
 **What may be pushed from the Work host:** only dot.nix, and nothing copied from work files —
@@ -247,21 +266,23 @@ pushed.
    sudo darwin-uninstaller
    ```
 
-2. Uninstall Lix with the installer copy it left behind (it reads `/nix/receipt.json`):
+   It also moves every `/etc/*.before-nix-darwin` back into place (`/etc/zshrc`, `/etc/zshenv`,
+   `/etc/nix/nix.conf`, …), which returns them to the Lix installer's state — what its
+   uninstaller expects to undo next.
+
+2. Uninstall Lix with the installer copy it left behind (`/nix/receipt.json` sits next to it):
 
    ```sh
-   sudo /nix/lix-installer uninstall
+   sudo /nix/nix-installer uninstall
    ```
 
-3. Restore the originals:
+3. Restore the home dotfiles (nothing restores these automatically):
 
    ```sh
    for f in ~/.zshrc ~/.zprofile ~/.gitconfig ~/.tmux.conf ~/.config/nvim; do
-     [ -e "$f.before-nix" ] || [ -L "$f.before-nix" ] && mv "$f.before-nix" "$f"
+     [ -e "$f.before-nix-darwin" ] || [ -L "$f.before-nix-darwin" ] && mv "$f.before-nix-darwin" "$f"
    done
-   for f in /etc/zshrc /etc/zprofile /etc/bashrc; do
-     [ -e "$f.before-nix" ] && sudo mv "$f.before-nix" "$f"
-   done
+   ls /etc/*.before-nix-darwin /etc/nix/*.before-nix-darwin 2>/dev/null   # should be empty
    ```
 
 4. Optionally delete `~/.config/nix-darwin`, `~/.config/sops/age/keys.txt` and
@@ -281,8 +302,8 @@ wrapper at its previous `flake.lock` (`git -C ~/.config/nix-darwin checkout HEAD
   (e.g. `work.nix` isn't `git add`ed), switch once with
   `sudo NIX_SSL_CERT_FILE="$CA" darwin-rebuild switch --option ssl-cert-file "$CA" --flake ~/.config/nix-darwin#brokkr`.
 - **After a macOS update, the shell lost Nix** (no `nix`, wrong PATH, plain prompt) — the update
-  replaced `/etc/zshrc` (and maybe `/etc/zprofile`/`/etc/bashrc`). Move the new ones aside to
-  `*.before-nix` again and rerun the switch from a shell that has Nix:
+  replaced `/etc/zshrc` (and maybe `/etc/zprofile`/`/etc/zshenv`/`/etc/bashrc`). Move the new ones
+  aside to `*.before-nix-darwin` again and rerun the switch from a shell that has Nix:
   `/run/current-system/sw/bin/darwin-rebuild switch --flake ~/.config/nix-darwin#brokkr` (with
   `sudo`).
 - **`error: flake ... does not provide attribute darwinConfigurations.<some-name>`** — you didn't
