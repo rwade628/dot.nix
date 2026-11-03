@@ -84,7 +84,8 @@ _Avoid_: shared secrets, global secrets (neither names the actual scoping mechan
 **Work host** (`isWork`):
 A host whose disk and OS account belong to an employer. It receives the shared terminal
 environment (shell, tmux, editor, terminal config) but no personal secrets, no personal SSH
-keys, and no Homelab tooling. Its identifying details (OS account name, work git identity) are
+keys, and no Homelab tooling; the only secrets it has are its own, held by its Work wrapper
+flake. Its identifying details (OS account name, work git identity) are
 private and never appear in this repo — only its neutral hostname does.
 _Avoid_: corporate host, managed host ("managed" collides with "managed by Nix").
 
@@ -99,9 +100,12 @@ homelab too (e.g. kubectl, helm, flux) are not Homelab tooling.
 _Avoid_: personal tools (too broad — the shared terminal environment is personal too).
 
 **Work wrapper flake**:
-A small private flake that lives only on a Work host. It takes this repo as an input and supplies
-the private values (OS account name, work git identity) the public repo must not contain. It is
-the flake that actually gets switched on that machine.
+A small private flake that lives only on a Work host, never pushed anywhere. It takes this repo as
+an input and holds everything employer-specific the public repo must not contain: the private
+values (OS account name, work git identity), Work-only configuration (employer hostnames,
+internal tool aliases and env, the employer's TLS trust settings), and the Work host's own
+secrets, encrypted to a key that exists only on that machine. It is the flake that actually gets
+switched on that machine.
 _Avoid_: local overlay, private config (neither says it's a flake wrapping this one).
 
 **Host age key**:
