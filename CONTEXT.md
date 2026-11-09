@@ -93,14 +93,16 @@ Any host that is not a Work host. The default; there is no separate flag for it.
 
 **Homelab tooling**:
 Everything that exists only to reach or operate Ryan's homelab: its credentials and env vars,
-the personal SSH keys and config, the Attic substituter, and homelab-specific CLIs. Personal
-hosts get it; Work hosts never do. General-purpose tools that happen to be used against the
-homelab too (e.g. kubectl, helm, flux) are not Homelab tooling.
+the personal SSH keys and config, and homelab-specific CLIs. Personal hosts get it; Work hosts
+never do. General-purpose tools that happen to be used against the homelab too (e.g. kubectl,
+helm, flux) are not Homelab tooling, and neither is reading packages from Attic: that needs no
+credential and operates nothing, so it is a package source like any other.
 _Avoid_: personal tools (too broad — the shared terminal environment is personal too).
 
 **Work wrapper flake**:
 A small private flake that lives only on a Work host. It takes this repo as an input and supplies
-the private values (OS account name, work git identity) the public repo must not contain. It is
+the private values (OS account name, work git identity, Attic's LAN address) the public repo must
+not contain. It is
 the flake that actually gets switched on that machine.
 _Avoid_: local overlay, private config (neither says it's a flake wrapping this one).
 

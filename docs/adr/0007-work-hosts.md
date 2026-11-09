@@ -1,5 +1,8 @@
 # Work hosts: nix-darwin, private values via a wrapper flake, no homelab reach
 
+> Partially superseded by [ADR-0008](./0008-work-hosts-read-fafnir-over-the-lan.md): Work hosts
+> now read the Attic cache over the LAN. Everything else here stands.
+
 `brokkr` is an employer-owned Mac, added only to get the same shell, tmux, Neovim and Ghostty
 setup as the personal machines. It is a normal nix-darwin host (`hosts/darwin/brokkr`, built by
 the same `mkDarwinSystem` as `idun`) flagged `isWork = true`, and that flag withholds everything

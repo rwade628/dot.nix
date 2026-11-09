@@ -42,6 +42,10 @@ identity). If something's confusing, it's probably because you're looking at the
                email = "first.last@company.com";
              };
            };
+           # Attic cache over the home LAN (ADR-0008). The domain is the
+           # homelab's private one; 10.0.10.1 is the home router's DNS.
+           hostSpec.fafnirEndpoint = "https://attic.<homelab-domain>";
+           hostSpec.fafnirResolver = "10.0.10.1";
          };
        };
    }
@@ -98,5 +102,9 @@ repos.
 - **A wrapper edit has no effect** — the wrapper is a git repo and the change isn't `git add`ed.
 - **Ghostty missing** — `brew` isn't installed or isn't on PATH; install it and switch again.
 - **Daemon / `nix.conf` errors on activation** — Determinate Nix is installed; see step 2.
-- **Slow switch, lots of local builds** — expected for this repo's overlay modifications: Work
-  hosts don't use the Attic cache (ADR-0007). Stock packages still come from cache.nixos.org.
+- **Slow switch, lots of local builds** — at home, fafnir should serve almost everything
+  (ADR-0008). Check that `scutil --dns` lists a resolver for `attic.<homelab-domain>` and that
+  `curl -sS https://attic.<homelab-domain>/fafnir/nix-cache-info` answers. Away from home this is
+  expected: fafnir is unreachable and Nix falls back to cache.nixos.org.
+- **Activation stops on `/etc/resolver/attic.<homelab-domain>`** — a hand-made copy from testing
+  is in the way. Delete it and switch again.

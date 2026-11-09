@@ -300,10 +300,36 @@
               description = ''
                 Host's disk and OS account belong to an employer. Gets the shared terminal
                 environment but no personal secrets, personal SSH keys, or Homelab tooling.
-                Its private values (osName, gitIdentity) come from a Work wrapper flake - see
-                docs/adr/0007-work-hosts.md.
+                Its private values (osName, gitIdentity, fafnirEndpoint, fafnirResolver) come
+                from a Work wrapper flake - see docs/adr/0007-work-hosts.md and 0008.
               '';
               default = false;
+            };
+
+            ## Binary cache ##
+            fafnirEndpoint = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              description = ''
+                Base URL (scheme, host, optional port; no path) this host reads the Attic
+                cache "fafnir" through. Personal hosts default to the tailnet address; Work
+                hosts default to null (no fafnir) and get the homelab's LAN address from their
+                Work wrapper flake, since the domain is private - see
+                docs/adr/0008-work-hosts-read-fafnir-over-the-lan.md.
+              '';
+              default = if config.isWork then null else "http://attic.warbler-matrix.ts.net:8080";
+              example = "https://attic.example.com";
+            };
+
+            fafnirResolver = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              description = ''
+                Nameserver to resolve fafnirEndpoint's host with, when the host's default DNS
+                can't (a Work host behind its employer's resolver). Darwin only: becomes a
+                macOS per-name resolver file, /etc/resolver/<that host>, covering just that
+                name. Null (default) leaves DNS alone.
+              '';
+              default = null;
+              example = "10.0.10.1";
             };
 
             isServer = lib.mkOption {

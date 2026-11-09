@@ -101,7 +101,7 @@ Each host declares flags in `lib/hosts.nix`:
 - `isServer` — role label only (headless, always-on network service); no functional effect on packages or home-manager — see `hasDesktop` for GUI package gating (`docs/adr/0002-hasdesktop-flag.md`)
 - `isMinimal` — home-manager is always enabled; this only chooses whether it imports just `modules/home/core` (`true`) or `modules/home/users/<name>` (`false`, default), which adds that host's `modules/home/hosts/<hostname>` overrides
 - `isExternal` — not on local network
-- `isWork` — employer-owned machine: shared terminal environment only; no sops/Common secrets, personal SSH keys, Homelab tooling, Attic, sshd, passwordless sudo, or machine-name setting. Its private values (`user.osName`, `user.gitIdentity`) come from a Work wrapper flake on the machine, never `lib/hosts.nix` (the repo is public)
+- `isWork` — employer-owned machine: shared terminal environment only; no sops/Common secrets, personal SSH keys, Homelab tooling, sshd, passwordless sudo, or machine-name setting. Reads Attic over the LAN rather than the tailnet (`docs/adr/0008-work-hosts-read-fafnir-over-the-lan.md`). Its private values (`user.osName`, `user.gitIdentity`, `fafnirEndpoint`, `fafnirResolver`) come from a Work wrapper flake on the machine, never `lib/hosts.nix` (the repo is public)
 - `niri` / `plasma` — mutually exclusive desktop environments
 
 Assertions prevent invalid combinations (both DEs, minimal+desktop, VPN without WireGuard, Work host with personal SSH keys/config).
@@ -112,7 +112,7 @@ Assertions prevent invalid combinations (both DEs, minimal+desktop, VPN without 
 - **unfree**: enabled globally (`nixpkgs.config.allowUnfree = true`)
 - **Wayland-first**: all DE configs target Wayland (Niri native, Plasma via SDDM Wayland)
 - **Catppuccin**: mocha flavor with lavender accent, auto-enabled everywhere
-- **Binary caches**: cache.nixos.org, nix-community, and Attic (`fafnir`) in the homelab cluster over Tailscale — CI is the only writer (`docs/adr/0005-nix-cache-moves-to-cluster-ci-builds-all-platforms.md`). Fafnir is pinned to `?priority=30` so it wins over cache.nixos.org (40) and nix-community (both advertise 41). CI pushes each host's full closure, upstream-signed paths included (`--ignore-upstream-cache-filter`), because cache.nixos.org's local Fastly POP is slow
+- **Binary caches**: cache.nixos.org, nix-community, and Attic (`fafnir`) in the homelab cluster, reached through `hostSpec.fafnirEndpoint` (tailnet address by default; a Work host's wrapper supplies the LAN one, plus a macOS per-name resolver via `fafnirResolver`, see ADR-0008) — CI is the only writer (`docs/adr/0005-nix-cache-moves-to-cluster-ci-builds-all-platforms.md`). Fafnir is pinned to `?priority=30` so it wins over cache.nixos.org (40) and nix-community (both advertise 41). CI pushes each host's full closure, upstream-signed paths included (`--ignore-upstream-cache-filter`), because cache.nixos.org's local Fastly POP is slow
 - **IPv6**: disabled on all hosts
 - **SSH**: key-based auth only, root login disabled, mosh enabled
 - **Timezone**: America/New_York
