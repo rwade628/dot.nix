@@ -142,7 +142,6 @@
     ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
       # Containers: NixOS hosts get docker from virtualisation.docker /
       # modules/nixos/core/packages.nix, so these are Darwin-only.
-      colima # Container runtime VM for macOS
       docker # Docker CLI
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
