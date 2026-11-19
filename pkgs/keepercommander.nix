@@ -13,7 +13,7 @@
   python313,
 }:
 let
-  version = "18.1.10";
+  version = "18.1.11";
 in
 writeShellApplication {
   name = "keeper";
